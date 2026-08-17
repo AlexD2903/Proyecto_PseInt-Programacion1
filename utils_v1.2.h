@@ -1,3 +1,4 @@
+//Alex estuvo aca
 #include <stdio.h>
 #include <ctype.h>        //Convertir letras entre mayúsculas y minúsculas.
 #include <stdbool.h>      // Para usar el tipo de dato bool
