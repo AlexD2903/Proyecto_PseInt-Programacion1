@@ -1,4 +1,5 @@
 #include <stdio.h>
+// adsadsad
 #include <ctype.h>        //Convertir letras entre mayúsculas y minúsculas.
 #include <stdbool.h>      // Para usar el tipo de dato bool
 typedef char cadena[200]; // Para tratar a los arrays de chars como 'cadena'
