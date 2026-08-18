@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "utils_v1.2.h"
 #include <stdlib.h>
+#include <time.h>
 
 #define LIMITE_PUNTAJE 21
 #define VALOR_FIGURAS 10
@@ -24,30 +25,52 @@ void jugarBlackjack(int *saldoCuentaBancaria)
         cartaActual = 0;
     char opcion = ' '; // Para guardar 'P' (Pedir) o 'M' (Mantenerse/Plantarse)
 
+    // Se prepara el mazo antes de jugar
     inicializarMazo(mazo);
     mezclarMazo(mazo);
 
     printf("\n--- BIENVENIDO AL BLACKJACK ---\n");
     printf("Tu saldo actual para jugar es: $%d\n", *saldoCuentaBancaria);
-    apuesta = leerEntero("Cuanto queres apostar? :$");
+
+    // Ciclo para hacer una apuesta valida
+    do
+    {
+        apuesta = leerEntero("Cuanto queres apostar? $");
+
+        if (apuesta > *saldoCuentaBancaria)
+        {
+            printf("ERROR: Fondos insuficientes. Tu saldo disponible es de $%d\n", *saldoCuentaBancaria);
+        }
+        else if (apuesta <= 0)
+        {
+            printf("ERROR: La apuesta debe ser de al menos $1\n");
+        }
+
+    } while (apuesta > *saldoCuentaBancaria || apuesta <= 0);
 
     // 1. Repartir cartas iniciales
 
+    // Se dan 2 cartas al jugador
     puntajeJugador = repartirCartas(mazo, &cartaActual);
-    puntajeCrupier = repartirCartas(mazo, &cartaActual);
+
+    // Se dan tambien 2 cartas pero una no la muestra todavia
+    int cartaVisible = pedirCarta(mazo, &cartaActual);
+    int cartaOculta = pedirCarta(mazo, &cartaActual);
+    puntajeCrupier = cartaVisible + cartaOculta;
 
     printf("Tus cartas suman: %d\n", puntajeJugador);
-    printf("El crupier muestra que tiene al menos un: %d\n", puntajeCrupier / 2);
+    printf("El crupier muestra un %d\n", cartaVisible);
 
     // 2. Turno del Jugador
-
+    // Se juega si el jugador no saca 21 desde el principio (en el paso 1)
     if (puntajeJugador < LIMITE_PUNTAJE)
     {
         do
         {
-            opcion = pedirOpcionJugador();
+            opcion = pedirOpcionJugador(); // Se valida que ingrese P o M
             if (opcion == 'P')
             {
+                // Se pasa la cartaActual por puntero para que avance el mazo
                 puntajeJugador += pedirCarta(mazo, &cartaActual);
                 printf("Tu puntaje ahora es: %d\n", puntajeJugador);
             }
@@ -60,12 +83,15 @@ void jugarBlackjack(int *saldoCuentaBancaria)
         printf("Te pasaste de %d. ¡Gana el Crupier!\n", LIMITE_PUNTAJE);
         // Aca no hace falta que juegue el crupier, el jugador ya perdio.
 
-        *saldoCuentaBancaria -= apuesta;
+        *saldoCuentaBancaria -= apuesta; // Se resta la plata directamente del banco
     }
     else
     {
         // 4. Turno del Crupier (solo juega si el jugador no se pasó)
         printf("\nTurno del Crupier...\n");
+        printf("El crupier da vuelta su carta oculta. Su puntaje arranca en: %d\n", puntajeCrupier);
+
+        // El crupier juega automaticamente con las reglas del casino
         puntajeCrupier = jugarTurnoCrupier(puntajeCrupier, mazo, &cartaActual);
 
         // 5. DETERMINAR EL GANADOR
@@ -92,11 +118,12 @@ void jugarBlackjack(int *saldoCuentaBancaria)
     }
 }
 
+// Saca una carta del vector mazo ya mezclado, evalua si es figura y avanza el indice
 int pedirCarta(int mazo[], int *cartaActual)
 {
-    int cartaOriginal = mazo[*cartaActual];
+    int cartaOriginal = mazo[*cartaActual]; // Carta original (del 1 al 13)
 
-    (*cartaActual)++;
+    (*cartaActual)++; // Se avanza en el mazo
     int valorCarta;
     // En blackjack Jota(11), Reina(12) y Rey(13) valen 10 puntos
     if (cartaOriginal >= MIN_FIGURA && cartaOriginal <= MAX_CARTA)
@@ -105,7 +132,7 @@ int pedirCarta(int mazo[], int *cartaActual)
     }
     else
     {
-        valorCarta = cartaOriginal;
+        valorCarta = cartaOriginal; // Las demas valen su propio numero
     }
 
     return valorCarta;
@@ -163,7 +190,7 @@ void inicializarMazo(int mazo[]) // Lograr que las 52 cartas tengan un valor
 void mezclarMazo(int mazo[])
 {
     int posicionAlAzar;
-    int auxiliar;
+    int auxiliar; // Variable temporal para no perder la carta en el intercambio
 
     for (int i = 0; i < TOTAL_CARTAS; i++) // se recorre todo el mazo
     {
@@ -175,6 +202,7 @@ void mezclarMazo(int mazo[])
     }
 }
 
+// Funcion para repartir 2 cartas en el inicio sumando el puntaje automaticamente
 int repartirCartas(int mazo[], int *cartaActual)
 {
     int puntaje = 0;
@@ -185,4 +213,22 @@ int repartirCartas(int mazo[], int *cartaActual)
     }
 
     return puntaje;
+}
+
+// main para simular el juego
+int main()
+{
+
+    srand(time(NULL));
+
+    // Simulamos el saldo bancario real del cliente
+    int saldoPrueba = 5000;
+
+    // Llamamos a tu función pasándole la dirección de memoria de nuestro saldo
+    jugarBlackjack(&saldoPrueba);
+
+    printf("\n--- PRUEBA TERMINADA ---\n");
+    printf("Tu saldo bancario final quedo en: $%d\n", saldoPrueba);
+
+    return 0;
 }
