@@ -263,7 +263,7 @@ cadena por referencia usando la función 'gets()' mientras
 su longitud no esté dentro del rango [minLength, maxLength] */
     printf("%s \n", mensaje);
     gets(target);
-    while (strlen(target) < minLength || strlen(target) > maxLength)
+    while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) //Se castea para que no haya errores si ingresa un numero negativo
     {
         printf("Erorr. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
         gets(target);
