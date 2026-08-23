@@ -8,6 +8,7 @@
 
 int numAleatorioEntre(int num1, int num2);
 bool esColorRojo (int numero);
+bool esPar(int numero);
 
 int main(){
     srand(time(NULL));
@@ -15,6 +16,12 @@ int main(){
     int numeroRuleta = 0;
 
     numeroIngresado = leerEnteroEntre(0, 36, "Ingresa numero: \n");
+
+    if(esPar(numeroIngresado)){
+        printf("Es par\n");
+    }else{
+        printf("Es inpar\n");
+    }
 
     numeroRuleta = numAleatorioEntre(COLOR_VERDE, CANT_TOTAL);
 
@@ -33,6 +40,10 @@ int main(){
     }
 
     return 0;
+}
+
+bool esPar(int numero){
+    return numero % 2 == 0;
 }
 
 bool esColorRojo (int numeroBuscado){
