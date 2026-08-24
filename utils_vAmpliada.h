@@ -34,6 +34,7 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
+bool buscador(char buscado, char vector[], int* cant); //modificar segun strings
 
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
@@ -249,6 +250,17 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant) {
         }
     }
 }
+bool buscador(char buscado, char vector[], int* cant){
+    bool existe = false;
+    for (int i = 0; i < *cant; i++)
+    {
+        if (buscado == vector[i])
+        {
+            existe = true;
+        }
+    }
+    return existe;
+}
 
 void leerCadena(cadena mensaje, cadena target) {
     /* Muestra el mensaje al usuario y luego lee una
@@ -263,7 +275,11 @@ cadena por referencia usando la función 'gets()' mientras
 su longitud no esté dentro del rango [minLength, maxLength] */
     printf("%s \n", mensaje);
     gets(target);
+<<<<<<< HEAD
     while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) //Se castea para que no haya errores si ingresa un numero negativo
+=======
+    while ((int) strlen(target) < minLength ||(int) strlen(target) > maxLength)
+>>>>>>> bab03efebf1d2f8ab44b04c138a3ba9a2bd3081e
     {
         printf("Erorr. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
         gets(target);
