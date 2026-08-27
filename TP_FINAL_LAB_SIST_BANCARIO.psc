@@ -1,4 +1,3 @@
-Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	// definir vectores de login y cantidades
 	Definir vecUsuarios Como Caracter
 	Definir vecClaves Como Caracter
@@ -39,7 +38,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	
 	
 	// ==============================
-	// INICIO DE SESIÓN
+	// INICIO DE SESIï¿½N
 	// ==============================
 	
 	Escribir "========== BANCO =========="
@@ -49,7 +48,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 		Escribir "Usuario:"
 		Leer usuarioIngresado
 		
-		Escribir "Contraseña:"
+		Escribir "Contraseï¿½a:"
 		Leer claveIngresada
 		posicionUsuario<- -1
 		Para i<- 0 Hasta cant_Usuarios -1 Hacer
@@ -58,19 +57,19 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 				posicionUsuario<- i
 			FinSi
 		FinPara
-		// ¿Encontramos el usuario?
+		// ï¿½Encontramos el usuario?
 		Si posicionUsuario <> -1 Entonces
 			
-			// Comprobar su contraseña
+			// Comprobar su contraseï¿½a
 			Si claveIngresada = vecClaves[posicionUsuario] Entonces
 				
-				Escribir "Inicio de sesión correcto"
+				Escribir "Inicio de sesiï¿½n correcto"
 				
 				accesoConcedido <- Verdadero
 				
 			SiNo
 				
-				Escribir "Contraseña incorrecta"
+				Escribir "Contraseï¿½a incorrecta"
 				intentos <- intentos + 1
 				
 			FinSi
@@ -86,7 +85,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	
 	
 	// ==============================
-	// MENÚ DEL GERENTE
+	// MENï¿½ DEL GERENTE
 	// ==============================
 	
 	Si accesoConcedido  Entonces
@@ -101,13 +100,13 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 					Escribir "2. Gestionar agentes"
 					Escribir "3. Consultar clientes"
 					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesión"
-					Escribir "Seleccione una opción:"
+					Escribir "5. Cerrar sesiï¿½n"
+					Escribir "Seleccione una opciï¿½n:"
 					Leer opcion
 					Segun opcion Hacer
 						1:
 							
-							Escribir "========== Gestión de personal =========="
+							Escribir "========== Gestiï¿½n de personal =========="
 							Escribir "1. Alta"
 							Escribir "2. Baja"
 							Escribir "3. Modificar"
@@ -131,7 +130,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							FinSegun
 							
 						2:
-							Escribir "Gestión de agentes"
+							Escribir "Gestiï¿½n de agentes"
 							
 						3:
 							Escribir "Consulta de clientes"
@@ -140,10 +139,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							Escribir "Consulta de balance"
 							
 						5:
-							Escribir "Cerrando sesión..."
+							Escribir "Cerrando sesiï¿½n..."
 							
 						De Otro Modo:
-							Escribir "Opción inválida"
+							Escribir "Opciï¿½n invï¿½lida"
 							
 					FinSegun
 					
@@ -157,17 +156,17 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 					Escribir "2. Gestionar agentes"
 					Escribir "3. Consultar clientes"
 					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesión"
-					Escribir "Seleccione una opción:"
+					Escribir "5. Cerrar sesiï¿½n"
+					Escribir "Seleccione una opciï¿½n:"
 					Leer opcion
 					
 					Segun opcion Hacer
 						
 						1:
-							Escribir "Gestión de personal"
+							Escribir "Gestiï¿½n de personal"
 							
 						2:
-							Escribir "Gestión de agentes"
+							Escribir "Gestiï¿½n de agentes"
 							
 						3:
 							Escribir "Consulta de clientes"
@@ -176,10 +175,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							Escribir "Consulta de balance"
 							
 						5:
-							Escribir "Cerrando sesión..."
+							Escribir "Cerrando sesiï¿½n..."
 							
 						De Otro Modo:
-							Escribir "Opción inválida"
+							Escribir "Opciï¿½n invï¿½lida"
 							
 					FinSegun
 					
@@ -193,17 +192,17 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 					Escribir "2. Gestionar agentes"
 					Escribir "3. Consultar clientes"
 					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesión"
-					Escribir "Seleccione una opción:"
+					Escribir "5. Cerrar sesiï¿½n"
+					Escribir "Seleccione una opciï¿½n:"
 					Leer opcion
 					
 					Segun opcion Hacer
 						
 						1:
-							Escribir "Gestión de personal"
+							Escribir "Gestiï¿½n de personal"
 							
 						2:
-							Escribir "Gestión de agentes"
+							Escribir "Gestiï¿½n de agentes"
 							
 						3:
 							Escribir "Consulta de clientes"
@@ -212,10 +211,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							Escribir "Consulta de balance"
 							
 						5:
-							Escribir "Cerrando sesión..."
+							Escribir "Cerrando sesiï¿½n..."
 							
 						De Otro Modo:
-							Escribir "Opción inválida"
+							Escribir "Opciï¿½n invï¿½lida"
 							
 					FinSegun
 					
@@ -229,7 +228,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	FinSi
 	
 FinAlgoritmo
-// Funcion Para altas de personal, gestiona usuario, contraseña y rol. 
+// Funcion Para altas de personal, gestiona usuario, contraseï¿½a y rol. 
 Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
 	
     Definir usuarioNuevo Como Caracter
@@ -243,7 +242,8 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
         Escribir "========== ALTA DE PERSONAL =========="
 		repetir 
 			usuarioNuevo<- validarUsuario
-			usuarioExiste<- buscarUsuario(usuarioNuevo, vecUsuarios, cant_Usuarios)
+			usuarioExiste<- Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
+(usuarioNuevo, vecUsuarios, cant_Usuarios)
 			Si UsuarioExiste Entonces
 				Escribir "El usuario ya existe elija otro"
 			FinSi
@@ -265,12 +265,12 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
         Escribir "Usuario registrado correctamente."
 		Escribir ""
         Escribir "Usuario: ", usuarioNuevo
-		Escribir "Contraseña: ",claveNueva
+		Escribir "Contraseï¿½a: ",claveNueva
 		
     SiNo
 		
         Escribir "No se puede registrar el usuario."
-        Escribir "Se alcanzó el límite máximo."
+        Escribir "Se alcanzï¿½ el lï¿½mite mï¿½ximo."
 		
     FinSi
 	
@@ -296,17 +296,17 @@ Funcion nueva_Contrasena <- validarContrasena
 			
 			caracter <- Subcadena(nueva_Contrasena, i, i)
 			
-			// ¿Es una letra minuscula?
+			// ï¿½Es una letra minuscula?
 			Si esMinuscula(caracter) Entonces
 				cantMinusculas <- cantMinusculas + 1
 			FinSi
 			
-			// ¿Es una letra mayuscula?
+			// ï¿½Es una letra mayuscula?
 			Si esMayuscula(caracter) Entonces
 				cantMayusculas <- cantMayusculas + 1
 			FinSi
 			
-			// ¿Es un numero?
+			// ï¿½Es un numero?
 			Si esNumero(caracter) Entonces
 				cantNumeros <- cantNumeros + 1
 			FinSi
@@ -372,23 +372,23 @@ funcion nuevoUsuario <- validarUsuario
 		Para i <- 0 Hasta Longitud(nuevoUsuario) - 1 Hacer
 			
 			caracter <- Subcadena(nuevoUsuario, i, i)
-			//¿Es una letra minuscula?
+			//ï¿½Es una letra minuscula?
 			Si esMinuscula(caracter) Entonces
 				cantMinusculas <- cantMinusculas + 1
 				cantLetras <- cantLetras + 1
 			FinSi
-			// ¿Es una letra mayuscula?
+			// ï¿½Es una letra mayuscula?
 			Si esMayuscula(caracter) Entonces
 				cantMayusculas <- cantMayusculas + 1
 				cantLetras <- cantLetras + 1
 			FinSi
 			
-			// ¿Es un numero?
+			// ï¿½Es un numero?
 			Si esNumero(caracter) Entonces
 				cantNumeros <- cantNumeros + 1
 			FinSi
 			
-			// ¿Tiene espacios?
+			// ï¿½Tiene espacios?
 			Si esEspacio(caracter)Entonces
 				cantEspacio <- cantEspacio +1
 			FinSi
@@ -423,7 +423,7 @@ FinFuncion
 Funcion condicion <- esMinuscula(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es una letra minuscula?
+	// ï¿½Es una letra minuscula?
 	Si conjunto >= "a" Y conjunto <= "z" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -431,7 +431,7 @@ FinFuncion
 Funcion condicion<- esMayuscula(conjunto)	
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es una letra mayuscula?
+	// ï¿½Es una letra mayuscula?
 	Si conjunto >= "A" Y conjunto <= "Z" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -439,7 +439,7 @@ FinFuncion
 Funcion condicion<- esNUmero(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es un Numero?
+	// ï¿½Es un Numero?
 	Si conjunto >= "0" Y conjunto <= "9" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -447,7 +447,7 @@ FinFuncion
 Funcion condicion<- esEspacio(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	//¿Tiene espacio?
+	//ï¿½Tiene espacio?
 	Si conjunto = " " Entonces
 		condicion<- Verdadero
 	FinSi
@@ -472,7 +472,7 @@ Funcion asignar_Rol <- seleccionar_Rol(rol1,rol2)
 				asignar_Rol <- rol2
 				
 			De Otro Modo:
-				Escribir "Opción inválida."
+				Escribir "Opciï¿½n invï¿½lida."
 				
 		FinSegun
 		
