@@ -34,8 +34,11 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
-bool siExisteEnVector(char buscado, char vector[], int* cant); //modificar segun strings
-int posicionDeBuscadoEnVector(char buscado, char vector[]);
+//int posicionDeBuscadoEnVector(cadena buscado, cadena matriz[][]); //arreglar
+
+
+////////////////////// MATRICES ////////////////////////////////
+bool siExisteCadenaEnMatriz(cadena buscado,int cantUsu, cadena matriz[][cantUsu], int* cant);
 
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
@@ -251,7 +254,8 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant) {
         }
     }
 }
-char buscadorVecCaracter(char buscado, char vector[], int* cant){
+//va para el tacho de la basura
+/* cadena buscadorVecCaracter(cadena buscado, cadena matriz[][], int* cant){
     char existe = false;
     for (int i = 0; i < *cant; i++)
     {
@@ -261,12 +265,12 @@ char buscadorVecCaracter(char buscado, char vector[], int* cant){
         }
     }
     return existe;
-}  
-bool siExisteEnVector(char buscado, char vector[], int* cant){
+} */  
+bool siExisteCadenaEnMatriz(cadena buscado,int cantUsu, cadena matriz[][cantUsu], int* cant){
     bool existe = false;
     for (int i = 0; i < *cant; i++)
     {
-        if (buscado == vector[i])
+        if (strcmp(buscado, matriz[i][cantUsu] ) == 0)
         {
             existe = true;
         }
@@ -289,13 +293,13 @@ su longitud no esté dentro del rango [minLength, maxLength] */
     gets(target);
     while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) //Se castea para que no haya errores si ingresa un numero negativo
     {
-        printf("Erorr. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
+        printf("Error. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
         gets(target);
     }
 }
 
 
-int posicionDeBuscadoEnVector(char buscado, char vector[]){
+/* int posicionDeBuscadoEnVector(cadena buscado, cadena matriz[][]){
     bool encontrado = false;
     int cont = 0;
         
@@ -312,4 +316,5 @@ int posicionDeBuscadoEnVector(char buscado, char vector[]){
         }
     
     return cont;
-}
+} */
+
