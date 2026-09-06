@@ -34,7 +34,8 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
-bool buscador(char buscado, char vector[], int* cant); //modificar segun strings
+bool siExisteEnVector(char buscado, char vector[], int* cant); //modificar segun strings
+int posicionDeBuscadoEnVector(char buscado, char vector[]);
 
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
@@ -210,7 +211,7 @@ void mostrarVectorDeCaracteres(char vec[], int cant) {
     Incluyendo también el número de posición (empezando desde cero) */
     for (int i = 0; i < cant; i++)
     {
-        printf("[%d] => %c\n", i, vec[i]);
+        printf("%d. %c\n", (i+1), vec[i]);
     }
 }
 void ordenarVectorDeEnterosAscendente(int vec[], int cant) {
@@ -250,7 +251,18 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant) {
         }
     }
 }
-bool buscador(char buscado, char vector[], int* cant){
+char buscadorVecCaracter(char buscado, char vector[], int* cant){
+    char existe = false;
+    for (int i = 0; i < *cant; i++)
+    {
+        if (buscado == vector[i])
+        {
+            existe = true;
+        }
+    }
+    return existe;
+}  
+bool siExisteEnVector(char buscado, char vector[], int* cant){
     bool existe = false;
     for (int i = 0; i < *cant; i++)
     {
@@ -260,7 +272,7 @@ bool buscador(char buscado, char vector[], int* cant){
         }
     }
     return existe;
-}
+}  
 
 void leerCadena(cadena mensaje, cadena target) {
     /* Muestra el mensaje al usuario y luego lee una
@@ -280,4 +292,24 @@ su longitud no esté dentro del rango [minLength, maxLength] */
         printf("Erorr. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
         gets(target);
     }
+}
+
+
+int posicionDeBuscadoEnVector(char buscado, char vector[]){
+    bool encontrado = false;
+    int cont = 0;
+        
+        while ( encontrado != true )
+        {
+            if (buscado == vector[cont])
+            {
+                encontrado = true;
+            }
+            else
+            {
+                cont++;
+            }
+        }
+    
+    return cont;
 }
