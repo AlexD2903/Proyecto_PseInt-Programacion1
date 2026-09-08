@@ -34,11 +34,12 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
-//int posicionDeBuscadoEnVector(cadena buscado, cadena matriz[][]); //arreglar
+int posicionDeMatrizBuscando(cadena buscado, int COLUMNA, cadena matriz[][COLUMNA]);
 
 
 ////////////////////// MATRICES ////////////////////////////////
-bool siExisteCadenaEnMatriz(cadena buscado,int cantUsu, cadena matriz[][cantUsu], int* cant);
+
+bool siExisteCadenaEnMatriz(cadena buscado,int posicionEnColumna, cadena matriz[][posicionEnColumna], int* cant);
 
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
@@ -217,6 +218,8 @@ void mostrarVectorDeCaracteres(char vec[], int cant) {
         printf("%d. %c\n", (i+1), vec[i]);
     }
 }
+
+
 void ordenarVectorDeEnterosAscendente(int vec[], int cant) {
     /* Ordena los valores de 'vec' de forma ascendente (menor a mayor),
     utilizando algún algoritmo de ordenamiento (investigar) */
@@ -266,22 +269,23 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant) {
     }
     return existe;
 } */  
-bool siExisteCadenaEnMatriz(cadena buscado,int cantUsu, cadena matriz[][cantUsu], int* cant){
+bool siExisteCadenaEnMatriz(cadena buscado,int posicionEnColumna, cadena matriz[][posicionEnColumna], int* cant){
     bool existe = false;
     for (int i = 0; i < *cant; i++)
     {
-        if (strcmp(buscado, matriz[i][cantUsu] ) == 0)
+        if (strcmp(buscado, matriz[i][posicionEnColumna] ) == 0)
         {
             existe = true;
         }
     }
     return existe;
-}  
+}
 
 void leerCadena(cadena mensaje, cadena target) {
     /* Muestra el mensaje al usuario y luego lee una
     cadena por referencia usando la función 'gets()' */
     printf("%s", mensaje);
+    fflush(stdin);
     gets(target);
     //scanf("%s", target); // No va el &, porque una cadena ya es un puntero al primer elemento.
 }
@@ -299,13 +303,13 @@ su longitud no esté dentro del rango [minLength, maxLength] */
 }
 
 
-/* int posicionDeBuscadoEnVector(cadena buscado, cadena matriz[][]){
+int posicionDeMatrizBuscando(cadena buscado, int COLUMNA, cadena matriz[][COLUMNA]){
     bool encontrado = false;
     int cont = 0;
         
         while ( encontrado != true )
         {
-            if (buscado == vector[cont])
+            if (buscado == matriz[cont][COLUMNA])
             {
                 encontrado = true;
             }
@@ -313,8 +317,7 @@ su longitud no esté dentro del rango [minLength, maxLength] */
             {
                 cont++;
             }
-        }
-    
+        }    
     return cont;
-} */
+}
 
