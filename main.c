@@ -9,6 +9,9 @@
 #define OPCION_SALIDA 0
 #define MIN_CLAVE 1000
 #define MAX_CLAVE 9999
+#define INDICE_NOMBRE 0
+#define INDICE_APELLIDO 1
+#define INDICE_ALIAS 2
 
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
 
@@ -19,24 +22,23 @@ void consultarSaldo(int *saldoConsultado);
 /////////////////// FUNCIONES DEL ADMINISTRADOR ///////////////////
 
 void menuVistaAdmin();
-void menuOpcAdmin(cadena matrizUser[][], int vecClaves[], int *cantUsuarios);
-void menuGestionarPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsuarios);
+void menuOpcAdmin(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
+void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
 void vistaGestionPersonal();
 void enEspera();
 
 /////////////////// ALTA PERSONAL ///////////////////
-void altaPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsuarios);
-void agregarUsuario(cadena matrizUser[][], int vecClaves[], int *cantUsuarios, char usuario, int clave);
-char nuevoUsuario(cadena matrizUser[][], int cantUsuarios);
-int validarPass();
+void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
+void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios, cadena nombre, cadena apellido, cadena alias, int clave);
+void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios);
 
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
-void listaUsuarios(cadena matrizUser[][], int *cantUsuarios);
-int buscarUsuarios(cadena matrizUser[][], int *cantUsuarios);
+void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
+int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
 
-void modificarUsuario(cadena matrizUser[][], int vecClave[], int *cantUsuarios);
+void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios);
 
-void cambiarNombreDeUsuario(cadena matrizUser[][], int posicion, int *cant);
+void cambiarNombreDeUsuario(cadena matrizUser[][DATOS_USERS], int posicion, int *cant);
 void cambiarClaveDeUsuario(int vecClave[], int posicion);
 
 
@@ -44,16 +46,17 @@ void cambiarClaveDeUsuario(int vecClave[], int posicion);
 int main()
 {
 
-    char listaUser[CANT_USERS][DATOS_USERS];
-    int vecClaves[CANT_USERS] = {0};
-    int cantUsuarios = 0;
+    //cadena listaUser[CANT_USERS][DATOS_USERS];
+    //int vecClaves[CANT_USERS] = {0};
+    //int cantUsuarios = 0;
 
-    menuOpcAdmin(listaUser, vecClaves, &cantUsuarios);
-
+    //menuOpcAdmin(listaUser, vecClaves, &cantUsuarios);
+    printf("Ahora si ando");
+    printf("Hola");
     return 0;
 }
 
-void menuOpcAdmin(cadena matrizUser[][], int vecClaves[], int *cantUsuarios)
+void menuOpcAdmin(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
 {
     int opcion = 0;
 
@@ -87,7 +90,7 @@ void menuOpcAdmin(cadena matrizUser[][], int vecClaves[], int *cantUsuarios)
     }
 }
 
-void menuGestionarPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsuarios)
+void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
 {
     int opcion = 0;
 
@@ -117,12 +120,12 @@ void menuGestionarPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsua
 }
 // CASO 3
 
-void modificarUsuario(cadena matrizUser[][], int vecClave[], int *cantUsuarios)
+void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios)
 {
     int posUsuario = buscarUsuarios(matrizUser, cantUsuarios);
     int opc = 0;
 
-    printf("\nUsuario '%c' encontrado.\n\n", matrizUser[posUsuario]);
+   /*  printf("\nUsuario '%s' encontrado.\n\n", matrizUser[posUsuario]); */
     printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre de Usuario\n2. Clave\n0. Volver\n");
 
     opc = leerEnteroEntre(0, 2, "Elija una opcion: ");
@@ -143,7 +146,7 @@ void modificarUsuario(cadena matrizUser[][], int vecClave[], int *cantUsuarios)
     }
 }
 
-void cambiarNombreDeUsuario(cadena matrizUser[][], int posicion, int *cant)
+/* void cambiarNombreDeUsuario(cadena matrizUser[][], int posicion, int *cant)
 {
     char nombreViejo = matrizUser[posicion];
     char nombreNuevo = leerCaracter("Elija nuevo nombre de usuario:\n");
@@ -154,7 +157,7 @@ void cambiarNombreDeUsuario(cadena matrizUser[][], int posicion, int *cant)
         nombreNuevo = leerCaracter("Elija nuevo nombre de usuario:\n");
     }
     matrizUser[posicion] = nombreNuevo;
-}
+} */
 
 void cambiarClaveDeUsuario(int vecClave[], int posicion)
 {
@@ -169,7 +172,7 @@ void cambiarClaveDeUsuario(int vecClave[], int posicion)
     vecClave[posicion] = claveNueva;
 }
 
-int buscarUsuarios(cadena matrizUser[][], int *cantUsuarios)
+/* int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
 {
     char usuario = leerCaracter("Ingresar usuario: ");
     int posicion;
@@ -182,10 +185,10 @@ int buscarUsuarios(cadena matrizUser[][], int *cantUsuarios)
         printf("No se encontro el usuario");
     }
     return posicion;
-}
+} */
 // --------------------CONSULTAR   CASO 2
 
-void listaUsuarios(cadena matrizUser[][], int *cantUsuarios)
+/* void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
 {
 
     if (*cantUsuarios > VACIO)
@@ -198,25 +201,26 @@ void listaUsuarios(cadena matrizUser[][], int *cantUsuarios)
         printf("---- No hay usuarios registrados ----\n");
     }
     system("pause");
-}
+} */
 
 // --------------------ALTA PERSONAL CASO 1
-void altaPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsuarios)
+void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
 {
-    char usuNuevo;
+    cadena nombre, apellido, alias;
     int claveNueva;
 
     if (*cantUsuarios < CANT_USERS)
     {
 
         printf("========== ALTA DE PERSONAL ==========\n");
-        usuNuevo = nuevoUsuario(matrizUser, *cantUsuarios);
-        claveNueva = validarPass();
-        agregarUsuario(matrizUser, vecClaves, cantUsuarios, usuNuevo, claveNueva);
+        nuevoUsuario(nombre, apellido, alias, matrizUser, *cantUsuarios);
+        claveNueva = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar clave nueva: ");
+        agregarUsuario(matrizUser, vecClaves, cantUsuarios, nombre, apellido, alias, claveNueva);
 
         printf("\nUsuario registrado correctamente.");
-        printf("\nUsuario: %c", usuNuevo);
-        printf("\nClave: %d\n", claveNueva);
+        printf("\nNombre y apellido: %s %s", nombre, apellido);
+        printf("\nAlias: %s", alias);
+        printf("\nClave: (esta de prueba) %d\n", claveNueva); //modificar
         system("pause");
     }
     else
@@ -228,20 +232,21 @@ void altaPersonal(cadena matrizUser[][], int vecClaves[], int *cantUsuarios)
     }
 }
 
-void agregarUsuario(cadena matrizUser[][], int vecClaves[], int *cantUsuarios, char usuario, int clave)
+void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios, cadena nombre, cadena apellido, cadena alias, int clave)
 {
 
     // meter el strcpy para copiar el string cadena a la posicion de la matriz
-
     //strcpy(en donde quiero, que cosa quiero guardar);
-    matrizUser[*cantUsuarios] = usuario;
+
+    strcpy(matrizUser[*cantUsuarios][INDICE_NOMBRE], nombre);
+    strcpy(matrizUser[*cantUsuarios][INDICE_APELLIDO], apellido);
+    strcpy(matrizUser[*cantUsuarios][INDICE_ALIAS], alias);
     vecClaves[*cantUsuarios] = clave;
     (*cantUsuarios)++;
 }
 
-void nuevoUsuario(cadena matrizUser[][], int cantUsuarios)
+void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios)
 {
-    cadena nombre, apellido, alias; //cadena = char nombreDeLaVariable[CANTIDAD]
     bool usuExistente = false;
 
     leerCadena("Ingresar nombre: ", nombre);
@@ -251,19 +256,15 @@ void nuevoUsuario(cadena matrizUser[][], int cantUsuarios)
     {
         //leerCadena("Ingresar DNI: ", DNI); //buscar una solucion
         leerCadena("Ingresar alias: ", alias);
-        usuExistente = siExisteEnVector(alias, matrizUser, &cantUsuarios);
+        usuExistente = siExisteCadenaEnMatriz(alias, CANT_USERS, matrizUser, &cantUsuarios);
         if (usuExistente)
         {
             printf("El usuario ya existe elija otro.");
         }
     } while (usuExistente);
-
 }
 
-int validarPass()
-{
-    return leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar clave nueva: ");
-}
+
 // modificar
 void enEspera()
 {
