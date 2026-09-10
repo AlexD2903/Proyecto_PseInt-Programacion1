@@ -309,7 +309,7 @@ int posicionDeMatrizBuscando(cadena buscado, int COLUMNA, cadena matriz[][COLUMN
         
         while ( encontrado != true )
         {
-            if (buscado == matriz[cont][COLUMNA])
+            if (strcmp(buscado, matriz[cont][COLUMNA]) == 0)
             {
                 encontrado = true;
             }
