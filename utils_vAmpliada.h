@@ -34,7 +34,6 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
-int posicionDeMatrizBuscando(cadena buscado, int COLUMNA, cadena matriz[][COLUMNA]);
 
 
 ////////////////////// MATRICES ////////////////////////////////
@@ -301,23 +300,3 @@ su longitud no esté dentro del rango [minLength, maxLength] */
         gets(target);
     }
 }
-
-
-int posicionDeMatrizBuscando(cadena buscado, int COLUMNA, cadena matriz[][COLUMNA]){
-    bool encontrado = false;
-    int cont = 0;
-        
-        while ( encontrado != true )
-        {
-            if (strcmp(buscado, matriz[cont][COLUMNA]) == 0)
-            {
-                encontrado = true;
-            }
-            else
-            {
-                cont++;
-            }
-        }    
-    return cont;
-}
-

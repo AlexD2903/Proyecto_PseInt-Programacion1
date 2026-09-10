@@ -50,30 +50,9 @@ int main()
 
     cadena listaUser[CANT_USERS][DATOS_USERS];
     int vecClaves[CANT_USERS] = {0};
-    int cantUsuarios = 5;
+    int cantUsuarios = 0;
 
-    strcpy(listaUser[0][INDICE_NOMBRE], "admin");
-    strcpy(listaUser[0][INDICE_APELLIDO], "alu");
-    strcpy(listaUser[0][INDICE_ALIAS], "adm.a");
-    vecClaves[0] = 1234;
-    strcpy(listaUser[1][INDICE_NOMBRE], "alex");
-    strcpy(listaUser[1][INDICE_APELLIDO], "ramos");
-    strcpy(listaUser[1][INDICE_ALIAS], "alex.r");
-    vecClaves[1] = 3333;
-    strcpy(listaUser[2][INDICE_NOMBRE], "esteban");
-    strcpy(listaUser[2][INDICE_APELLIDO], "quinteros");
-    strcpy(listaUser[2][INDICE_ALIAS], "este.ban");
-    vecClaves[2] = 1111;
-    strcpy(listaUser[3][INDICE_NOMBRE], "santi");
-    strcpy(listaUser[3][INDICE_APELLIDO], "utn");
-    strcpy(listaUser[3][INDICE_ALIAS], "sanutn");
-    vecClaves[3] = 1111;
-    strcpy(listaUser[4][INDICE_NOMBRE], "juan");
-    strcpy(listaUser[4][INDICE_APELLIDO], "utn");
-    strcpy(listaUser[4][INDICE_ALIAS], "juanutn");
-    vecClaves[4] = 1111;
-
-    menuOpcAdmin(listaUser, vecClaves, &cantUsuarios);
+    menuGestionarPersonal(listaUser, vecClaves, &cantUsuarios);
 
     return 0;
 }
@@ -141,7 +120,6 @@ void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], in
         opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
     }
 }
-// CASO 3
 
 void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios)
 {
@@ -157,10 +135,10 @@ void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *can
         {
             switch (opc)
             {
-            case 1: // modifica el nombre de alias
+            case 1: 
                 cambiarAliasDeUsuario(matrizUser, posUsuario, cantUsuarios);
                 break;
-            case 2: // modifica el la clave
+            case 2: 
                 cambiarClaveDeUsuario(vecClave, posUsuario);
                 break;
             }
@@ -187,18 +165,10 @@ void cambiarAliasDeUsuario(cadena matrizUser[][DATOS_USERS], int posicion, int *
     strcpy(matrizUser[posicion][INDICE_ALIAS], aliasNuevo);
 }
 
-// Esteban quiere agregar un verificador de intentos por tiempo. Que si se ingresan más de 3 veces seguidas
-// fallidas que tenga que esperar 1 minuto
+
 void cambiarClaveDeUsuario(int vecClave[], int posicion)
 {
     int contadorIntentos = 0;
-    /* int claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar clave de seguridad: ");
-
-    while( claveActual != vecClave[posicion] && contadorIntentos < 3){
-        printf("\nClave Incorrecta, intentalo de nuevo\n");
-        claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresa clave de seguridad: ");
-        contadorIntentos++;
-        } */
 
     int claveActual = verificacionClave(&contadorIntentos, vecClave, posicion, "Ingresar clave de seguridad: ", "\nClave Incorrecta, intentalo de nuevo\n");
 
@@ -251,21 +221,22 @@ void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsua
             contadorIntentos++;
         }
 
-        if(ingresarClave == vecClave[posUsuario]){
+        if (ingresarClave == vecClave[posUsuario])
+        {
 
             printf("\nUsuario encontrado:\n Nombre y apellido %s %s\nAlias: %s\n\n", matrizUser[posUsuario][INDICE_NOMBRE], matrizUser[posUsuario][INDICE_APELLIDO], matrizUser[posUsuario][INDICE_ALIAS]);
             opc = leerEnteroEntre(1, 2, "Estas seguro de eliminar este usuario. 1: SI. 2: NO\nOpc: ");
             if (opc == 1)
             {
-    
-                for (int i = posUsuario; i < (*cantUsuarios -1); i++)
+
+                for (int i = posUsuario; i < (*cantUsuarios - 1); i++)
                 {
-                    strcpy(matrizUser[i][INDICE_NOMBRE], matrizUser[i+1][INDICE_NOMBRE]);
-                    strcpy(matrizUser[i][INDICE_APELLIDO], matrizUser[i+1][INDICE_APELLIDO]);
-                    strcpy(matrizUser[i][INDICE_ALIAS], matrizUser[i+1][INDICE_ALIAS]);
-                    vecClave[i] = vecClave[ i + 1];
+                    strcpy(matrizUser[i][INDICE_NOMBRE], matrizUser[i + 1][INDICE_NOMBRE]);
+                    strcpy(matrizUser[i][INDICE_APELLIDO], matrizUser[i + 1][INDICE_APELLIDO]);
+                    strcpy(matrizUser[i][INDICE_ALIAS], matrizUser[i + 1][INDICE_ALIAS]);
+                    vecClave[i] = vecClave[i + 1];
                 }
-    
+
                 (*cantUsuarios)--;
 
                 printf("Usuario eliminado con exito");
@@ -274,12 +245,11 @@ void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsua
             {
                 printf("Operacion Cancelada");
             }
-        }else{
+        }
+        else
+        {
             printf("CANTIDAD MAXIMA SUPERADA");
         }
-
-        // int ingresarClave = verificacionClave(&contadorIntentos,vecClave,posUsuario,"\nIngrese la clave:\n","\nClave incorrecta, ingrese nuevamente: ");
-
     }
 }
 
@@ -289,14 +259,20 @@ int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
     int posicion = -1;
 
     leerCadena("Ingresar alias: ", aliasBuscado);
-
-    if (siExisteCadenaEnMatriz(aliasBuscado, INDICE_ALIAS, matrizUser, cantUsuarios))
+    for (int i = 0; i < *cantUsuarios; i++)
     {
-        posicion = posicionDeMatrizBuscando(aliasBuscado, INDICE_ALIAS, matrizUser);
-        printf("\n\nposicion: %d\n\n",posicion);
+        if (strcmp(aliasBuscado, matrizUser[i][INDICE_ALIAS]) == 0)
+        {
+            printf("Alias encontrado. \n");
+            posicion = i;
+        }
+    }
+    if (posicion == -1)
+    {
+        printf("\nNO EXISTE ALIAS.\n");
     }
 
-    return (posicion);
+    return posicion;
 }
 // --------------------CONSULTAR   CASO 2
 
@@ -338,7 +314,6 @@ void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUs
         printf("\nUsuario registrado correctamente.");
         printf("\nNombre y apellido: %s %s", nombre, apellido);
         printf("\nAlias: %s", alias);
-        printf("\nClave: (esta de prueba) %d\n", claveNueva); // modificar
         system("pause");
     }
     else
@@ -409,55 +384,55 @@ void menuVistaAdmin()
 }
 
 //--------------------------------------------Vista cliente
-void menuVistaCliente()
-{
-    // Vista de usuario
-    printf("HOME BANKING\n\n");
-    printf("1. Consultar Saldo\n");
-    printf("2. Ralizar deposito\n");
-    printf("3. Realizar retiro\n");
-    printf("4. Transferir\n"); // Vamos viendo
-    printf("5. Solicitar prestamos\n");
-    printf("6. Ver movimientos\n"); // vamos viendo
-    printf("7. CBU\n");             // no olvidarse de agregar Alias
-    printf("8. Ver beneficios\n");
-}
-void menuOpcCliente(int *saldo)
-{
+// void menuVistaCliente()
+// {
+//     // Vista de usuario
+//     printf("HOME BANKING\n\n");
+//     printf("1. Consultar Saldo\n");
+//     printf("2. Ralizar deposito\n");
+//     printf("3. Realizar retiro\n");
+//     printf("4. Transferir\n"); // Vamos viendo
+//     printf("5. Solicitar prestamos\n");
+//     printf("6. Ver movimientos\n"); // vamos viendo
+//     printf("7. CBU\n");             // no olvidarse de agregar Alias
+//     printf("8. Ver beneficios\n");
+// }
+// void menuOpcCliente(int *saldo)
+// {
 
-    switch (leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: "))
-    {
-    case 1:
-        consultarSaldo(saldo);
-        break;
-    case 2:
+//     switch (leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: "))
+//     {
+//     case 1:
+//         consultarSaldo(saldo);
+//         break;
+//     case 2:
 
-        break;
-    case 3:
+//         break;
+//     case 3:
 
-        break;
-    case 4:
+//         break;
+//     case 4:
 
-        break;
-    case 5:
+//         break;
+//     case 5:
 
-        break;
-    case 6:
+//         break;
+//     case 6:
 
-        break;
-    case 7:
+//         break;
+//     case 7:
 
-        break;
-    case 8:
+//         break;
+//     case 8:
 
-        break;
-    default:
-        printf("La opcion ingresada es invalida. Volve a intentar.");
-        break;
-    }
-}
+//         break;
+//     default:
+//         printf("La opcion ingresada es invalida. Volve a intentar.");
+//         break;
+//     }
+// }
 
-void consultarSaldo(int *saldoConsultado)
-{
-    printf("El saldo actual es %d", *saldoConsultado);
-}
+// void consultarSaldo(int *saldoConsultado)
+// {
+//     printf("El saldo actual es %d", *saldoConsultado);
+// }
