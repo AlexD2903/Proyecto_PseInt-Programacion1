@@ -3,7 +3,7 @@
 
 #define OPC_MIN 1
 #define OPC_MAX 5
-#define CANT_USERS 5
+#define CANT_USERS 6
 #define DATOS_USERS 3 // nombre, apellido, alias
 #define VACIO 0
 #define OPCION_SALIDA 0
@@ -13,7 +13,25 @@
 #define INDICE_APELLIDO 1
 #define INDICE_ALIAS 2
 
+typedef struct
+{
+    cadena nombre,
+        apellido,
+        DNI, 
+        clave,
+        alias;
+    float saldo;
+    bool esPyme;
+} Cliente;
+
+Cliente listUser[CANT_USERS] ={ 
+    {"Alex",     "Ramos",     "12121212", "Alexkpo3", "alex.r",    340.4,     false},
+    {"Santiago", "Gutierrez", "13131313", "Santi2",   "santi.g",   10000.0,   false}, 
+    {"Juan",     "Britez",    "14141414", "Juan89",   "juans.mp",  4303.56,   true}, 
+    {"Esteban",  "Quinteros", "15151515", "123123",   "esteban.q", 103204.43, false} 
+};
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
+
 
 void menuVistaCliente();
 void menuOpcCliente(int *saldo);
@@ -48,11 +66,12 @@ void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsua
 int main()
 {
 
-    cadena listaUser[CANT_USERS][DATOS_USERS];
-    int vecClaves[CANT_USERS] = {0};
-    int cantUsuarios = 0;
+    // Cliente clientes[CANT_USERS];
+    // cadena listaUser[CANT_USERS][DATOS_USERS];
+    // int vecClaves[CANT_USERS] = {0};
+    // int cantUsuarios = 4;
 
-    menuGestionarPersonal(listaUser, vecClaves, &cantUsuarios);
+    // menuGestionarPersonal(listaUser, vecClaves, &cantUsuarios);
 
     return 0;
 }
@@ -135,10 +154,10 @@ void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *can
         {
             switch (opc)
             {
-            case 1: 
+            case 1:
                 cambiarAliasDeUsuario(matrizUser, posUsuario, cantUsuarios);
                 break;
-            case 2: 
+            case 2:
                 cambiarClaveDeUsuario(vecClave, posUsuario);
                 break;
             }
@@ -164,7 +183,6 @@ void cambiarAliasDeUsuario(cadena matrizUser[][DATOS_USERS], int posicion, int *
     }
     strcpy(matrizUser[posicion][INDICE_ALIAS], aliasNuevo);
 }
-
 
 void cambiarClaveDeUsuario(int vecClave[], int posicion)
 {
@@ -336,6 +354,25 @@ void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cant
     (*cantUsuarios)++;
 }
 
+void nuevoUsuarioConStruc(Cliente clientes[DATOS_USERS], int cantUsuarios)
+{
+    bool usuExistente = false;
+
+    leerCadena("Ingresar nombre: ", (*clientes).nombre);
+    leerCadena("Ingresar apellido: ",(*clientes).apellido);
+    leerCadena("Ingrese clave: ", (*clientes).clave);
+
+    do
+    {
+        leerCadena("Ingresar DNI: ", (*clientes).DNI); //buscar una solucion
+        leerCadena("Ingresar alias: ", (*clientes).alias);
+        usuExistente = siExisteCadenaEnMatriz(alias, INDICE_ALIAS, matrizUser, &cantUsuarios);
+        if (usuExistente)
+        {
+            printf("El usuario ya existe elija otro.\n");
+        }
+    } while (usuExistente);
+}
 void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios)
 {
     bool usuExistente = false;
