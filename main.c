@@ -17,21 +17,19 @@ typedef struct
 {
     cadena nombre,
         apellido,
-        DNI, 
+        DNI,
         clave,
         alias;
     float saldo;
     bool esPyme;
 } Cliente;
 
-Cliente listUser[CANT_USERS] ={ 
-    {"Alex",     "Ramos",     "12121212", "Alexkpo3", "alex.r",    340.4,     false},
-    {"Santiago", "Gutierrez", "13131313", "Santi2",   "santi.g",   10000.0,   false}, 
-    {"Juan",     "Britez",    "14141414", "Juan89",   "juans.mp",  4303.56,   true}, 
-    {"Esteban",  "Quinteros", "15151515", "123123",   "esteban.q", 103204.43, false} 
-};
+Cliente listUser[CANT_USERS] = {
+    {"Alex", "Ramos", "12121212", "Alexkpo3", "alex.r", 340.4, false},
+    {"Santiago", "Gutierrez", "13131313", "Santi2", "santi.g", 10000.0, false},
+    {"Juan", "Britez", "14141414", "Juan89", "juans.mp", 4303.56, true},
+    {"Esteban", "Quinteros", "37541469", "123123", "esteban.q", 103204.43, false}};
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
-
 
 void menuVistaCliente();
 void menuOpcCliente(int *saldo);
@@ -50,6 +48,8 @@ void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUs
 void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios, cadena nombre, cadena apellido, cadena alias, int clave);
 void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios);
 
+// Con struc
+void nuevoUsuarioConStruc(Cliente clientes[DATOS_USERS], int cantUsuarios);
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
 void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
 void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant);
@@ -62,10 +62,21 @@ void cambiarClaveDeUsuario(int vecClave[], int posicion);
 int verificacionClave(int *contador, int vecClave[], int posicion, cadena msj1, cadena msj2);
 void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios);
 
+
+//deprueba
+bool verificarDNI(cadena dni);
+
+
+
 // --------------MAIN
 int main()
 {
 
+    if( verificarDNI("40345820")){
+        printf("PASO");
+    }else{
+        printf("No paso");
+    }
     // Cliente clientes[CANT_USERS];
     // cadena listaUser[CANT_USERS][DATOS_USERS];
     // int vecClaves[CANT_USERS] = {0};
@@ -356,22 +367,50 @@ void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cant
 
 void nuevoUsuarioConStruc(Cliente clientes[DATOS_USERS], int cantUsuarios)
 {
-    bool usuExistente = false;
 
-    leerCadena("Ingresar nombre: ", (*clientes).nombre);
-    leerCadena("Ingresar apellido: ",(*clientes).apellido);
-    leerCadena("Ingrese clave: ", (*clientes).clave);
+    leerCadena("Ingresar nombre: ", clientes[cantUsuarios].nombre);
+    leerCadena("Ingresar apellido: ", clientes[cantUsuarios].apellido);
+    leerCadena("Ingrese clave: ", clientes[cantUsuarios].clave);
 
-    do
+    leerCadena("Ingresar DNI: ", clientes[cantUsuarios].DNI);
+    leerCadena("Ingresar alias: ", clientes[cantUsuarios].alias);
+    /* do
     {
-        leerCadena("Ingresar DNI: ", (*clientes).DNI); //buscar una solucion
-        leerCadena("Ingresar alias: ", (*clientes).alias);
-        usuExistente = siExisteCadenaEnMatriz(alias, INDICE_ALIAS, matrizUser, &cantUsuarios);
-        if (usuExistente)
+        
+        if ()
         {
             printf("El usuario ya existe elija otro.\n");
         }
-    } while (usuExistente);
+    } while (); */
+}
+
+
+bool verificarDNI(cadena dni)
+{
+
+    bool valido = true;
+    int posicion= 0;
+
+    if((strlen(dni) != 8) || (valido && (dni[0]== '0' && dni[1]== '0'))){
+        valido= false;
+    }
+
+    while(valido && dni[posicion] != '\0'){
+        if(dni[posicion] < '0' || dni[posicion] > '9'){
+            valido = false;
+        }
+        posicion++;
+    }
+
+    return valido;
+}
+
+void msjDeConfirmacion(cadena tipoDeDato, bool dato)
+{
+    if (dato)
+    {
+        printf("El %s ya existe. Elija otro.\n", tipoDeDato);
+    }
 }
 void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios)
 {
