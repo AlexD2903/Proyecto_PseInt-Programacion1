@@ -12,6 +12,7 @@
 #define INDICE_NOMBRE 0
 #define INDICE_APELLIDO 1
 #define INDICE_ALIAS 2
+#define USUARIO_INEXISTENTE -1
 
 typedef struct
 {
@@ -45,11 +46,12 @@ void enEspera();
 
 /////////////////// ALTA PERSONAL ///////////////////
 void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
-void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios, cadena nombre, cadena apellido, cadena alias, int clave);
-void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios);
+void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuarios);
+void msjDeConfirmacion(cadena nombreDeDato, int dato);
 
 // Con struc
-void nuevoUsuarioConStruc(Cliente clientes[DATOS_USERS], int cantUsuarios);
+Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
+void verificarYRegistrar(cadena texto, cadena pCampo, Cliente baseDatos[CANT_USERS], int cantUsuarios);
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
 void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
 void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant);
@@ -72,11 +74,6 @@ bool verificarDNI(cadena dni);
 int main()
 {
 
-    if( verificarDNI("40345820")){
-        printf("PASO");
-    }else{
-        printf("No paso");
-    }
     // Cliente clientes[CANT_USERS];
     // cadena listaUser[CANT_USERS][DATOS_USERS];
     // int vecClaves[CANT_USERS] = {0};
@@ -326,23 +323,22 @@ void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant)
         printf("%d. Cliente:%s %s, Alias: %s\n", i + 1, matriz[i][INDICE_NOMBRE], matriz[i][INDICE_APELLIDO], matriz[i][INDICE_ALIAS]);
     }
 }
+
 // --------------------ALTA PERSONAL CASO 1
-void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
+void altaPersonalConStruc(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
-    cadena nombre, apellido, alias;
-    int claveNueva;
+    Cliente newCliente;
 
     if (*cantUsuarios < CANT_USERS)
     {
 
         printf("========== ALTA DE PERSONAL ==========\n");
-        nuevoUsuario(nombre, apellido, alias, matrizUser, *cantUsuarios);
-        claveNueva = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar clave nueva: ");
-        agregarUsuario(matrizUser, vecClaves, cantUsuarios, nombre, apellido, alias, claveNueva);
+        newCliente = nuevoUsuario(baseDatos, *cantUsuarios);
+        agregarUsuario(newCliente, baseDatos, cantUsuarios);
 
         printf("\nUsuario registrado correctamente.");
-        printf("\nNombre y apellido: %s %s", nombre, apellido);
-        printf("\nAlias: %s", alias);
+        printf("\nNombre y apellido: %s %s", newCliente.nombre, newCliente.apellido);
+        printf("\nAlias: %s", newCliente.alias);
         system("pause");
     }
     else
@@ -354,81 +350,66 @@ void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUs
     }
 }
 
-void agregarUsuario(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios, cadena nombre, cadena apellido, cadena alias, int clave)
+void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuarios)
 {
-    // strcpy(en donde quiero, que cosa quiero guardar);
-
-    strcpy(matrizUser[*cantUsuarios][INDICE_NOMBRE], nombre);
-    strcpy(matrizUser[*cantUsuarios][INDICE_APELLIDO], apellido);
-    strcpy(matrizUser[*cantUsuarios][INDICE_ALIAS], alias);
-    vecClaves[*cantUsuarios] = clave;
+    strcpy(baseDatos[*cantUsuarios].nombre, new.nombre);
+    strcpy(baseDatos[*cantUsuarios].apellido, new.apellido);
+    strcpy(baseDatos[*cantUsuarios].DNI, new.DNI);
+    strcpy(baseDatos[*cantUsuarios].alias, new.alias);
+    strcpy(baseDatos[*cantUsuarios].clave, new.clave);
     (*cantUsuarios)++;
 }
 
-void nuevoUsuarioConStruc(Cliente clientes[DATOS_USERS], int cantUsuarios)
+Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 {
-
-    leerCadena("Ingresar nombre: ", clientes[cantUsuarios].nombre);
-    leerCadena("Ingresar apellido: ", clientes[cantUsuarios].apellido);
-    leerCadena("Ingrese clave: ", clientes[cantUsuarios].clave);
-
-    leerCadena("Ingresar DNI: ", clientes[cantUsuarios].DNI);
-    leerCadena("Ingresar alias: ", clientes[cantUsuarios].alias);
-    /* do
-    {
-        
-        if ()
-        {
-            printf("El usuario ya existe elija otro.\n");
-        }
-    } while (); */
+    Cliente nuevo;
+    
+    leerCadena("Ingresar nombre: ", nuevo.nombre);
+    leerCadena("Ingresar apellido: ", nuevo.apellido);
+    
+    verificarYRegistrar("alias",nuevo.alias, baseDatos, cantUsuarios);
+    verificarYRegistrar("dni",nuevo.DNI, baseDatos, cantUsuarios);
+    leerCadena("Ingrese clave: ", nuevo.clave); 
+    
+    return nuevo;
 }
 
+void verificarYRegistrar(cadena texto, cadena pCampo, Cliente baseDatos[CANT_USERS], int cantUsuarios){
+    int existe;
+    
+    do{
+        printf("Ingresar ");
+        leerCadena(texto, pCampo);
+        existe = busquedaLineal(baseDatos, cantUsuarios, pCampo);
+        msjDeConfirmacion(texto, existe);
+    
+    }while(existe == USUARIO_INEXISTENTE);
+    
+}
 
 bool verificarDNI(cadena dni)
 {
-
     bool valido = true;
     int posicion= 0;
 
     if((strlen(dni) != 8) || (valido && (dni[0]== '0' && dni[1]== '0'))){
-        valido= false;
+    valido= false;
     }
-
     while(valido && dni[posicion] != '\0'){
         if(dni[posicion] < '0' || dni[posicion] > '9'){
             valido = false;
         }
         posicion++;
     }
-
     return valido;
 }
 
-void msjDeConfirmacion(cadena tipoDeDato, bool dato)
+void msjDeConfirmacion(cadena nombreDeDato, int dato)
 {
-    if (dato)
+    if (dato != USUARIO_INEXISTENTE)
     {
-        printf("El %s ya existe. Elija otro.\n", tipoDeDato);
+        printf("El %s ya existe. Elija otro.\n", nombreDeDato);
     }
-}
-void nuevoUsuario(cadena nombre, cadena apellido, cadena alias, cadena matrizUser[][DATOS_USERS], int cantUsuarios)
-{
-    bool usuExistente = false;
-
-    leerCadena("Ingresar nombre: ", nombre);
-    leerCadena("Ingresar apellido: ", apellido);
-
-    do
-    {
-        // leerCadena("Ingresar DNI: ", DNI); //buscar una solucion
-        leerCadena("Ingresar alias: ", alias);
-        usuExistente = siExisteCadenaEnMatriz(alias, INDICE_ALIAS, matrizUser, &cantUsuarios);
-        if (usuExistente)
-        {
-            printf("El usuario ya existe elija otro.\n");
-        }
-    } while (usuExistente);
 }
 
 // modificar

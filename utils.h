@@ -34,7 +34,7 @@ void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
-int busquedaLineal(cadena datos[],int cantidad, cadena valor);
+int busquedaLineal(struct datos[],int cantidad, cadena valor);
 
 ////////////////////// MATRICES ////////////////////////////////
 
@@ -273,10 +273,11 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant)
         }
     }
 }
-int busquedaLineal(cadena datos[],int cantidad, cadena valor)
+int busquedaLineal(struct datos[],int cantidad, cadena valor)
 {
     int pos = cantidad;
-    while (pos >= cantidad && strcmp(datos[pos],valor) != 0)
+    //while (pos >= cantidad && strcmp(datos[pos].valor,valor) != 0)
+    while (pos >= 0 && strcmp(datos[pos], valor) != 0 && strcmp(datos[pos].alias, valor) != 0)
     {
         pos--;
     }
@@ -317,5 +318,3 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
         gets(target);
     }
 }
-
-
