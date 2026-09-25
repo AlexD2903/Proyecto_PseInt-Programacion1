@@ -1,4 +1,3 @@
-Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	// definir vectores de login y cantidades
 	Definir vecUsuarios Como Caracter
 	Definir vecClaves Como Caracter
@@ -68,7 +67,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	vecRoles[2] <- CLIENTE
 	
 	// ==============================
-	// INICIO DE SESIÓN
+	// INICIO DE SESIï¿½N
 	// ==============================
 	
 	mostrarLogo()
@@ -76,7 +75,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	accesoConcedido <- login(vecUsuarios, vecClaves, cant_Usuarios, MAX_INTENTOS, posicionUsuario)
 	
 	// ==============================
-	// MENÚ DEL GERENTE
+	// MENï¿½ DEL GERENTE
 	// ==============================
 	Limpiar Pantalla
 	Si accesoConcedido  Entonces
@@ -92,9 +91,9 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 					Escribir "3. Gestionar Clientes"
 					Escribir "4. Consultas y Reportes"
 					Escribir "5. Gestionar solicitudes"
-					Escribir "6. Configuración del banco"
-					Escribir "7. Cerrar sesión"
-					Escribir "Seleccione una opción: " Sin Saltar
+					Escribir "6. Configuraciï¿½n del banco"
+					Escribir "7. Cerrar sesiï¿½n"
+					Escribir "Seleccione una opciï¿½n: " Sin Saltar
 					Leer opcion
 					Segun opcion Hacer
 						1:
@@ -108,7 +107,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 								Escribir "6. Volver"
 								leer opcion1
 								
-								Escribir "========== Gestión de personal =========="
+								Escribir "========== Gestiï¿½n de personal =========="
 								
 								Segun opcion1 Hacer
 									1: Limpiar Pantalla
@@ -131,7 +130,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 						2:
 							Limpiar Pantalla
 							Repetir
-								Escribir "========== Gestión de agentes =========="
+								Escribir "========== Gestiï¿½n de agentes =========="
 								Escribir "1. Alta"
 								Escribir "2. Baja"
 								Escribir "3. Modificar"
@@ -152,10 +151,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 										Escribir "FALTA COMPLETAR"
 										
 									5:
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 										
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 								
 								Limpiar Pantalla
@@ -165,11 +164,11 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 						3:
 							Limpiar Pantalla
 							Repetir
-								Escribir "========== Gestión de clientes =========="
+								Escribir "========== Gestiï¿½n de clientes =========="
 								Escribir "1. Consultar cliente"
 								Escribir "2. Consultar todos los clientes"
 								Escribir "3. Buscar cliente por DNI"
-								Escribir "4. Buscar cliente por número de cuenta"
+								Escribir "4. Buscar cliente por nï¿½mero de cuenta"
 								Escribir "5. Consultar cuentas"
 								Escribir "6. Consultar estado de cliente"
 								Escribir "7. Volver"
@@ -195,10 +194,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 										Escribir "FALTA COMPLETAR"
 										
 									7:
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 										
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 								
 								Limpiar Pantalla
@@ -212,11 +211,11 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 								Escribir "2. Cantidad de agentes"
 								Escribir "3. Cantidad de cuentas"
 								Escribir "4. Resumen de operaciones"
-								Escribir "5. Total de depósitos"
+								Escribir "5. Total de depï¿½sitos"
 								Escribir "6. Total de retiros"
 								Escribir "7. Total de transferencias"
 								Escribir "8. Operaciones por agente"
-								Escribir "9. Operaciones por período"
+								Escribir "9. Operaciones por perï¿½odo"
 								Escribir "10. Volver"
 								Leer opcion1
 								
@@ -249,10 +248,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 										Escribir "FALTA COMPLETAR"
 										
 									10:
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 										
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 								
 								Limpiar Pantalla
@@ -261,7 +260,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 						5:
 							Limpiar Pantalla
 							Repetir
-								Escribir "========== Gestión de solicitudes =========="
+								Escribir "========== Gestiï¿½n de solicitudes =========="
 								Escribir "1. Ver solicitudes pendientes"
 								Escribir "2. Consultar solicitud"
 								Escribir "3. Historial de solicitudes"
@@ -279,22 +278,22 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 										Escribir "FALTA COMPLETAR"
 										
 									4:
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 										
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 								Limpiar Pantalla
 							Hasta Que opcion1 = 4
 						6:
 								Limpiar Pantalla
 								Repetir
-									Escribir "========== Configuración del banco =========="
+									Escribir "========== Configuraciï¿½n del banco =========="
 									Escribir "1. Consultar datos del banco"
-									Escribir "2. Configurar límites operativos"
+									Escribir "2. Configurar lï¿½mites operativos"
 									Escribir "3. Gestionar tipos de cuenta"
 									Escribir "4. Consultar tasas y comisiones"
-									Escribir "5. Configurar parámetros de seguridad"
+									Escribir "5. Configurar parï¿½metros de seguridad"
 									Escribir "6. Volver"
 									Leer opcion1
 									
@@ -315,10 +314,10 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 											Escribir "FALTA COMPLETAR"
 											
 										6:
-											// Volver al menú anterior
+											// Volver al menï¿½ anterior
 											
 										De Otro Modo:
-											Escribir "Opción inválida"
+											Escribir "Opciï¿½n invï¿½lida"
 									FinSegun
 									
 									Limpiar Pantalla
@@ -326,7 +325,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 								Hasta Que opcion1 = 6
 							
 						7:
-							Escribir "Cerrando sesión" Sin Saltar
+							Escribir "Cerrando sesiï¿½n" Sin Saltar
 							
 							Para i <- 1 Hasta 3 Hacer
 								Escribir "." Sin Saltar
@@ -336,7 +335,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							Limpiar Pantalla
 							
 						De Otro Modo:
-							Escribir "Opción inválida"
+							Escribir "Opciï¿½n invï¿½lida"
 							
 					FinSegun
 					
@@ -363,9 +362,9 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 					Escribir "5. Solicitudes"
 					Escribir "6. Entretenimiento"
 					Escribir "7. Mi perfil"
-					Escribir "8. Cerrar sesión"
+					Escribir "8. Cerrar sesiï¿½n"
 					Escribir ""
-					Escribir "Seleccione una opción: " Sin Saltar
+					Escribir "Seleccione una opciï¿½n: " Sin Saltar
 					Leer opcion
 					
 					Segun opcion Hacer
@@ -376,14 +375,14 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 								Escribir "FALTA COMPLETAR"
 								Escribir "1. Volver"
 								Escribir ""
-								Escribir "Seleccione una opción: " Sin Saltar
+								Escribir "Seleccione una opciï¿½n: " Sin Saltar
 								Leer opcion1
 								Segun opcion1 Hacer
 									1:
 										Limpiar Pantalla
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 							Hasta Que opcion1= 1 
 						2:
@@ -392,14 +391,14 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 								Escribir "FALTA COMPLETAR"
 								Escribir "1. Volver"
 								Escribir ""
-								Escribir "Seleccione una opción: " Sin Saltar
+								Escribir "Seleccione una opciï¿½n: " Sin Saltar
 								Leer opcion1
 								Segun opcion1 Hacer
 									1:
 										Limpiar Pantalla
-										// Volver al menú anterior
+										// Volver al menï¿½ anterior
 									De Otro Modo:
-										Escribir "Opción inválida"
+										Escribir "Opciï¿½n invï¿½lida"
 								FinSegun
 							Hasta Que opcion1= 1
 						3:
@@ -424,7 +423,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							
 						8:
 							Limpiar Pantalla
-							Escribir "Cerrando sesión" Sin Saltar
+							Escribir "Cerrando sesiï¿½n" Sin Saltar
 							
 							Para i <- 1 Hasta 3 Hacer
 								Escribir "." Sin Saltar
@@ -434,7 +433,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 							Limpiar Pantalla
 							
 						De Otro Modo:
-							Escribir "Opción inválida"
+							Escribir "Opciï¿½n invï¿½lida"
 							
 					FinSegun
 					
@@ -444,7 +443,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 		
 		Escribir "Acceso denegado."
 		Escribir "Se agotaron los intentos permitidos."
-		Escribir "Cerrando sesión" Sin Saltar
+		Escribir "Cerrando sesiï¿½n" Sin Saltar
 		
 		Para i <- 1 Hasta 3 Hacer
 			Escribir "." Sin Saltar
@@ -456,7 +455,7 @@ Algoritmo TP_FINAL_LAB_SISTEMA_BANCARIO
 	FinSi
 	
 FinAlgoritmo
-// Funcion Para altas de personal, gestiona usuario, contraseña y rol. 
+// Funcion Para altas de personal, gestiona usuario, contraseï¿½a y rol. 
 Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
 	
     Definir usuarioNuevo Como Caracter
@@ -469,7 +468,8 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
         Escribir "========== ALTA DE PERSONAL =========="
 		repetir 
 			usuarioNuevo<- validarUsuario()
-			usuarioExiste<- buscarUsuario(usuarioNuevo, vecUsuarios, cant_Usuarios)
+			usuarioExiste<- Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
+(usuarioNuevo, vecUsuarios, cant_Usuarios)
 			Si UsuarioExiste Entonces
 				Escribir "El usuario ya existe elija otro"
 			FinSi
@@ -491,12 +491,12 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
         Escribir "Usuario registrado correctamente."
 		Escribir ""
         Escribir "Usuario: ", usuarioNuevo
-		Escribir "Contraseña: ",claveNueva
+		Escribir "Contraseï¿½a: ",claveNueva
 		
     SiNo
 		
         Escribir "No se puede registrar el usuario."
-        Escribir "Se alcanzó el límite máximo."
+        Escribir "Se alcanzï¿½ el lï¿½mite mï¿½ximo."
 		
     FinSi
 	
@@ -522,17 +522,17 @@ Funcion nueva_Contrasena <- validarContrasena
 			
 			caracter <- Subcadena(nueva_Contrasena, i, i)
 			
-			// ¿Es una letra minuscula?
+			// ï¿½Es una letra minuscula?
 			Si esMinuscula(caracter) Entonces
 				cantMinusculas <- cantMinusculas + 1
 			FinSi
 			
-			// ¿Es una letra mayuscula?
+			// ï¿½Es una letra mayuscula?
 			Si esMayuscula(caracter) Entonces
 				cantMayusculas <- cantMayusculas + 1
 			FinSi
 			
-			// ¿Es un numero?
+			// ï¿½Es un numero?
 			Si esNumero(caracter) Entonces
 				cantNumeros <- cantNumeros + 1
 			FinSi
@@ -598,23 +598,23 @@ funcion nuevoUsuario <- validarUsuario
 		Para i <- 0 Hasta Longitud(nuevoUsuario) - 1 Hacer
 			
 			caracter <- Subcadena(nuevoUsuario, i, i)
-			//¿Es una letra minuscula?
+			//ï¿½Es una letra minuscula?
 			Si esMinuscula(caracter) Entonces
 				cantMinusculas <- cantMinusculas + 1
 				cantLetras <- cantLetras + 1
 			FinSi
-			// ¿Es una letra mayuscula?
+			// ï¿½Es una letra mayuscula?
 			Si esMayuscula(caracter) Entonces
 				cantMayusculas <- cantMayusculas + 1
 				cantLetras <- cantLetras + 1
 			FinSi
 			
-			// ¿Es un numero?
+			// ï¿½Es un numero?
 			Si esNumero(caracter) Entonces
 				cantNumeros <- cantNumeros + 1
 			FinSi
 			
-			// ¿Tiene espacios?
+			// ï¿½Tiene espacios?
 			Si esEspacio(caracter)Entonces
 				cantEspacio <- cantEspacio +1
 			FinSi
@@ -649,7 +649,7 @@ FinFuncion
 Funcion condicion <- esMinuscula(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es una letra minuscula?
+	// ï¿½Es una letra minuscula?
 	Si conjunto >= "a" Y conjunto <= "z" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -657,7 +657,7 @@ FinFuncion
 Funcion condicion<- esMayuscula(conjunto)	
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es una letra mayuscula?
+	// ï¿½Es una letra mayuscula?
 	Si conjunto >= "A" Y conjunto <= "Z" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -665,7 +665,7 @@ FinFuncion
 Funcion condicion<- esNUmero(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	// ¿Es un Numero?
+	// ï¿½Es un Numero?
 	Si conjunto >= "0" Y conjunto <= "9" Entonces
 		condicion<- Verdadero
 	FinSi
@@ -673,7 +673,7 @@ FinFuncion
 Funcion condicion<- esEspacio(conjunto)
 	Definir condicion Como Logico
 	condicion<- Falso
-	//¿Tiene espacio?
+	//ï¿½Tiene espacio?
 	Si conjunto = " " Entonces
 		condicion<- Verdadero
 	FinSi
@@ -698,7 +698,7 @@ Funcion asignar_Rol <- seleccionar_Rol(rol1,rol2)
 				asignar_Rol <- rol2
 				
 			De Otro Modo:
-				Escribir "Opción inválida."
+				Escribir "Opciï¿½n invï¿½lida."
 				
 		FinSegun
 		
@@ -800,7 +800,7 @@ Funcion accesoConcedido <- login(vecUsuarios, vecClaves, cant_Usuarios, MAX_INTE
         Escribir ""
         Escribir "                                   Usuario: " Sin Saltar
         Leer usuarioIngresado
-        Escribir "                                   Contraseña: " Sin Saltar
+        Escribir "                                   Contraseï¿½a: " Sin Saltar
         Leer claveIngresada
         Escribir ""
         Escribir "+====================================================================================+"
@@ -820,7 +820,7 @@ Funcion accesoConcedido <- login(vecUsuarios, vecClaves, cant_Usuarios, MAX_INTE
                 accesoConcedido <- Verdadero
             SiNo
                 Escribir ""
-                Escribir "Contraseña incorrecta."
+                Escribir "Contraseï¿½a incorrecta."
                 intentos <- intentos + 1
                 Esperar 2 segundos 
 				Limpiar Pantalla
@@ -848,18 +848,18 @@ Funcion mostrarNumCliente(vecNumCliente, posicion)
 	numero <- vecNumCliente[posicion]
 	
 	Si numero < 10 Entonces
-		Escribir "Número de cuenta:                      00000", numero
+		Escribir "Nï¿½mero de cuenta:                      00000", numero
 	SiNo
 		Si numero < 100 Entonces
-			Escribir "Número de cuenta:                      0000", numero
+			Escribir "Nï¿½mero de cuenta:                      0000", numero
 		SiNo
 			Si numero < 1000 Entonces
-				Escribir "Número de cuenta:                      000", numero
+				Escribir "Nï¿½mero de cuenta:                      000", numero
 			SiNo
 				Si numero < 10000 Entonces
-					Escribir "Número de cuenta:                      00", numero
+					Escribir "Nï¿½mero de cuenta:                      00", numero
 				SiNo
-					Escribir "Número de cuenta:                       ", numero
+					Escribir "Nï¿½mero de cuenta:                       ", numero
 				FinSi
 			FinSi
 		FinSi
