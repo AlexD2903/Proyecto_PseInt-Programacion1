@@ -6,6 +6,12 @@
 	Definir cant_Usuarios Como Entero
 	Definir i Como Entero
 	Definir posicionUsuario Como Entero
+	Definir vecNombres Como Caracter
+	Definir vecApellidos Como Caracter
+	Definir vecDNI Como Caracter
+	Definir vecLegajo Como Entero
+	Definir vecSaldo Como Real
+	Definir vecNumCliente Como Entero
 	//
 	Definir usuarioIngresado Como Caracter
 	Definir claveIngresada Como Caracter
@@ -17,8 +23,8 @@
 	Definir MAX_INTENTOS Como Entero
 	// variables menu acceso
 	Definir accesoConcedido Como Logico
-	Definir opcion Como Entero
-	cant_Usuarios<- 1
+	Definir opcion, opcion1 Como Entero
+	cant_Usuarios<- 3
 	// variables constantes
 	GERENTE_PRINCIPAL <- 1
 	AGENTE<- 2
@@ -30,200 +36,421 @@
 	//vectore usuarios
 	Dimension vecUsuarios[CANT_MAX_USUARIOS]
 	Dimension vecClaves[CANT_MAX_USUARIOS]
+	Dimension vecNombres[CANT_MAX_USUARIOS]
+	Dimension vecApellidos[CANT_MAX_USUARIOS]
+	Dimension vecDNI[CANT_MAX_USUARIOS]
+	Dimension vecLegajo[CANT_MAX_USUARIOS]
+	Dimension vecSaldo[CANT_MAX_USUARIOS]
+	Dimension vecNumCliente[CANT_MAX_USUARIOS]
 	Dimension vecRoles[CANT_MAX_USUARIOS]
 	// Datos del administrador
 	vecUsuarios[0] <- "admin"
 	vecClaves[0] <- "1234"
 	vecRoles[0] <- GERENTE_PRINCIPAL
-	
+	//Datos clientes por defecto
+	vecUsuarios[1] <- "juams89"
+	vecClaves[1] <- "Juams89"
+	vecNombres[1]<- "Juan Ubaldo"
+	vecApellidos[1] <- "Britez"
+	vecDNI[1]<- "34554543"
+	vecNumCliente[1]<- 1
+	vecSaldo[1]<- 1258863
+	vecRoles[1] <- CLIENTE
+	//===============================
+	vecUsuarios[2] <- "Icamacho88"
+	vecClaves[2] <- "Ivan1988"
+	vecNombres[2]<- "Ivan" 
+	vecApellidos[2]<- "Camacho Padilla" 
+	vecDNI[2]<- "33654897"
+	vecNumCliente[2]<- 0001
+	vecSaldo[2]<- 2568369.50
+	vecRoles[2] <- CLIENTE
 	
 	// ==============================
 	// INICIO DE SESI�N
 	// ==============================
 	
-	Escribir "========== BANCO =========="
+	mostrarLogo()
 	
-	Repetir 
-		
-		Escribir "Usuario:"
-		Leer usuarioIngresado
-		
-		Escribir "Contrase�a:"
-		Leer claveIngresada
-		posicionUsuario<- -1
-		Para i<- 0 Hasta cant_Usuarios -1 Hacer
-			
-			Si usuarioIngresado = vecUsuarios[i] Entonces
-				posicionUsuario<- i
-			FinSi
-		FinPara
-		// �Encontramos el usuario?
-		Si posicionUsuario <> -1 Entonces
-			
-			// Comprobar su contrase�a
-			Si claveIngresada = vecClaves[posicionUsuario] Entonces
-				
-				Escribir "Inicio de sesi�n correcto"
-				
-				accesoConcedido <- Verdadero
-				
-			SiNo
-				
-				Escribir "Contrase�a incorrecta"
-				intentos <- intentos + 1
-				
-			FinSi
-			
-		SiNo
-			
-			Escribir "Usuario inexistente"
-			intentos <- intentos + 1
-			
-		FinSi
-		// Condicion: Repetir mientras NO se haya concedido el acceso Y mientras queden intentos disponibles.
-	Mientras Que No accesoConcedido Y intentos < MAX_INTENTOS
-	
+	accesoConcedido <- login(vecUsuarios, vecClaves, cant_Usuarios, MAX_INTENTOS, posicionUsuario)
 	
 	// ==============================
 	// MEN� DEL GERENTE
 	// ==============================
-	
+	Limpiar Pantalla
 	Si accesoConcedido  Entonces
 		Segun vecRoles[posicionUsuario] Hacer
 			
 			GERENTE_PRINCIPAL:
 				Repetir
-					
 					Escribir ""
 					Escribir "========== GERENTE PRINCIPAL =========="
+					Escribir "                              usuario: ", vecUsuarios[posicionUsuario]
 					Escribir "1. Gestionar personal"
 					Escribir "2. Gestionar agentes"
-					Escribir "3. Consultar clientes"
-					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesi�n"
-					Escribir "Seleccione una opci�n:"
+					Escribir "3. Gestionar Clientes"
+					Escribir "4. Consultas y Reportes"
+					Escribir "5. Gestionar solicitudes"
+					Escribir "6. Configuraci�n del banco"
+					Escribir "7. Cerrar sesi�n"
+					Escribir "Seleccione una opci�n: " Sin Saltar
 					Leer opcion
 					Segun opcion Hacer
 						1:
-							
-							Escribir "========== Gesti�n de personal =========="
-							Escribir "1. Alta"
-							Escribir "2. Baja"
-							Escribir "3. Modificar"
-							Escribir "4. Consultar"
-							Escribir "5. Solicitudes"
-							Escribir "6. Volver"
-							leer opcion
-							Segun opcion Hacer
-								1:AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
-									
-								2:BajaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios, CANT_MAX_USUARIOS)
-									
-								3:
-									Escribir "FALTA COMPLETAR"
-								4:
-									Escribir "FALTA COMPLETAR"
-								5:
-									Escribir "FALTA COMPLETAR"
-								6:
-									Escribir "FALTA COMPLETAR"
-							FinSegun
-							
+							Limpiar Pantalla
+							Repetir
+								Escribir "1. Alta"
+								Escribir "2. Baja"
+								Escribir "3. Modificar"
+								Escribir "4. Consultar"
+								Escribir "5. Solicitudes"
+								Escribir "6. Volver"
+								leer opcion1
+								
+								Escribir "========== Gesti�n de personal =========="
+								
+								Segun opcion1 Hacer
+									1: Limpiar Pantalla
+										AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
+										
+									2: Limpiar Pantalla
+										BajaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios)
+										
+									3:
+										Escribir "FALTA COMPLETAR"
+									4:
+										Escribir "FALTA COMPLETAR"
+									5:
+										Escribir "FALTA COMPLETAR"
+									6:
+										//vuelve al menu anterior
+								FinSegun
+								Limpiar Pantalla
+							Hasta Que  opcion1 = 6
 						2:
-							Escribir "Gesti�n de agentes"
+							Limpiar Pantalla
+							Repetir
+								Escribir "========== Gesti�n de agentes =========="
+								Escribir "1. Alta"
+								Escribir "2. Baja"
+								Escribir "3. Modificar"
+								Escribir "4. Consultar"
+								Escribir "5. Volver"
+								Leer opcion1
+								Segun opcion1 Hacer
+									1:
+										Escribir "FALTA COMPLETAR"
+										
+									2:
+										Escribir "FALTA COMPLETAR"
+										
+									3:
+										Escribir "FALTA COMPLETAR"
+										
+									4:
+										Escribir "FALTA COMPLETAR"
+										
+									5:
+										// Volver al men� anterior
+										
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+								
+								Limpiar Pantalla
+								
+							Hasta Que opcion1 = 5
 							
 						3:
-							Escribir "Consulta de clientes"
-							
+							Limpiar Pantalla
+							Repetir
+								Escribir "========== Gesti�n de clientes =========="
+								Escribir "1. Consultar cliente"
+								Escribir "2. Consultar todos los clientes"
+								Escribir "3. Buscar cliente por DNI"
+								Escribir "4. Buscar cliente por n�mero de cuenta"
+								Escribir "5. Consultar cuentas"
+								Escribir "6. Consultar estado de cliente"
+								Escribir "7. Volver"
+								Leer opcion1
+								
+								Segun opcion1 Hacer
+									1:
+										Escribir "FALTA COMPLETAR"
+										
+									2:
+										Escribir "FALTA COMPLETAR"
+										
+									3:
+										Escribir "FALTA COMPLETAR"
+										
+									4:
+										Escribir "FALTA COMPLETAR"
+										
+									5:
+										Escribir "FALTA COMPLETAR"
+										
+									6:
+										Escribir "FALTA COMPLETAR"
+										
+									7:
+										// Volver al men� anterior
+										
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+								
+								Limpiar Pantalla
+								
+							Hasta Que opcion1 = 7
 						4:
-							Escribir "Consulta de balance"
-							
+							Limpiar Pantalla
+							Repetir
+								Escribir "========== Consultas y reportes =========="
+								Escribir "1. Cantidad de clientes"
+								Escribir "2. Cantidad de agentes"
+								Escribir "3. Cantidad de cuentas"
+								Escribir "4. Resumen de operaciones"
+								Escribir "5. Total de dep�sitos"
+								Escribir "6. Total de retiros"
+								Escribir "7. Total de transferencias"
+								Escribir "8. Operaciones por agente"
+								Escribir "9. Operaciones por per�odo"
+								Escribir "10. Volver"
+								Leer opcion1
+								
+								Segun opcion1 Hacer
+									1:
+										Escribir "FALTA COMPLETAR"
+										
+									2:
+										Escribir "FALTA COMPLETAR"
+										
+									3:
+										Escribir "FALTA COMPLETAR"
+										
+									4:
+										Escribir "FALTA COMPLETAR"
+										
+									5:
+										Escribir "FALTA COMPLETAR"
+										
+									6:
+										Escribir "FALTA COMPLETAR"
+										
+									7:
+										Escribir "FALTA COMPLETAR"
+										
+									8:
+										Escribir "FALTA COMPLETAR"
+										
+									9:
+										Escribir "FALTA COMPLETAR"
+										
+									10:
+										// Volver al men� anterior
+										
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+								
+								Limpiar Pantalla
+								
+							Hasta Que opcion1 = 10
 						5:
-							Escribir "Cerrando sesi�n..."
+							Limpiar Pantalla
+							Repetir
+								Escribir "========== Gesti�n de solicitudes =========="
+								Escribir "1. Ver solicitudes pendientes"
+								Escribir "2. Consultar solicitud"
+								Escribir "3. Historial de solicitudes"
+								Escribir "4. Volver"
+								Leer opcion1 
+								
+								Segun opcion1 Hacer
+									1:
+										Escribir "FALTA COMPLETAR"
+										
+									2:
+										Escribir "FALTA COMPLETAR"
+										
+									3:
+										Escribir "FALTA COMPLETAR"
+										
+									4:
+										// Volver al men� anterior
+										
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+								Limpiar Pantalla
+							Hasta Que opcion1 = 4
+						6:
+								Limpiar Pantalla
+								Repetir
+									Escribir "========== Configuraci�n del banco =========="
+									Escribir "1. Consultar datos del banco"
+									Escribir "2. Configurar l�mites operativos"
+									Escribir "3. Gestionar tipos de cuenta"
+									Escribir "4. Consultar tasas y comisiones"
+									Escribir "5. Configurar par�metros de seguridad"
+									Escribir "6. Volver"
+									Leer opcion1
+									
+									Segun opcion1 Hacer
+										1:
+											Escribir "FALTA COMPLETAR"
+											
+										2:
+											Escribir "FALTA COMPLETAR"
+											
+										3:
+											Escribir "FALTA COMPLETAR"
+											
+										4:
+											Escribir "FALTA COMPLETAR"
+											
+										5:
+											Escribir "FALTA COMPLETAR"
+											
+										6:
+											// Volver al men� anterior
+											
+										De Otro Modo:
+											Escribir "Opci�n inv�lida"
+									FinSegun
+									
+									Limpiar Pantalla
+									
+								Hasta Que opcion1 = 6
+							
+						7:
+							Escribir "Cerrando sesi�n" Sin Saltar
+							
+							Para i <- 1 Hasta 3 Hacer
+								Escribir "." Sin Saltar
+								Esperar 1 Segundo
+							FinPara
+							
+							Limpiar Pantalla
 							
 						De Otro Modo:
 							Escribir "Opci�n inv�lida"
 							
 					FinSegun
 					
-				Hasta Que opcion = 5
+				Hasta Que opcion = 7
 			AGENTE:
-				Repetir
-					
-					Escribir ""
-					Escribir "========== AGENTE =========="
-					Escribir "1. Gestionar personal"
-					Escribir "2. Gestionar agentes"
-					Escribir "3. Consultar clientes"
-					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesi�n"
-					Escribir "Seleccione una opci�n:"
-					Leer opcion
-					
-					Segun opcion Hacer
-						
-						1:
-							Escribir "Gesti�n de personal"
-							
-						2:
-							Escribir "Gesti�n de agentes"
-							
-						3:
-							Escribir "Consulta de clientes"
-							
-						4:
-							Escribir "Consulta de balance"
-							
-						5:
-							Escribir "Cerrando sesi�n..."
-							
-						De Otro Modo:
-							Escribir "Opci�n inv�lida"
-							
-					FinSegun
-					
-				Hasta Que opcion = 5
+				
 			CLIENTE:
 				Repetir
 					
 					Escribir ""
-					Escribir "========== CLIENTE =========="
-					Escribir "1. Gestionar personal"
-					Escribir "2. Gestionar agentes"
-					Escribir "3. Consultar clientes"
-					Escribir "4. Consultar balance"
-					Escribir "5. Cerrar sesi�n"
-					Escribir "Seleccione una opci�n:"
+					
+					Escribir "================ HOME BANKING ================"
+					Escribir "   BIENVENIDO(A): ", vecNombres[posicionUsuario], " ", vecApellidos[posicionUsuario]
+					Escribir "----------------------------------------------"
+					Escribir "INFORMACION DE LA CUENTA"
+					Escribir "----------------------------------------------"
+					mostrarNumCliente(vecNumCliente, posicionUsuario)
+					mostrarSaldo(vecSaldo, posicionUsuario)
+					Escribir "=============================================="
+					Escribir "1. Mi cuenta"
+					Escribir "2. Operaciones bancarias"
+					Escribir "3. Transferencias"
+					Escribir "4. Pagos"
+					Escribir "5. Solicitudes"
+					Escribir "6. Entretenimiento"
+					Escribir "7. Mi perfil"
+					Escribir "8. Cerrar sesi�n"
+					Escribir ""
+					Escribir "Seleccione una opci�n: " Sin Saltar
 					Leer opcion
 					
 					Segun opcion Hacer
 						
 						1:
-							Escribir "Gesti�n de personal"
-							
+							Limpiar Pantalla
+							repetir
+								Escribir "FALTA COMPLETAR"
+								Escribir "1. Volver"
+								Escribir ""
+								Escribir "Seleccione una opci�n: " Sin Saltar
+								Leer opcion1
+								Segun opcion1 Hacer
+									1:
+										Limpiar Pantalla
+										// Volver al men� anterior
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+							Hasta Que opcion1= 1 
 						2:
-							Escribir "Gesti�n de agentes"
-							
+							Limpiar Pantalla
+							repetir
+								Escribir "FALTA COMPLETAR"
+								Escribir "1. Volver"
+								Escribir ""
+								Escribir "Seleccione una opci�n: " Sin Saltar
+								Leer opcion1
+								Segun opcion1 Hacer
+									1:
+										Limpiar Pantalla
+										// Volver al men� anterior
+									De Otro Modo:
+										Escribir "Opci�n inv�lida"
+								FinSegun
+							Hasta Que opcion1= 1
 						3:
-							Escribir "Consulta de clientes"
+							Limpiar Pantalla
+							Escribir "FALTA COMPLETAR"
 							
 						4:
-							Escribir "Consulta de balance"
+							Limpiar Pantalla
+							Escribir "FALTA COMPLETAR"
 							
 						5:
-							Escribir "Cerrando sesi�n..."
+							Limpiar Pantalla
+							Escribir "FALTA COMPLETAR"
+							
+						6:
+							Limpiar Pantalla
+							Escribir "FALTA COMPLETAR"
+							
+						7:
+							Limpiar Pantalla
+							Escribir "FALTA COMPLETAR"
+							
+						8:
+							Limpiar Pantalla
+							Escribir "Cerrando sesi�n" Sin Saltar
+							
+							Para i <- 1 Hasta 3 Hacer
+								Escribir "." Sin Saltar
+								Esperar 1 Segundo
+							FinPara
+							
+							Limpiar Pantalla
 							
 						De Otro Modo:
 							Escribir "Opci�n inv�lida"
 							
 					FinSegun
 					
-				Hasta Que opcion = 5
+				Hasta Que opcion = 8
 		FinSegun
 	SiNo
 		
 		Escribir "Acceso denegado."
 		Escribir "Se agotaron los intentos permitidos."
+		Escribir "Cerrando sesi�n" Sin Saltar
+		
+		Para i <- 1 Hasta 3 Hacer
+			Escribir "." Sin Saltar
+			Esperar 1 Segundo
+		FinPara
+		
+		Limpiar Pantalla
 		
 	FinSi
 	
@@ -234,14 +461,13 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
     Definir usuarioNuevo Como Caracter
     Definir claveNueva Como Caracter
     Definir rolNuevo Como Entero
-    Definir opcionRol Como Entero
 	Definir usuarioExiste Como Logico
 	
     Si cant_Usuarios < CANT_MAX_USUARIOS Entonces
 		
         Escribir "========== ALTA DE PERSONAL =========="
 		repetir 
-			usuarioNuevo<- validarUsuario
+			usuarioNuevo<- validarUsuario()
 			usuarioExiste<- Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS, GERENTE_PRINCIPAL, AGENTE)
 (usuarioNuevo, vecUsuarios, cant_Usuarios)
 			Si UsuarioExiste Entonces
@@ -254,9 +480,9 @@ Funcion AltaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referen
 		rolNuevo <- seleccionar_Rol(GERENTE_PRINCIPAL,AGENTE)
        
         // Asignamos nuevos datos a cada vector
-        vecUsuarios[cant_Usuarios] <- usuarioNuevo
-        vecClaves[cant_Usuarios] <- claveNueva
-        vecRoles[cant_Usuarios] <- rolNuevo
+		vecUsuarios[cant_Usuarios] <- usuarioNuevo
+		vecClaves[cant_Usuarios] <- claveNueva
+		vecRoles[cant_Usuarios] <- rolNuevo
 		
 		// suma una posicion asi el para lo puede recorrer. 
         cant_Usuarios <- cant_Usuarios + 1
@@ -411,7 +637,7 @@ funcion nuevoUsuario <- validarUsuario
 		Si cantEspacio >=1 Entonces
 			Escribir "El nombre de usuario no debe contener espacios"
 		FinSi
-		Si Longitud(nuevoUsuario) < 4  o Longitud(nuevoUsuario) >= 20 Entonces
+		Si Longitud(nuevoUsuario) < 4  o Longitud(nuevoUsuario) > 20 Entonces
 			Escribir "El nombre de usuario debe contener minimo 4 caracteres y maximo 20"
 		FinSi
 //      Escribir "Espacios: ", cantEspacios
@@ -497,7 +723,7 @@ Funcion reordenarUsuarios(vecUsuarios,vecClaves, vecRoles, cant_Usuarios Por Ref
 	FinPara
 	cant_Usuarios <- cant_Usuarios -1
 FinFuncion
-Funcion BajaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia, CANT_MAX_USUARIOS)
+Funcion BajaPersonal(vecUsuarios, vecClaves, vecRoles, cant_Usuarios Por Referencia)
 	Definir usuarioBuscado Como Caracter
 	Definir usuarioExiste Como Logico
 	Definir posicion Como Entero
@@ -541,4 +767,164 @@ Funcion confirmacion<- deseaContinuar(mensaje, dato)
 		confirmacion<- falso
 	FinSi
 FinFuncion
+Funcion mostrarLogo
+	Escribir "+====================================================================================+"
+	Escribir "||                     /$$$$$$ /$$   /$$  /$$$$$$  /$$$$$$$  /$$$$$$$$              ||"
+	Escribir "||                    |_  $$_/| $$$ | $$ /$$__  $$| $$__  $$|__  $$__/              ||"
+	Escribir "||                      | $$  | $$$$| $$| $$  \__/| $$  \ $$   | $$                 ||"
+	Escribir "||                      | $$  | $$ $$ $$|  $$$$$$ | $$$$$$$/   | $$                 ||"
+	Escribir "||                      | $$  | $$  $$$$ \____  $$| $$____/    | $$                 ||"
+	Escribir "||                      | $$  | $$\  $$$ /$$  \ $$| $$         | $$                 ||"
+	Escribir "||                     /$$$$$$| $$ \  $$|  $$$$$$/| $$         | $$                 ||"
+	Escribir "||                    |______/|__/  \__/ \______/ |__/         |__/                 ||"
+	Escribir "||==================================================================================||"
+	Escribir "||                                 SISTEMA BANCARIO                                 ||"
+	Escribir "+====================================================================================+"	
+FinFuncion
+Funcion accesoConcedido <- login(vecUsuarios, vecClaves, cant_Usuarios, MAX_INTENTOS, posicionUsuario Por Referencia)
+    
+    Definir usuarioIngresado Como Caracter
+    Definir claveIngresada Como Caracter
+    Definir intentos Como Entero
+    Definir i Como Entero
+    Definir accesoConcedido Como Logico
 	
+    intentos <- 0
+    accesoConcedido <- Falso
+    posicionUsuario <- -1
+    
+    Repetir
+        
+        Escribir ""
+        Escribir "+================================= INICIO DE SESION =================================+"
+        Escribir ""
+        Escribir "                                   Usuario: " Sin Saltar
+        Leer usuarioIngresado
+        Escribir "                                   Contrase�a: " Sin Saltar
+        Leer claveIngresada
+        Escribir ""
+        Escribir "+====================================================================================+"
+        Escribir ""
+        posicionUsuario <- -1
+        
+        Para i <- 0 Hasta cant_Usuarios - 1 Hacer
+            Si usuarioIngresado = vecUsuarios[i] Entonces
+                posicionUsuario <- i
+            FinSi
+        FinPara
+        
+        Si posicionUsuario <> -1 Entonces
+            Si claveIngresada = vecClaves[posicionUsuario] Entonces
+                Escribir ""
+                Escribir "Inicio de sesion correcto."
+                accesoConcedido <- Verdadero
+            SiNo
+                Escribir ""
+                Escribir "Contrase�a incorrecta."
+                intentos <- intentos + 1
+                Esperar 2 segundos 
+				Limpiar Pantalla
+            FinSi
+            
+        SiNo
+            
+            Escribir ""
+            Escribir "Usuario inexistente."
+            intentos <- intentos + 1
+            Esperar 2 segundos 
+			Limpiar Pantalla
+        FinSi
+        
+//        Si NO accesoConcedido Y intentos < MAX_INTENTOS Entonces
+//            Escribir "Intentos restantes: ", MAX_INTENTOS - intentos
+//        FinSi
+        
+    Mientras Que NO accesoConcedido Y intentos < MAX_INTENTOS
+	Esperar 2 Segundos
+FinFuncion
+Funcion mostrarNumCliente(vecNumCliente, posicion)
+	Definir numero Como Entero
+	
+	numero <- vecNumCliente[posicion]
+	
+	Si numero < 10 Entonces
+		Escribir "N�mero de cuenta:                      00000", numero
+	SiNo
+		Si numero < 100 Entonces
+			Escribir "N�mero de cuenta:                      0000", numero
+		SiNo
+			Si numero < 1000 Entonces
+				Escribir "N�mero de cuenta:                      000", numero
+			SiNo
+				Si numero < 10000 Entonces
+					Escribir "N�mero de cuenta:                      00", numero
+				SiNo
+					Escribir "N�mero de cuenta:                       ", numero
+				FinSi
+			FinSi
+		FinSi
+	FinSi
+FinFuncion
+Funcion mostrarSaldo(vecSaldo, posicion)
+	Definir saldo Como Real
+	Definir parteEntera Como Entero
+	Definir centavos Como Entero
+	Definir millones Como Entero
+	Definir miles Como Entero
+	Definir resto Como Entero
+	
+	saldo <- vecSaldo[posicion]
+	parteEntera <- Trunc(saldo)
+	centavos <- Trunc((saldo - parteEntera) * 100)
+	
+	millones <- Trunc(parteEntera / 1000000)
+	miles <- Trunc((parteEntera MOD 1000000) / 1000)
+	resto <- parteEntera MOD 1000
+	Escribir "Saldo disponible:              " Sin Saltar
+	Si millones > 0 Entonces
+		Escribir Sin Saltar "$ ", millones, "."
+		
+		Si miles < 100 Entonces
+			Si miles < 10 Entonces
+				Escribir Sin Saltar "00", miles, "."
+			SiNo
+				Escribir Sin Saltar "0", miles, "."
+			FinSi
+		SiNo
+			Escribir Sin Saltar miles, "."
+		FinSi
+		
+		Si resto < 100 Entonces
+			Si resto < 10 Entonces
+				Escribir Sin Saltar "00", resto
+			SiNo
+				Escribir Sin Saltar "0", resto
+			FinSi
+		SiNo
+			Escribir Sin Saltar resto
+		FinSi
+		
+	SiNo
+		Si parteEntera >= 1000 Entonces
+			Escribir Sin Saltar "$ ", miles, "."
+			
+			Si resto < 100 Entonces
+				Si resto < 10 Entonces
+					Escribir Sin Saltar "00", resto
+				SiNo
+					Escribir Sin Saltar "0", resto
+				FinSi
+			SiNo
+				Escribir Sin Saltar resto
+			FinSi
+		SiNo
+			Escribir Sin Saltar "$ ", parteEntera
+		FinSi
+	FinSi
+	
+	Si centavos < 10 Entonces
+		Escribir ",0", centavos
+	SiNo
+		Escribir ",", centavos
+	FinSi
+FinFuncion
