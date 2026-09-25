@@ -45,13 +45,14 @@ void vistaGestionPersonal();
 void enEspera();
 
 /////////////////// ALTA PERSONAL ///////////////////
-void altaPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
+void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuarios);
 void msjDeConfirmacion(cadena nombreDeDato, int dato);
 
 // Con struc
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
 void verificarYRegistrar(cadena texto, cadena pCampo, Cliente baseDatos[CANT_USERS], int cantUsuarios);
+int busquedaLineal(Cliente datos[],int cantidad, cadena valor);
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
 void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
 void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant);
@@ -73,11 +74,11 @@ bool verificarDNI(cadena dni);
 // --------------MAIN
 int main()
 {
-
     // Cliente clientes[CANT_USERS];
     // cadena listaUser[CANT_USERS][DATOS_USERS];
     // int vecClaves[CANT_USERS] = {0};
-    // int cantUsuarios = 4;
+    int cantUsuarios = 4;
+    altaPersonal(listUser, &cantUsuarios);
 
     // menuGestionarPersonal(listaUser, vecClaves, &cantUsuarios);
 
@@ -129,7 +130,7 @@ void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], in
         switch (opcion)
         {
         case 1: // C (Create / Crear)
-            altaPersonal(matrizUser, vecClaves, cantUsuarios);
+            //altaPersonal();
             break;
         case 2: // R (Read / Leer o Consultar)
             listaUsuarios(matrizUser, cantUsuarios);
@@ -325,7 +326,7 @@ void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant)
 }
 
 // --------------------ALTA PERSONAL CASO 1
-void altaPersonalConStruc(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
+void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
     Cliente newCliente;
 
@@ -363,28 +364,47 @@ void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuario
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 {
     Cliente nuevo;
-    
+    //cadena alias, dni;
+
     leerCadena("Ingresar nombre: ", nuevo.nombre);
     leerCadena("Ingresar apellido: ", nuevo.apellido);
     
-    verificarYRegistrar("alias",nuevo.alias, baseDatos, cantUsuarios);
-    verificarYRegistrar("dni",nuevo.DNI, baseDatos, cantUsuarios);
+    verificarYRegistrar("alias: ",nuevo.alias, baseDatos, cantUsuarios);
+    verificarYRegistrar("dni: ",nuevo.DNI, baseDatos, cantUsuarios);
     leerCadena("Ingrese clave: ", nuevo.clave); 
     
     return nuevo;
 }
 
-void verificarYRegistrar(cadena texto, cadena pCampo, Cliente baseDatos[CANT_USERS], int cantUsuarios){
+//PRUEBA DE COPIA DE VECTOR
+//
+// void copiaDeVector(Cliente datos[], int cantidad, cadena vectorAux[], campo){
+//     for(int i= 0; i < cantidad ; i++){
+//         strcpy(vectorAux[i], datos[i].campo);
+//     }
+// }
+
+void verificarYRegistrar(cadena texto, cadena columna, Cliente baseDatos[CANT_USERS], int cantUsuarios){
     int existe;
-    
+    // cadena vectorAux[CANT_USERS];
     do{
         printf("Ingresar ");
-        leerCadena(texto, pCampo);
-        existe = busquedaLineal(baseDatos, cantUsuarios, pCampo);
+        leerCadena(texto, columna);
+        strcpy()
+        existe = busquedaLineal(baseDatos, cantUsuarios, columna);
         msjDeConfirmacion(texto, existe);
     
-    }while(existe == USUARIO_INEXISTENTE);
+    }while(existe != USUARIO_INEXISTENTE);
     
+}
+int busquedaLineal(Cliente datos[],int cantidad, cadena valor)
+{
+    int pos = cantidad -1;
+    while(pos >= 0 && strcmp(datos[pos].DNI, valor) != 0 && strcmp(datos[pos].alias, valor) != 0)
+    {
+        pos--;
+    }
+    return pos;
 }
 
 bool verificarDNI(cadena dni)
@@ -493,3 +513,31 @@ void menuVistaAdmin()
 // {
 //     printf("El saldo actual es %d", *saldoConsultado);
 // }
+
+
+//opcion a
+// #define BUSCAR_ALIAS 0
+// #define BUSCAR_DNI   1
+
+// int busquedaLineal(Cliente datos[], int cantidad, cadena valor, int campo)
+// {
+//     int pos = cantidad - 1;
+
+//     if (campo == BUSCAR_ALIAS)
+//     {
+//         while (pos >= 0 && strcmp(datos[pos].alias, valor) != 0)
+//         {
+//             pos--;
+//         }
+//     }
+//     else if (campo == BUSCAR_DNI)
+//     {
+//         while (pos >= 0 && strcmp(datos[pos].DNI, valor) != 0)
+//         {
+//             pos--;
+//         }
+//     }
+
+//     return pos;
+// }
+
