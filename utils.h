@@ -38,8 +38,6 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
 ////////////////////// MATRICES ////////////////////////////////
 
-bool siExisteCadenaEnMatriz(cadena buscado, int posicionEnColumna, cadena matriz[][posicionEnColumna], int *cant);
-
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
 void leerCadena(cadena mensaje, cadena target);
@@ -124,6 +122,7 @@ bool confirmaUsuario(cadena mensaje)
     }
     return (respuesta == 'S');
 }
+
 
 float Promedio(float sumConjunto, int divCantTotal)
 {
@@ -272,19 +271,6 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant)
             }
         }
     }
-}
-
-bool siExisteCadenaEnMatriz(cadena buscado, int posicionEnColumna, cadena matriz[][posicionEnColumna], int *cant)
-{
-    bool existe = false;
-    for (int i = 0; i < *cant; i++)
-    {
-        if (strcmp(buscado, matriz[i][posicionEnColumna]) == 0)
-        {
-            existe = true;
-        }
-    }
-    return existe;
 }
 
 void leerCadena(cadena mensaje, cadena target)

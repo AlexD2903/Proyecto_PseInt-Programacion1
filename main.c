@@ -14,6 +14,11 @@
 #define INDICE_ALIAS 2
 #define USUARIO_INEXISTENTE -1
 
+#define OPC_DNI 1
+#define OPC_ALIAS 2
+#define OPC_NOMBRE 3
+#define OPC_APELLIDO 4
+
 typedef struct
 {
     cadena nombre,
@@ -40,36 +45,34 @@ void consultarSaldo(int *saldoConsultado);
 
 void menuVistaAdmin();
 void menuOpcAdmin(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
-void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios);
+void menuGestionarPersonal(Cliente list[], int *cantUsuarios);
 void vistaGestionPersonal();
 void enEspera();
 
 /////////////////// ALTA PERSONAL ///////////////////
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
-void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuarios);
+void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios);
 void msjDeConfirmacion(cadena nombreDeDato, int dato);
 
 // Con struc
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
-void verificarYRegistrar(cadena texto, cadena pCampo, Cliente baseDatos[CANT_USERS], int cantUsuarios);
-int busquedaLineal(Cliente datos[],int cantidad, cadena valor);
+void verificarYRegistrar(cadena texto, cadena columna, Cliente baseDatos[CANT_USERS], int cantUsuarios, int eleccion);
+int buscarDato(Cliente datos[], int cantidad, cadena valor, int tipodDato);
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
-void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
-void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant);
+void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
+void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int *cant);
 int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios);
 
-void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios);
+void modificarUsuario(list, cantUsuarios);
 
-void cambiarAliasDeUsuario(cadena matrizUser[][DATOS_USERS], int posicion, int *cant);
-void cambiarClaveDeUsuario(int vecClave[], int posicion);
+void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad);
 int verificacionClave(int *contador, int vecClave[], int posicion, cadena msj1, cadena msj2);
-void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios);
+void bajaUsuario(Cliente listUser[], int *cantUsuarios);
 
+int posicionPorDNI(Cliente listUser[], int cantUsuarios);
 
-//deprueba
+// deprueba
 bool verificarDNI(cadena dni);
-
-
 
 // --------------MAIN
 int main()
@@ -78,48 +81,49 @@ int main()
     // cadena listaUser[CANT_USERS][DATOS_USERS];
     // int vecClaves[CANT_USERS] = {0};
     int cantUsuarios = 4;
-    altaPersonal(listUser, &cantUsuarios);
+    // altaPersonal(listUser, &cantUsuarios);
+    listaUsuarios(listUser, &cantUsuarios);
 
     // menuGestionarPersonal(listaUser, vecClaves, &cantUsuarios);
 
     return 0;
 }
 
-void menuOpcAdmin(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
-{
-    int opcion = 0;
+// void menuOpcAdmin(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
+// {
+//     int opcion = 0;
 
-    menuVistaAdmin();
-    opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
+//     menuVistaAdmin();
+//     opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
 
-    while (opcion != OPC_MAX)
-    {
-        switch (opcion)
-        {
-        case 1:
-            menuGestionarPersonal(matrizUser, vecClaves, cantUsuarios);
-            break;
-        case 2:
-            enEspera();
-            break;
-        case 3:
-            enEspera();
-            break;
-        case 4:
-            enEspera();
-            break;
-        case 5:
-            printf("Cerrando sesion");
-            break;
-        }
-        Sleep(3000);
-        system("cls");
-        menuVistaAdmin();
-        opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
-    }
-}
+//     while (opcion != OPC_MAX)
+//     {
+//         switch (opcion)
+//         {
+//         case 1:
+//             //menuGestionarPersonal(matrizUser, vecClaves, cantUsuarios);
+//             break;
+//         case 2:
+//             enEspera();
+//             break;
+//         case 3:
+//             enEspera();
+//             break;
+//         case 4:
+//             enEspera();
+//             break;
+//         case 5:
+//             printf("Cerrando sesion");
+//             break;
+//         }
+//         Sleep(3000);
+//         system("cls");
+//         menuVistaAdmin();
+//         opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
+//     }
+// }
 
-void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], int *cantUsuarios)
+void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
 {
     int opcion = 0;
 
@@ -130,16 +134,16 @@ void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], in
         switch (opcion)
         {
         case 1: // C (Create / Crear)
-            //altaPersonal();
+            altaPersonal(list, cantUsuarios);
             break;
         case 2: // R (Read / Leer o Consultar)
-            listaUsuarios(matrizUser, cantUsuarios);
+            listaUsuarios(list, cantUsuarios);
             break;
         case 3: // U (Update / Actulizar o Modificar)
-            modificarUsuario(matrizUser, vecClaves, cantUsuarios);
+            modificarUsuario(list, cantUsuarios);
             break;
         case 4: // D (Delete / Borrar o Eliminar)
-            bajaUsuario(matrizUser, vecClaves, cantUsuarios);
+            bajaUsuario(list, cantUsuarios);
             break;
         }
         Sleep(3000);
@@ -149,28 +153,32 @@ void menuGestionarPersonal(cadena matrizUser[][DATOS_USERS], int vecClaves[], in
     }
 }
 
-void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios)
+void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
 {
     int opc = 0;
-    int posUsuario = buscarUsuarios(matrizUser, cantUsuarios);
+    int posUsuario = posicionPorDNI(listUser, cantUsuarios);
 
     if (posUsuario != -1)
     {
-        printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre de Usuario\n2. Clave\n0. Volver\n");
+        printf("CLIENTE %s %s\n", listUser[posUsuario].nombre, listUser[posUsuario].apellido);
+        // nombre, apellido, dni, espyme
+        printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
 
-        opc = leerEnteroEntre(0, 2, "Elija una opcion: ");
+        opc = leerEnteroEntre(0, 4, "Elija una opcion: ");
         while (opc != OPCION_SALIDA)
         {
             switch (opc)
             {
             case 1:
-                cambiarAliasDeUsuario(matrizUser, posUsuario, cantUsuarios);
+                cambiarDatoDeUsuario("Ingresar nombre: ", posUsuario, listUser, OPC_NOMBRE, cantUsuarios);
                 break;
             case 2:
-                cambiarClaveDeUsuario(vecClave, posUsuario);
+                cambiarDatoDeUsuario("Ingresar apellido: ", posUsuario, listUser, OPC_APELLIDO, cantUsuarios);
+                break;
+            case 3:
+                cambiarDatoDeUsuario("Ingresar DNI: ", posUsuario, listUser, OPC_DNI, cantUsuarios);
                 break;
             }
-
             printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre de Usuario\n2. Clave\n0. Volver\n");
             opc = leerEnteroEntre(0, 2, "Elija una opcion: ");
         }
@@ -181,40 +189,37 @@ void modificarUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *can
     }
 }
 
-void cambiarAliasDeUsuario(cadena matrizUser[][DATOS_USERS], int posicion, int *cant)
+void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad)
 {
-    cadena aliasNuevo;
-    leerCadena("Elija un nuevo alias: ", aliasNuevo);
-    while (strcmp(aliasNuevo, matrizUser[posicion][INDICE_ALIAS]) == 0 || siExisteCadenaEnMatriz(aliasNuevo, INDICE_ALIAS, matrizUser, cant))
+    cadena nomDato;
+
+    leerCadena(texto, nomDato);
+    switch (tipodDato)
     {
-        printf("El Alias ya existe, por favor elija otro:\n");
-        leerCadena("Elija un nuevo alias: ", aliasNuevo);
-    }
-    strcpy(matrizUser[posicion][INDICE_ALIAS], aliasNuevo);
-}
-
-void cambiarClaveDeUsuario(int vecClave[], int posicion)
-{
-    int contadorIntentos = 0;
-
-    int claveActual = verificacionClave(&contadorIntentos, vecClave, posicion, "Ingresar clave de seguridad: ", "\nClave Incorrecta, intentalo de nuevo\n");
-
-    if (contadorIntentos < 3 && vecClave[posicion] == claveActual)
-    {
-        claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "\nIngresar nueva clave: \n");
-
-        while (vecClave[posicion] == claveActual)
+    case OPC_NOMBRE:
+        while (strcmp(nomDato, usuario[posUsuario].nombre))
         {
-            printf("La clave no puede ser igual a la actual\n");
-            claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar nueva clave: ");
+            printf("El nombre ya existe, por favor elija otro:\n");
+            leerCadena("Elija un nuevo nombre: ", nomDato);
         }
+        strcpy(usuario[posUsuario].nombre, nomDato);
+        break;
+    case OPC_APELLIDO:
+        while (strcmp(nomDato, usuario[posUsuario].apellido))
+        {
+            printf("El apellido ya existe, por favor elija otro:\n");
+            leerCadena("Elija un nuevo apellido: ", nomDato);
+        }
+        strcpy(usuario[posUsuario].nombre, nomDato);
+        break;
+    case OPC_DNI:
+        while (strcmp(nomDato, usuario[posUsuario].DNI) == 0 || buscarDato(usuario, cantidad, nomDato, OPC_DNI) != -1)
+        {
+            printf("El DNI ya existe, por favor elija otro:\n");
+            leerCadena("Elija un nuevo DNI: ", nomDato);
+        }
+        strcpy(usuario[posUsuario].DNI, nomDato);
     }
-    else
-    {
-        printf("\nYA SUPERASTE LA CANTIDAD MAXIMA DE INTENTOS\n");
-    }
-
-    vecClave[posicion] = claveActual;
 }
 int verificacionClave(int *contador, int vecClave[], int posicion, cadena msj1, cadena msj2)
 {
@@ -231,37 +236,49 @@ int verificacionClave(int *contador, int vecClave[], int posicion, cadena msj1, 
     return claveActual;
 }
 
-void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsuarios)
+int posicionPorDNI(Cliente listUser[], int cantUsuarios)
+{
+    cadena dniAux;
+    leerCadena("Ingrese DNI de cliente: ", dniAux);
+    return buscarDato(listUser, cantUsuarios, dniAux, OPC_DNI);
+}
+
+void bajaUsuario(Cliente listUser[], int *cantUsuarios)
 {
     int opc;
-    int posUsuario = buscarUsuarios(matrizUser, cantUsuarios);
+    int posUsuario = posicionPorDNI(listUser, cantUsuarios);
 
     if (posUsuario != -1)
     {
         int contadorIntentos = 0;
-        int ingresarClave = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "\nIngrese la clave:\n");
+        cadena claveAux;
+        leerCadena("\nIngrese la clave:\n", claveAux);
 
-        while (ingresarClave != vecClave[posUsuario] && contadorIntentos < 3)
+        while (strcmp(listUser[posUsuario].clave, claveAux) != 0 && contadorIntentos < 3)
         {
-            printf("\nClave incorrecta, ingrese nuevamente: ");
-            ingresarClave = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "\nIngrese la clave:\n");
+            printf("\nClave incorrecta, ingrese nuevamente.");
+            leerCadena("\nIngrese la clave:\n", claveAux);
             contadorIntentos++;
         }
 
-        if (ingresarClave == vecClave[posUsuario])
+        if (contadorIntentos < 3)
         {
 
-            printf("\nUsuario encontrado:\n Nombre y apellido %s %s\nAlias: %s\n\n", matrizUser[posUsuario][INDICE_NOMBRE], matrizUser[posUsuario][INDICE_APELLIDO], matrizUser[posUsuario][INDICE_ALIAS]);
-            opc = leerEnteroEntre(1, 2, "Estas seguro de eliminar este usuario. 1: SI. 2: NO\nOpc: ");
-            if (opc == 1)
+            printf("\nUsuario encontrado:\n%s %s\n=================\n", listUser[posUsuario].nombre, listUser[posUsuario].apellido);
+
+            // opc = leerEnteroEntre(1, 2, "Estas seguro de eliminar este usuario. 1: SI. 2: NO\nOpc: ");
+            if (confirmaUsuario("Estas seguro de eliminar este usuario."))
             {
 
                 for (int i = posUsuario; i < (*cantUsuarios - 1); i++)
                 {
-                    strcpy(matrizUser[i][INDICE_NOMBRE], matrizUser[i + 1][INDICE_NOMBRE]);
-                    strcpy(matrizUser[i][INDICE_APELLIDO], matrizUser[i + 1][INDICE_APELLIDO]);
-                    strcpy(matrizUser[i][INDICE_ALIAS], matrizUser[i + 1][INDICE_ALIAS]);
-                    vecClave[i] = vecClave[i + 1];
+                    strcpy(listUser[i].nombre, listUser[i + 1].nombre);
+                    strcpy(listUser[i].apellido, listUser[i + 1].apellido);
+                    strcpy(listUser[i].DNI, listUser[i + 1].DNI);
+                    strcpy(listUser[i].clave, listUser[i + 1].clave);
+                    strcpy(listUser[i].alias, listUser[i + 1].alias);
+                    listUser[i].saldo = listUser[i + 1].saldo;
+                    listUser[i].esPyme = listUser[i + 1].esPyme;
                 }
 
                 (*cantUsuarios)--;
@@ -280,35 +297,37 @@ void bajaUsuario(cadena matrizUser[][DATOS_USERS], int vecClave[], int *cantUsua
     }
 }
 
-int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
-{
-    cadena aliasBuscado;
-    int posicion = -1;
+// A BORRAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    leerCadena("Ingresar alias: ", aliasBuscado);
-    for (int i = 0; i < *cantUsuarios; i++)
-    {
-        if (strcmp(aliasBuscado, matrizUser[i][INDICE_ALIAS]) == 0)
-        {
-            printf("Alias encontrado. \n");
-            posicion = i;
-        }
-    }
-    if (posicion == -1)
-    {
-        printf("\nNO EXISTE ALIAS.\n");
-    }
+// int buscarUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
+// {
+//     cadena aliasBuscado;
+//     int posicion = -1;
 
-    return posicion;
-}
+//     leerCadena("Ingresar alias: ", aliasBuscado);
+//     for (int i = 0; i < *cantUsuarios; i++)
+//     {
+//         if (strcmp(aliasBuscado, matrizUser[i][INDICE_ALIAS]) == 0)
+//         {
+//             printf("Alias encontrado. \n");
+//             posicion = i;
+//         }
+//     }
+//     if (posicion == -1)
+//     {
+//         printf("\nNO EXISTE ALIAS.\n");
+//     }
+
+//     return posicion;
+// }
 // --------------------CONSULTAR   CASO 2
 
-void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
+void listaUsuarios(Cliente baseDatos[], int *cantUsuarios)
 {
     if (*cantUsuarios > VACIO)
     {
         printf("\nLista de usuarios:\n");
-        mostrarDatosDeMatriz(DATOS_USERS, matrizUser, cantUsuarios);
+        mostrarListadUsuarios(baseDatos, cantUsuarios);
     }
     else
     {
@@ -316,14 +335,14 @@ void listaUsuarios(cadena matrizUser[][DATOS_USERS], int *cantUsuarios)
     }
     system("pause");
 }
-void mostrarDatosDeMatriz(int COLUMNAS, cadena matriz[][COLUMNAS], int *cant)
-{
 
+void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int *cant)
+{
     for (int i = 0; i < *cant; i++)
     {
-        printf("%d. Cliente:%s %s, Alias: %s\n", i + 1, matriz[i][INDICE_NOMBRE], matriz[i][INDICE_APELLIDO], matriz[i][INDICE_ALIAS]);
+        printf("%d. Cliente: %s %s,\nDNI: %s\n=======================\n", i + 1, baseDatos[i].nombre, baseDatos[i].apellido, baseDatos[i].DNI);
     }
-}
+} // stb
 
 // --------------------ALTA PERSONAL CASO 1
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
@@ -351,7 +370,7 @@ void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
     }
 }
 
-void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuarios)
+void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
     strcpy(baseDatos[*cantUsuarios].nombre, new.nombre);
     strcpy(baseDatos[*cantUsuarios].apellido, new.apellido);
@@ -364,59 +383,97 @@ void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int* cantUsuario
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 {
     Cliente nuevo;
-    //cadena alias, dni;
+    // cadena alias, dni;
 
     leerCadena("Ingresar nombre: ", nuevo.nombre);
     leerCadena("Ingresar apellido: ", nuevo.apellido);
-    
-    verificarYRegistrar("alias: ",nuevo.alias, baseDatos, cantUsuarios);
-    verificarYRegistrar("dni: ",nuevo.DNI, baseDatos, cantUsuarios);
-    leerCadena("Ingrese clave: ", nuevo.clave); 
-    
+
+    verificarYRegistrar("alias", nuevo.alias, baseDatos, cantUsuarios, OPC_ALIAS);
+    verificarYRegistrar("dni", nuevo.DNI, baseDatos, cantUsuarios, OPC_DNI);
+    leerCadena("Ingrese clave: ", nuevo.clave);
+    nuevo.esPyme = esPyme();
+
     return nuevo;
 }
 
-//PRUEBA DE COPIA DE VECTOR
-//
-// void copiaDeVector(Cliente datos[], int cantidad, cadena vectorAux[], campo){
-//     for(int i= 0; i < cantidad ; i++){
-//         strcpy(vectorAux[i], datos[i].campo);
-//     }
-// }
-
-void verificarYRegistrar(cadena texto, cadena columna, Cliente baseDatos[CANT_USERS], int cantUsuarios){
-    int existe;
-    // cadena vectorAux[CANT_USERS];
-    do{
-        printf("Ingresar ");
-        leerCadena(texto, columna);
-        strcpy()
-        existe = busquedaLineal(baseDatos, cantUsuarios, columna);
-        msjDeConfirmacion(texto, existe);
-    
-    }while(existe != USUARIO_INEXISTENTE);
-    
-}
-int busquedaLineal(Cliente datos[],int cantidad, cadena valor)
+bool esPyme()
 {
-    int pos = cantidad -1;
-    while(pos >= 0 && strcmp(datos[pos].DNI, valor) != 0 && strcmp(datos[pos].alias, valor) != 0)
+    cadena pyme;
+    bool esPyme = false;
+
+    leerCadena("Es pyme: ", toupper(pyme));
+
+    do
     {
-        pos--;
+        if (strcmp(pyme, "SI") == 0)
+        {
+            esPyme = true;
+        }
+
+    } while (strcmp(pyme, "SI") != 0 && strcmp(pyme, "NO") != 0);
+
+    return esPyme;
+}
+
+void verificarYRegistrar(cadena texto, cadena dato, Cliente baseDatos[CANT_USERS], int cantUsuarios, int eleccion)
+{
+    int existe;
+
+    do
+    {
+        printf("Ingresar ");
+        leerCadena(texto, dato);
+        existe = buscarDato(baseDatos, cantUsuarios, dato, eleccion);
+        msjDeConfirmacion(texto, existe);
+
+    } while (existe != USUARIO_INEXISTENTE);
+}
+
+int buscarDato(Cliente datos[], int cantidad, cadena valor, int tipodDato)
+{
+    int pos = cantidad - 1;
+    switch (tipodDato)
+    {
+    case OPC_DNI:
+        while (pos >= 0 && strcmp(datos[pos].DNI, valor) != 0)
+        {
+            pos--;
+        }
+        break;
+    case OPC_ALIAS:
+        while (pos >= 0 && strcmp(datos[pos].alias, valor) != 0)
+        {
+            pos--;
+        }
+        break;
     }
+
     return pos;
 }
+///////////// Preguntar a Charly /////////////
+// int busquedaLineal(Cliente datos[], int cantidad, cadena valor)
+// {
+//     int pos = cantidad - 1;
+//     while (pos >= 0 && strcmp(datos[pos].DNI, valor) != 0 && strcmp(datos[pos].alias, valor) != 0)
+//     {
+//         pos--;
+//     }
+//     return pos;
+// }
 
 bool verificarDNI(cadena dni)
 {
     bool valido = true;
-    int posicion= 0;
+    int posicion = 0;
 
-    if((strlen(dni) != 8) || (valido && (dni[0]== '0' && dni[1]== '0'))){
-    valido= false;
+    if ((strlen(dni) != 8) || (valido && (dni[0] == '0' && dni[1] == '0')))
+    {
+        valido = false;
     }
-    while(valido && dni[posicion] != '\0'){
-        if(dni[posicion] < '0' || dni[posicion] > '9'){
+    while (valido && dni[posicion] != '\0')
+    {
+        if (dni[posicion] < '0' || dni[posicion] > '9')
+        {
             valido = false;
         }
         posicion++;
@@ -514,10 +571,9 @@ void menuVistaAdmin()
 //     printf("El saldo actual es %d", *saldoConsultado);
 // }
 
-
-//opcion a
-// #define BUSCAR_ALIAS 0
-// #define BUSCAR_DNI   1
+// opcion a
+//  #define BUSCAR_ALIAS 0
+//  #define BUSCAR_DNI   1
 
 // int busquedaLineal(Cliente datos[], int cantidad, cadena valor, int campo)
 // {
@@ -541,3 +597,26 @@ void menuVistaAdmin()
 //     return pos;
 // }
 
+// void cambiarClaveDeUsuario(int vecClave[], int posicion)
+// {
+//     int contadorIntentos = 0;
+
+//     int claveActual = verificacionClave(&contadorIntentos, vecClave, posicion, "Ingresar clave de seguridad: ", "\nClave Incorrecta, intentalo de nuevo\n");
+
+//     if (contadorIntentos < 3 && vecClave[posicion] == claveActual)
+//     {
+//         claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "\nIngresar nueva clave: \n");
+
+//         while (vecClave[posicion] == claveActual)
+//         {
+//             printf("La clave no puede ser igual a la actual\n");
+//             claveActual = leerEnteroEntre(MIN_CLAVE, MAX_CLAVE, "Ingresar nueva clave: ");
+//         }
+//     }
+//     else
+//     {
+//         printf("\nYA SUPERASTE LA CANTIDAD MAXIMA DE INTENTOS\n");
+//     }
+
+//     vecClave[posicion] = claveActual;
+// }
