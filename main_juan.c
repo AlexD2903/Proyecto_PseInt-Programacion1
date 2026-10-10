@@ -114,7 +114,7 @@ bool verificacionClave(Cliente datos[], int posicion, cadena msjPedido, cadena m
     cadena claveActual;
     int contador = 1;
     leerCadena(msjPedido, claveActual);
-    // comparo como cadena claveIngresada y la clave guardada
+    // comparo como cadena claveIngresada y la clave guardada     contador < MAX_intentos
     while (!esClaveCorrecta(claveActual, datos[posicion].clave) && esMenor(contador, INTENTOS_MAX))
     {
         printf("%s\n", msjError);
