@@ -37,7 +37,7 @@ Cliente listUser[CANT_USERS] = {
     {"Esteban", "Quinteros", "37541469", "123123", "esteban.q", 103204.43, false}};
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
 
-void menuVistaCliente();
+void menuVistaCliente(Cliente datos[], int posUsuario);
 void menuOpcCliente(int *saldo);
 void consultarSaldo(int *saldoConsultado);
 
@@ -402,10 +402,10 @@ bool esPyme()
     cadena pyme;
     bool esPyme = false;
 
-    leerCadena("Es pyme: ", toupper(pyme));
-
     do
     {
+        leerCadena("Es pyme: ", pyme);
+        convertirCadenaAMayuscula(pyme);
         if (strcmp(pyme, "SI") == 0)
         {
             esPyme = true;
@@ -518,20 +518,34 @@ void menuVistaAdmin()
     printf("5. Cerrar sesion\n\n");
 }
 
-//--------------------------------------------Vista cliente
-// void menuVistaCliente()
-// {
-//     // Vista de usuario
-//     printf("HOME BANKING\n\n");
-//     printf("1. Consultar Saldo\n");
-//     printf("2. Ralizar deposito\n");
-//     printf("3. Realizar retiro\n");
-//     printf("4. Transferir\n"); // Vamos viendo
-//     printf("5. Solicitar prestamos\n");
-//     printf("6. Ver movimientos\n"); // vamos viendo
-//     printf("7. CBU\n");             // no olvidarse de agregar Alias
-//     printf("8. Ver beneficios\n");
-// }
+void menuVistaCliente(Cliente datos[], int posUsuario)
+{
+    // Vista Cliente
+    printf("\n");
+    printf("==================================================\n");
+    printf("                 BANCO INSPT                 \n");
+    printf("                HOME BANKING                   \n");
+    printf("==================================================\n\n");
+
+    printf("Bienvenido/a, %s %s\n\n",
+           datos[posUsuario].nombre,
+           datos[posUsuario].apellido);
+
+    printf("--------------- MENU PRINCIPAL ------------------\n\n");
+
+    printf("  1. Consultar saldo\n");
+    printf("  2. Realizar deposito\n");
+    printf("  3. Realizar retiro\n");
+    printf("  4. Realizar transferencia\n");
+    printf("  5. Solicitar prestamo\n");
+    printf("  6. Ver movimientos\n");
+    printf("  7. Consultar CBU y alias\n");
+    printf("  8. Ver beneficios\n");
+    printf("  0. Cerrar sesion\n");
+
+    printf("\n==================================================\n");
+    printf("Seleccione una operacion: ");
+}
 // void menuOpcCliente(int *saldo)
 // {
 

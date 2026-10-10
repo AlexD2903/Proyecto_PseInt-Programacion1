@@ -35,13 +35,13 @@ void mostrarVectorDeCaracteres(char vec[], int cant);
 void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
-
 ////////////////////// MATRICES ////////////////////////////////
 
 ////////////////TERCERA VERSIÓN: Funciones para leer cadenas////////////////
 
 void leerCadena(cadena mensaje, cadena target);
 void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target);
+void convertirCadenaAMayuscula(cadena frase);
 
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////////  IMPLEMENTACIONES  //////////////////////////////
@@ -122,7 +122,6 @@ bool confirmaUsuario(cadena mensaje)
     }
     return (respuesta == 'S');
 }
-
 
 float Promedio(float sumConjunto, int divCantTotal)
 {
@@ -293,5 +292,14 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
     {
         printf("Error. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
         gets(target);
+    }
+}
+void convertirCadenaAMayuscula(cadena frase)
+{
+    int hasta;
+    hasta = strlen(frase);
+    for (int i = 0; i < hasta; i++)
+    {
+        frase[i] = toupper(frase[i]);
     }
 }
