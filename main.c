@@ -343,6 +343,7 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int *cant)
         printf("%d. Cliente: %s %s,\nDNI: %s\n=======================\n", i + 1, baseDatos[i].nombre, baseDatos[i].apellido, baseDatos[i].DNI);
     }
 } // stb
+//alex boton
 
 // --------------------ALTA PERSONAL CASO 1
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
