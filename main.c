@@ -1,11 +1,11 @@
 #include "utils.h"
-#include <windows.h>
+#include <stdlib.h>
 
-#define OPC_MIN 1
-#define OPC_MAX 5
 #define CANT_USERS 6
 #define VACIO 0
-#define OPCION_SALIDA 0
+#define OPC_SALIDA 0
+#define OPC_MODIFICAR_USU 4
+#define OPC_M_GEST_PERS 5
 #define USUARIO_INEXISTENTE -1
 #define OPC_DNI 1
 #define OPC_ALIAS 2
@@ -14,6 +14,10 @@
 #define INTENTO_MAXIMO 3
 #define ADMINISTRADOR 1
 #define CLIENTE 2
+#define LONG_MIN_DNI 7
+#define LONG_MAX_DNI 8
+#define LONG_MIN_ALIAS 6
+#define LONG_MAX_ALIAS 20
 
 typedef struct
 {
@@ -37,6 +41,10 @@ typedef struct
     DatosPersonales datosPersonales;
     DatosBancarios datosBanco;
 } Cliente;
+
+// FORMATO: typedef  <tipo de retorno>  (*<NombreDelTipo>)  (<lista de parámetros>);
+typedef const char *(*ObtenerCampo)(const Cliente *);
+typedef bool (*ReglaFormato)(cadena);
 
 Cliente listUser[CANT_USERS] = {
     {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, ADMINISTRADOR, false}},
@@ -62,18 +70,15 @@ void cabecera();
 
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
 void agregarUsuario(Cliente nuevo, Cliente baseDatos[CANT_USERS], int *cantUsuarios);
-void msjDeConfirmacion(cadena nombreDeDato, int dato);
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
-void verificarDatoExistente(cadena texto, cadena datoNew, Cliente baseDatos[CANT_USERS], int cantUsuarios);
+void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax);
 
 /////////////////// CONSULTAR O MODIFICAR ///////////////////
 
 void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
 void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant);
 void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios);
-void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[], int tipoDato, int cantidad);
-
-void verificarExistenciaDNI(cadena nomCampo, cadena nomDato, Cliente usuario[], int posUsuario, int cantidad, const char *(*obtenerCampo)(const Cliente *));
+void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipoDato, int cantidad);
 
 /////////////////// BAJA ///////////////////
 
@@ -85,10 +90,12 @@ void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios)
 
 int posicionPorDNI(Cliente listUser[], int cantUsuarios);
 bool verificarDNI(cadena dni);
+bool verificaCaracter(char string, char cInicial, char cFinal);
+bool verificarAlias(cadena alias);
 bool esClientePyme(void);
 bool verificacionClave(Cliente usuario);
-int buscarDato(Cliente datos[], int cantidad, const cadena dato, const char *(*obtenerCampo)(const Cliente *));
-// De prueba
+int buscarDato(Cliente datos[], int cantidad, const cadena dato, ObtenerCampo campoBuscado);
+
 const char *obtenerAlias(const Cliente *c);
 const char *obtenerDNI(const Cliente *c);
 const char *obtenerNombre(const Cliente *c);
@@ -99,7 +106,7 @@ int main()
 {
 
     int cantUsuarios = 4;
-    menuGestionarPersonal(listUser,&cantUsuarios);
+    menuGestionarPersonal(listUser, &cantUsuarios);
 
     // bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     // inicioSesion(listUser, cantUsuarios, accesoConcedido);
@@ -175,8 +182,8 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
 
     vistaGestionPersonal();
 
-    opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
-    while (opcion != OPC_MAX)
+    opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
+    while (opcion != OPC_SALIDA)
     {
         switch (opcion)
         {
@@ -197,7 +204,7 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
         system("cls");
         fflush(stdin);
         vistaGestionPersonal();
-        opcion = leerEnteroEntre(OPC_MIN, OPC_MAX, "Elija una opcion del menu: ");
+        opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
     }
 }
 
@@ -219,14 +226,12 @@ void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
         printf("\nUsuario registrado correctamente.");
         printf("\nNombre y apellido: %s %s", newCliente.datosPersonales.nombre, newCliente.datosPersonales.apellido);
         printf("\nAlias: %s\n", newCliente.datosBanco.alias);
-        system("pause");
     }
     else
     {
         printf("No se puede registrar el usuario.\n");
         printf("No hay  mas espacio\n");
         printf("Se alcanzo el limite maximo.\n");
-        system("pause");
     }
 }
 
@@ -237,8 +242,12 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     leerCadena("Ingresar nombre: ", nuevo.datosPersonales.nombre);
     leerCadena("Ingresar apellido: ", nuevo.datosPersonales.apellido);
 
-    verificarDatoExistente("alias", nuevo.datosBanco.alias, baseDatos, cantUsuarios);
-    verificarDatoExistente("DNI", nuevo.datosPersonales.DNI, baseDatos, cantUsuarios);
+    leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
+    verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+
+    leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.alias);
+    verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
+
     leerCadena("Ingrese clave: ", nuevo.datosBanco.clave);
     nuevo.datosBanco.esPyme = esClientePyme();
     nuevo.datosBanco.rol = CLIENTE;
@@ -280,30 +289,29 @@ bool esClientePyme()
     return esuserpyme;
 }
 
-void verificarDatoExistente(cadena texto, cadena datoNew, Cliente baseDatos[CANT_USERS], int cantUsuarios)
+void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax)
 {
-    int existe;
+    bool valido = false;
 
-    do
+    while (!valido)
     {
-        printf("Ingresar %s",texto);
-        leerCadena(": ", datoNew);
-        existe = buscarDato(baseDatos, cantUsuarios, datoNew, obtenerDNI);
-        if (existe == USUARIO_INEXISTENTE)
+        if (!funcionCondicional(datoBuscado))
         {
-            existe = buscarDato(baseDatos, cantUsuarios, datoNew, obtenerAlias);
+            printf("El %s ingresado es invalido.\n", nomDato);
         }
-
-        msjDeConfirmacion(texto, existe);
-
-    } while (existe != USUARIO_INEXISTENTE);
-}
-
-void msjDeConfirmacion(cadena nombreDeDato, int dato)
-{
-    if (dato != USUARIO_INEXISTENTE)
-    {
-        printf("El %s ya existe. Elija otro.\n", nombreDeDato);
+        else if (buscarDato(baseDatos, cantUsuarios, datoBuscado, campoBuscado) != USUARIO_INEXISTENTE)
+        {
+            printf("El %s ya existe.\n", nomDato);
+        }
+        else
+        {
+            valido = true;
+        }
+        if (!valido)
+        {
+            printf("Ingresar %s", nomDato);
+            leerCadenaEntre(longMin, longMax, ": ", datoBuscado);
+        }
     }
 }
 
@@ -344,27 +352,29 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
     if (posUsuario != -1)
     {
         printf("CLIENTE %s %s\n", listUser[posUsuario].datosPersonales.nombre, listUser[posUsuario].datosPersonales.apellido);
-        // nombre, apellido, dni, espyme
         printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
 
-        opc = leerEnteroEntre(0, 3, "Elija una opcion: ");
-        while (opc != OPCION_SALIDA)
+        opc = leerEnteroEntre(OPC_SALIDA, OPC_MODIFICAR_USU, "Elija una opcion: ");
+        while (opc != OPC_SALIDA)
         {
             switch (opc)
             {
             case 1:
-                cambiarDatoDeUsuario("Ingresar nombre: ", posUsuario, listUser, OPC_NOMBRE, *cantUsuarios);
+                cambiarDatoDeUsuario("Ingresar nuevo nombre: ", posUsuario, listUser, OPC_NOMBRE, *cantUsuarios);
                 break;
             case 2:
-                cambiarDatoDeUsuario("Ingresar apellido: ", posUsuario, listUser, OPC_APELLIDO, *cantUsuarios);
+                cambiarDatoDeUsuario("Ingresar nuevo apellido: ", posUsuario, listUser, OPC_APELLIDO, *cantUsuarios);
                 break;
             case 3:
-                cambiarDatoDeUsuario("Ingresar DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
+                cambiarDatoDeUsuario("Ingresar nuevo DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
                 break;
-            
+            case 4:
+                // Agregar tipo de cliente
+                enEspera();
+                break;
             }
-             printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
-            opc = leerEnteroEntre(0, 3, "Elija una opcion: ");
+            printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
+            opc = leerEnteroEntre(OPC_SALIDA, OPC_MODIFICAR_USU, "Elija una opcion: ");
         }
     }
     else
@@ -373,35 +383,27 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
     }
 }
 
+//Esta la opc. de parametrizar la longitud de la cadena y llamar solo una vez leerCadenaEntre()
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad)
 {
     cadena nomDato;
 
-    leerCadena(texto, nomDato);
     switch (tipodDato)
     {
     case OPC_NOMBRE:
+        leerCadena(texto, nomDato);
         strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato);
         break;
     case OPC_APELLIDO:
+        leerCadena(texto, nomDato);
         strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato);
         break;
     case OPC_DNI:
-        verificarExistenciaDNI("DNI", nomDato, usuario, posUsuario, cantidad, obtenerDNI);
+        leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, texto, nomDato);
+        verificarDatoExistente(nomDato, "DNI", usuario, cantidad, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
         strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato);
         break;
     }
-}
-
-// FUNCION NUEVA
-void verificarExistenciaDNI(cadena nomCampo, cadena nomDato, Cliente usuario[], int posUsuario, int cantidad, const char *(*obtenerCampo)(const Cliente *))
-{
-    while (strcmp(nomDato, obtenerCampo(&usuario[posUsuario])) == 0 || buscarDato(usuario, cantidad, nomDato,obtenerCampo) != -1)
-    {
-        printf("El %s ya existe, por favor elija otro:\nElija un nuevo %s", nomCampo, nomCampo);
-        leerCadena(": ", nomDato);
-    }
- 
 }
 
 /* ========================================================================
@@ -414,7 +416,7 @@ void bajaUsuario(Cliente listUser[], int *cantUsuarios)
 
     if (posUsuario != USUARIO_INEXISTENTE)
     {
-        if (verificacionClave(listUser[posUsuario])) // es un vector? NO ES UN VECTOR!
+        if (verificacionClave(listUser[posUsuario])) 
         {
             confirmarEliminacion(listUser, posUsuario, cantUsuarios);
         }
@@ -469,14 +471,14 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
 int posicionPorDNI(Cliente listUser[], int cantUsuarios)
 {
     cadena dniAux;
-    leerCadena("Ingrese DNI de cliente: ", dniAux);
+    leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", dniAux);
     return buscarDato(listUser, cantUsuarios, dniAux, obtenerDNI);
 }
 
-int buscarDato(Cliente datos[], int cantidad, const cadena dato, const char *(*obtenerCampo)(const Cliente *))
+int buscarDato(Cliente datos[], int cantidad, const cadena dato, ObtenerCampo campoBuscado)
 {
     int pos = cantidad - 1;
-    while (pos >= 0 && strcmp(obtenerCampo(&datos[pos]), dato) != 0)
+    while (pos >= 0 && strcmp(campoBuscado(&datos[pos]), dato) != 0)
     {
         pos--;
     }
@@ -504,21 +506,41 @@ bool verificacionClave(Cliente usuario)
     return respuesta;
 }
 
-bool verificarDNI(cadena dni)
+bool verificarAlias(cadena alias)
 {
-    bool valido = true;
+    bool valido = (alias[0] != '\0'); // el alias vacío no es válido
     int posicion = 0;
 
-    if ((strlen(dni) != 8) || (valido && (dni[0] == '0' && dni[1] == '0')))
+    while (valido && alias[posicion] != '\0')
+    {
+        bool numeros = verificaCaracter(alias[posicion], '0', '9');
+        bool mayus = verificaCaracter(alias[posicion], 'A', 'Z');
+        bool minus = verificaCaracter(alias[posicion], 'a', 'z');
+        bool signos = verificaCaracter(alias[posicion], '-', '.');
+
+        valido = numeros || mayus || minus || signos;
+
+        posicion++;
+    }
+    return valido;
+}
+bool verificaCaracter(char string, char cInicial, char cFinal)
+{
+    return (string >= cInicial && string <= cFinal);
+}
+
+bool verificarDNI(cadena dni)
+{
+    bool valido = (dni[0] != '\0');
+    int posicion = 0;
+
+    if (valido && dni[0] == '0' && dni[1] == '0')
     {
         valido = false;
     }
     while (valido && dni[posicion] != '\0')
     {
-        if (dni[posicion] < '0' || dni[posicion] > '9')
-        {
-            valido = false;
-        }
+        valido = verificaCaracter(dni[posicion], '0', '9');
         posicion++;
     }
     return valido;
@@ -606,74 +628,4 @@ void enEspera()
 //             break;
 //         }
 //     }
-// }
-
-// ---------- Version anterior de cambiarDatoDeUsuario ----------
-
-// void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad)
-// {
-//     cadena nomDato;
-
-//     leerCadena(texto, nomDato);
-//     switch (tipodDato)
-//     {
-//     case OPC_NOMBRE:
-//         while (strcmp(nomDato, usuario[posUsuario].datosPersonales.nombre))
-//         {
-//             printf("El nombre ya existe, por favor elija otro:\n");
-//             leerCadena("Elija un nuevo nombre: ", nomDato);
-//         }
-//         strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato);
-//         break;
-//     case OPC_APELLIDO:
-//         while (strcmp(nomDato, usuario[posUsuario].datosPersonales.apellido))
-//         {
-//             printf("El apellido ya existe, por favor elija otro:\n");
-//             leerCadena("Elija un nuevo apellido: ", nomDato);
-//         }
-//         strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato);
-//         break;
-//     case OPC_DNI:
-//         while (strcmp(nomDato, usuario[posUsuario].datosPersonales.DNI) == 0 || buscarDNI(usuario, cantidad, nomDato) != -1)
-//         {
-//             printf("El DNI ya existe, por favor elija otro:\n");
-//             leerCadena("Elija un nuevo DNI: ", nomDato);
-//         }
-//         strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato);
-//     }
-// }
-
-// ---------- Versiones anteriores de las funciones de busqueda ----------
-
-// int buscarAlias(Cliente datos[], int cantidad, cadena dato)
-// {
-//     int pos = cantidad - 1;
-//     while (pos >= 0 && strcmp(datos[pos].datosBanco.alias, dato) != 0)
-//     {
-//         pos--;
-//     }
-//     return pos;
-// }
-
-// Alex: hizo dos funciones para no matarnos con los parametros y se vuelve más cohesiva
-// int buscarDato(Cliente datos[], int cantidad, cadena valor, int tipodDato)
-// {
-//     int pos = cantidad - 1;
-//     switch (tipodDato)
-//     {
-//     case OPC_DNI:
-//         while (pos >= 0 && strcmp(datos[pos].datosPersonales.DNI, valor) != 0)
-//         {
-//             pos--;
-//         }
-//         break;
-//     case OPC_ALIAS:
-//         while (pos >= 0 && strcmp(datos[pos].datosBanco.alias, valor) != 0)
-//         {
-//             pos--;
-//         }
-//         break;
-//     }
-
-//     return pos;
 // }
