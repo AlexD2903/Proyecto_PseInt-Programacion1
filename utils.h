@@ -286,19 +286,20 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
     /* Muestra el mensaje al usuario y luego lee una
     cadena por referencia usando la función 'gets()' mientras
     su longitud no esté dentro del rango [minLength, maxLength] */
-    printf("%s \n", mensaje);
+    printf("%s", mensaje);
+    fflush(stdin);
     gets(target);
     while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) // Se castea para que no haya errores si ingresa un numero negativo
     {
-        printf("Error. La cadena no cumple con un minimo de %d caracteres y de %d caracteres.", minLength, maxLength);
+        puts("Longitud invalida. ");
+        fflush(stdin);
+        printf("%s", mensaje);
         gets(target);
     }
 }
 void convertirCadenaAMayuscula(cadena frase)
 {
-    int hasta;
-    hasta = strlen(frase);
-    for (int i = 0; i < hasta; i++)
+    for (int i = 0; i < (int)strlen(frase); i++)
     {
         frase[i] = toupper(frase[i]);
     }
