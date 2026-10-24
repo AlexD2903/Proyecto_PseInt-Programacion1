@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>      // Para usar el tipo de dato bool
 #include <string.h>       // Este #include servirá para más adelante…
@@ -104,23 +105,27 @@ float leerFloatEntre(float valorMin, float valorMax, cadena mensaje)
     }
     return numero;
 }
+
 bool confirmaUsuario(cadena mensaje)
 {
     /* Muestra el mensaje al usuario junto a la leyenda "[S/N]" que
        representa "Si" o "No". Luego, lee chars mientras éstos no sean los
        previstos ('S' o 'N', incluyendo minúsculas) informando al
        usuario de su error. Retorna si el usuario seleccionó que sí. */
-    char respuesta;
-    printf("%s [S/N]: ", mensaje);
-    scanf(" %c", &respuesta);
-    respuesta = toupper(respuesta);
-    while (respuesta != 'S' && respuesta != 'N')
-    {
-        printf("Error. Respuesta no valida. Ingrese S o N: ");
-        scanf(" %c", &respuesta);
-        respuesta = toupper(respuesta);
+    cadena respuesta;
+
+    puts(mensaje);
+    gets(respuesta);
+    convertirCadenaAMayuscula(respuesta);
+
+    while (strcmp(respuesta, "SI")!= 0 && strcmp(respuesta, "NO")!=0) 
+    { 
+        printf("Error. Ingrese Si o No: ");
+        gets(respuesta);
+        convertirCadenaAMayuscula(respuesta);
     }
-    return (respuesta == 'S');
+    system("cls");
+    return (strcmp(respuesta, "SI") == 0);
 }
 
 float Promedio(float sumConjunto, int divCantTotal)

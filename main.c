@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <stdlib.h>
 
 #define CANT_USERS 6
 #define VACIO 0
@@ -46,8 +45,11 @@ typedef struct
 typedef const char *(*ObtenerCampo)(const Cliente *);
 typedef bool (*ReglaFormato)(cadena);
 
+
+
 Cliente listUser[CANT_USERS] = {
-    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, ADMINISTRADOR, false}},
+    {{"Charly", "Cimino", "11111111"}, {"alex123", "alex.r", 0.0, ADMINISTRADOR, false}},
+    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, CLIENTE, false}},
     {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, CLIENTE, false}},
     {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, CLIENTE, true}},
     {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, CLIENTE, false}}};
@@ -101,6 +103,9 @@ const char *obtenerDNI(const Cliente *c);
 const char *obtenerNombre(const Cliente *c);
 const char *obtenerApellido(const Cliente *c);
 
+//////////////////////OTRAS FUCIONES////////////////////////
+void limpiarPantalla();
+
 // --------------MAIN
 int main()
 {
@@ -123,7 +128,7 @@ void cabecera()
     printf("\n");
     printf("   __________________________________________   \n");
     printf("  |                                          |  \n");
-    printf("  |             BANCO INSPT                  |  \n");
+    printf("  |             BANCO ABRAXAS                |  \n");
     printf("  |          ------------------              |  \n");
     printf("  |          PLATAFORMA DIGITAL              |  \n");
     printf("  |__________________________________________|  \n");
@@ -200,9 +205,8 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
             bajaUsuario(list, cantUsuarios);
             break;
         }
-        system("pause");
-        system("cls");
-        fflush(stdin);
+
+        limpiarPantalla();
         vistaGestionPersonal();
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
     }
@@ -351,6 +355,7 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
 
     if (posUsuario != -1)
     {
+        system("cls");
         printf("CLIENTE %s %s\n", listUser[posUsuario].datosPersonales.nombre, listUser[posUsuario].datosPersonales.apellido);
         printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
 
@@ -373,6 +378,7 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
                 enEspera();
                 break;
             }
+            system("cls");
             printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
             opc = leerEnteroEntre(OPC_SALIDA, OPC_MODIFICAR_USU, "Elija una opcion: ");
         }
@@ -383,25 +389,28 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
     }
 }
 
-//Esta la opc. de parametrizar la longitud de la cadena y llamar solo una vez leerCadenaEntre()
+// Esta la opc. de parametrizar la longitud de la cadena y llamar solo una vez leerCadenaEntre()
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad)
 {
     cadena nomDato;
-
+    // PENDIENTE QUE ALEX LO MODULARIZE
     switch (tipodDato)
     {
     case OPC_NOMBRE:
         leerCadena(texto, nomDato);
-        strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato);
+        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato) : NULL;
         break;
+
     case OPC_APELLIDO:
         leerCadena(texto, nomDato);
-        strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato);
+        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato) : NULL;
         break;
+
     case OPC_DNI:
         leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, texto, nomDato);
         verificarDatoExistente(nomDato, "DNI", usuario, cantidad, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
-        strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato);
+        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato) : NULL;
+
         break;
     }
 }
@@ -416,7 +425,7 @@ void bajaUsuario(Cliente listUser[], int *cantUsuarios)
 
     if (posUsuario != USUARIO_INEXISTENTE)
     {
-        if (verificacionClave(listUser[posUsuario])) 
+        if (verificacionClave(listUser[posUsuario]))
         {
             confirmarEliminacion(listUser, posUsuario, cantUsuarios);
         }
@@ -629,3 +638,10 @@ void enEspera()
 //         }
 //     }
 // }
+
+//dejalo asi, no saques el fflush
+void limpiarPantalla(){
+    fflush(stdin);
+    system("pause");
+    system("cls");
+}
