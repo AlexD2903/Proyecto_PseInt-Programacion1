@@ -17,6 +17,7 @@
 #define LONG_MAX_DNI 8
 #define LONG_MIN_ALIAS 6
 #define LONG_MAX_ALIAS 20
+#define CANT_ADMINS 3
 
 typedef struct
 {
@@ -30,8 +31,13 @@ typedef struct
 {
     cadena clave,
         alias;
+} DatosLogin;
+
+typedef struct
+{
+    DatosLogin datosLogin;
     float saldo;
-    int rol;
+    // int rol;
     bool esPyme;
 } DatosBancarios;
 
@@ -41,18 +47,28 @@ typedef struct
     DatosBancarios datosBanco;
 } Cliente;
 
+// Administrador
+typedef struct
+{
+    DatosPersonales datosPersonales;
+    DatosLogin datosLogin;
+} Administradores;
+
 // FORMATO: typedef  <tipo de retorno>  (*<NombreDelTipo>)  (<lista de parámetros>);
-typedef const char *(*ObtenerCampo)(const Cliente *);
+typedef const char *(*ObtenerCampo)(const Cliente *); 
 typedef bool (*ReglaFormato)(cadena);
 
-
+Administradores listAdmins[CANT_ADMINS] = {
+    {{"Charly", "Cimino", "11111111"}, {"charly.cimino", "terminator2"}},
+    {{"Juan", "Messi", "16161616"}, {"juan.messi", "terminator3"}}
+};
 
 Cliente listUser[CANT_USERS] = {
-    {{"Charly", "Cimino", "11111111"}, {"alex123", "alex.r", 0.0, ADMINISTRADOR, false}},
-    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, CLIENTE, false}},
-    {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, CLIENTE, false}},
-    {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, CLIENTE, true}},
-    {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, CLIENTE, false}}};
+    {{"Alex", "Ramos", "12121212"}, {{"alex123", "alex.r"}, 340.4, false}},
+    {{"Santiago", "Gutierrez", "13131313"}, {{"Santi2", "santi.g"}, 10000.0, false}},
+    {{"Juan", "Britez", "14141414"}, {{"Juan.Britez", "Juam1989"}, 4303.56, true}},
+    {{"Esteban", "Quinteros", "15151515"}, {{"123123", "esteban.q"}, 10204.43, false}}
+};
 
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
 
@@ -63,14 +79,15 @@ void consultarSaldo(float saldoConsultado);
 /////////////////// FUNCIONES DEL ADMINISTRADOR ///////////////////
 
 void menuVistaAdmin(void);
-void menuGestionarPersonal(Cliente list[], int *cantUsuarios);
+void menuGestionarPersonal(Cliente list[], int *cantUsuarios, Administradores listAdmins[], int *cantAdmins);
 void vistaGestionPersonal(void);
 void enEspera(void);
 void cabecera();
+Administradores nuevoAdministrador(Administradores baseDatos[CANT_ADMINS], int cantAdministradores);
 
 /////////////////// ALTA PERSONAL ///////////////////
 
-void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
+void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios, Administradores listAdmins[CANT_ADMINS], int *cantAdmins);
 void agregarUsuario(Cliente nuevo, Cliente baseDatos[CANT_USERS], int *cantUsuarios);
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
 void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax);
@@ -81,6 +98,9 @@ void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
 void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant);
 void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios);
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipoDato, int cantidad);
+void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
+void mostrarListadAdministradores(Administradores baseDatos[CANT_USERS], int cant);
+void listaAdministradores(Administradores baseDatos[], int *cantUsuarios);
 
 /////////////////// BAJA ///////////////////
 
@@ -102,6 +122,7 @@ const char *obtenerAlias(const Cliente *c);
 const char *obtenerDNI(const Cliente *c);
 const char *obtenerNombre(const Cliente *c);
 const char *obtenerApellido(const Cliente *c);
+const char *obtenerAliasAdmin(const Administradores *c);
 
 //////////////////////OTRAS FUCIONES////////////////////////
 void limpiarPantalla();
@@ -111,7 +132,8 @@ int main()
 {
 
     int cantUsuarios = 4;
-    menuGestionarPersonal(listUser, &cantUsuarios);
+    int cantAdmins = 2;
+    menuGestionarPersonal(listUser, &cantUsuarios, listAdmins, &cantAdmins);
 
     // bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     // inicioSesion(listUser, cantUsuarios, accesoConcedido);
@@ -139,13 +161,13 @@ void cabecera()
 
 void vistaGestionPersonal()
 {
-    // Vista de usuario
     printf("GESTION PERSONAL\n\n");
-    printf("1. Alta de nuevo usuario\n"); // C
-    printf("2. Ver lista de usuarios\n"); // R
-    printf("3. Modificar usuario\n");     // U
-    printf("4. Baja de usuario\n");       // D
-    printf("5. Volver\n\n");
+    printf("1. Alta de nuevo usuario\n");
+    printf("2. Ver lista de clientes\n");
+    printf("3. Ver lista de administradores\n");
+    printf("4. Modificar usuario\n");
+    printf("5. Baja de usuario\n");
+    printf("6. Volver\n\n");
 }
 
 void menuVistaCliente(Cliente datos[], int posUsuario)
@@ -181,7 +203,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
  *  2. MENU DE GESTION DE PERSONAL (ADMINISTRADOR)
  * ======================================================================== */
 
-void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
+void menuGestionarPersonal(Cliente list[], int *cantUsuarios, Administradores listAdmins[], int *cantAdmins)
 {
     int opcion = 0;
 
@@ -192,16 +214,19 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
     {
         switch (opcion)
         {
-        case 1: // C (Create / Crear)
-            altaPersonal(list, cantUsuarios);
+        case 1:
+            altaPersonal(list, cantUsuarios, listAdmins, cantAdmins);
             break;
-        case 2: // R (Read / Leer o Consultar)
+        case 2:
             listaUsuarios(list, cantUsuarios);
             break;
-        case 3: // U (Update / Actulizar o Modificar)
+        case 3:
+            listaAdministradores(listAdmins, cantAdmins);
+            break;
+        case 4:
             modificarUsuario(list, cantUsuarios);
             break;
-        case 4: // D (Delete / Borrar o Eliminar)
+        case 5:
             bajaUsuario(list, cantUsuarios);
             break;
         }
@@ -216,27 +241,61 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
  *  3. ALTA DE USUARIO (Create)
  * ======================================================================== */
 
-void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
+void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios, Administradores listAdmins[CANT_ADMINS], int *cantAdmins)
 {
     Cliente newCliente;
+    Administradores newAdmin;
 
-    if (*cantUsuarios < CANT_USERS)
+    printf("Es cliente o administrador?\n1. Cliente\n2. Administrador\n");
+    int opcion = leerEnteroEntre(1, 2, "Elija una opcion: ");
+
+    switch (opcion)
     {
+    case 1:
+        if (*cantUsuarios < CANT_USERS)
+        { 
 
-        printf("========== ALTA DE PERSONAL ==========\n");
-        newCliente = nuevoUsuario(baseDatos, *cantUsuarios);
-        agregarUsuario(newCliente, baseDatos, cantUsuarios);
+            printf("========== ALTA DE CLIENTE ==========\n");
+            newCliente = nuevoUsuario(baseDatos, *cantUsuarios);
+            agregarUsuario(newCliente, baseDatos, cantUsuarios);
 
-        printf("\nUsuario registrado correctamente.");
-        printf("\nNombre y apellido: %s %s", newCliente.datosPersonales.nombre, newCliente.datosPersonales.apellido);
-        printf("\nAlias: %s\n", newCliente.datosBanco.alias);
+            printf("\nUsuario registrado correctamente.");
+            printf("\nNombre y apellido: %s %s", newCliente.datosPersonales.nombre, newCliente.datosPersonales.apellido);
+            printf("\nAlias: %s\n", newCliente.datosBanco.datosLogin.alias);
+        }
+        else
+        {
+            printf("No se puede registrar el usuario.\n");
+            printf("No hay  mas espacio\n");
+            printf("Se alcanzo el limite maximo.\n");
+        }
+    case 2:
+        if (*cantAdmins < CANT_ADMINS)
+        {
+            printf("========== ALTA DE ADMINISTRADOR ==========\n");
+            newAdmin = nuevoAdministrador(listAdmins, *cantAdmins);
+        }
+        else
+        {
+            printf("No se pueden registrar mas administradores\n");
+        }
     }
-    else
-    {
-        printf("No se puede registrar el usuario.\n");
-        printf("No hay  mas espacio\n");
-        printf("Se alcanzo el limite maximo.\n");
-    }
+}
+
+Administradores nuevoAdministrador(Administradores baseDatos[CANT_ADMINS], int cantAdministradores)
+{
+    Administradores nuevo;
+
+    leerCadena("Ingresar nombre: ", nuevo.datosPersonales.nombre);
+    leerCadena("Ingresar apellido: ", nuevo.datosPersonales.apellido);
+
+    leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
+    verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantAdministradores, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+
+    leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar nombre de Usuario: ", nuevo.datosLogin.alias);
+    verificarDatoExistente(nuevo.datosLogin.alias, "Nombre Usuario", baseDatos, cantAdministradores, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
+
+    return nuevo;
 }
 
 Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
@@ -249,12 +308,12 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
     verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
 
-    leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.alias);
-    verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
+    leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.datosLogin.alias);
+    verificarDatoExistente(nuevo.datosBanco.datosLogin.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
 
-    leerCadena("Ingrese clave: ", nuevo.datosBanco.clave);
+    leerCadena("Ingrese clave: ", nuevo.datosBanco.datosLogin.clave);
     nuevo.datosBanco.esPyme = esClientePyme();
-    nuevo.datosBanco.rol = CLIENTE;
+    // nuevo.datosBanco.rol = CLIENTE;
     nuevo.datosBanco.saldo = 0;
 
     return nuevo;
@@ -262,14 +321,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.nombre, new.datosPersonales.nombre);
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.apellido, new.datosPersonales.apellido);
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.DNI, new.datosPersonales.DNI);
-    strcpy(baseDatos[*cantUsuarios].datosBanco.alias, new.datosBanco.alias);
-    strcpy(baseDatos[*cantUsuarios].datosBanco.clave, new.datosBanco.clave);
-    baseDatos[*cantUsuarios].datosBanco.saldo = new.datosBanco.saldo;
-    baseDatos[*cantUsuarios].datosBanco.esPyme = new.datosBanco.esPyme;
-    baseDatos[*cantUsuarios].datosBanco.rol = new.datosBanco.rol;
+    baseDatos[*cantUsuarios] = new;
 
     (*cantUsuarios)++;
 }
@@ -323,6 +375,7 @@ void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDato
  *  4. CONSULTA DE USUARIOS (Read)
  * ======================================================================== */
 
+/// LISTA CLIENTEES
 void listaUsuarios(Cliente baseDatos[], int *cantUsuarios)
 {
     if (*cantUsuarios > VACIO)
@@ -342,7 +395,22 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant)
     {
         printf("%d. Cliente: %s %s,\nDNI: %s\n=======================\n", i + 1, baseDatos[i].datosPersonales.nombre, baseDatos[i].datosPersonales.apellido, baseDatos[i].datosPersonales.DNI);
     }
-} // stb
+}
+
+// LISTA DE ADMINISTRADORES
+void listaAdministradores(Administradores baseDatos[], int *cantUsuarios)
+{
+    printf("\nLista de Administradores:\n");
+    mostrarListadAdministradores(baseDatos, *cantUsuarios);
+}
+
+void mostrarListadAdministradores(Administradores baseDatos[CANT_USERS], int cant)
+{
+    for (int i = 0; i < cant; i++)
+    {
+        printf("%d. Nombre: %s %s,\nDNI: %s\n=======================\n", i + 1, baseDatos[i].datosPersonales.nombre, baseDatos[i].datosPersonales.apellido, baseDatos[i].datosPersonales.DNI);
+    }
+}
 
 /* ========================================================================
  *  5. MODIFICACION DE USUARIOS (Update)
@@ -460,14 +528,7 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
 {
     for (int i = posUser; i < (*cantUser - 1); i++)
     {
-        strcpy(listUser[i].datosPersonales.nombre, listUser[i + 1].datosPersonales.nombre);
-        strcpy(listUser[i].datosPersonales.apellido, listUser[i + 1].datosPersonales.apellido);
-        strcpy(listUser[i].datosPersonales.DNI, listUser[i + 1].datosPersonales.DNI);
-        strcpy(listUser[i].datosBanco.clave, listUser[i + 1].datosBanco.clave);
-        strcpy(listUser[i].datosBanco.alias, listUser[i + 1].datosBanco.alias);
-        listUser[i].datosBanco.saldo = listUser[i + 1].datosBanco.saldo;
-        listUser[i].datosBanco.esPyme = listUser[i + 1].datosBanco.esPyme;
-        listUser[i].datosBanco.rol = listUser[i + 1].datosBanco.rol;
+        listUser[i] = listUser[i + 1];
     }
 
     (*cantUser)--;
@@ -503,7 +564,7 @@ bool verificacionClave(Cliente usuario)
     do
     {
         leerCadena("\nIngrese la clave: ", claveAux);
-        respuesta = strcmp(usuario.datosBanco.clave, claveAux) == 0;
+        respuesta = strcmp(usuario.datosBanco.datosLogin.clave, claveAux) == 0;
 
         if (!respuesta)
         {
@@ -576,7 +637,12 @@ const char *obtenerDNI(const Cliente *c)
 
 const char *obtenerAlias(const Cliente *c)
 {
-    return c->datosBanco.alias;
+    return c->datosBanco.datosLogin.alias;
+}
+
+const char *obtenerAliasAdmin(const Administradores *c)
+{
+    return c->datosLogin.alias;
 }
 
 /* ========================================================================
@@ -601,7 +667,7 @@ void enEspera()
 //     Cliente aliasOdni;
 //     bool accesoConcedido = false;
 //     cabecera();
-//     verificarDatoExistente("DNI o alias ", aliasOdni.datosBanco.alias, datos, posUsuario);
+//     verificarDatoExistente("DNI o alias ", aliasOdni.datosBanco.datosLogin.alias, datos, posUsuario);
 //     *posUsuario =
 //         if (!esIgual(*posUsuario, USUARIO_INEXISTENTE))
 //     {
@@ -639,8 +705,9 @@ void enEspera()
 //     }
 // }
 
-//dejalo asi, no saques el fflush
-void limpiarPantalla(){
+// dejalo asi, no saques el fflush
+void limpiarPantalla()
+{
     fflush(stdin);
     system("pause");
     system("cls");
