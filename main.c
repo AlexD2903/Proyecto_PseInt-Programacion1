@@ -5,6 +5,7 @@
 #define OPC_SALIDA 0
 #define OPC_MODIFICAR_USU 4
 #define OPC_M_GEST_PERS 5
+#define OPC_M_GEST_CLIENT 6
 #define USUARIO_INEXISTENTE -1
 #define OPC_DNI 1
 #define OPC_ALIAS 2
@@ -56,7 +57,7 @@ Cliente listUser[CANT_USERS] = {
 
 void menuVistaCliente(Cliente datos[], int posUsuario);
 void menuOpcCliente(float *saldo);
-void consultarSaldo(float saldoConsultado);
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers);
 
 /////////////////// FUNCIONES DEL ADMINISTRADOR ///////////////////
 
@@ -79,6 +80,7 @@ void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
 void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant);
 void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios);
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipoDato, int cantidad);
+void consultarSaldo(Cliente cliente);
 
 /////////////////// BAJA ///////////////////
 
@@ -108,11 +110,14 @@ void limpiarPantalla();
 int main()
 {
 
-    int cantUsuarios = 4;
-    menuGestionarPersonal(listUser, &cantUsuarios);
-
+    // int cantUsuarios = 4;
+    int cantClientes = 4;
+    //  menuGestionarPersonal(listUser, &cantUsuarios);
+    int posUsuario = 2;
     // bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     // inicioSesion(listUser, cantUsuarios, accesoConcedido);
+
+    menuGestionDeCliente(listUser, posUsuario, &cantClientes);
 
     return 0;
 }
@@ -126,7 +131,7 @@ void cabecera()
     printf("\n");
     printf("   __________________________________________   \n");
     printf("  |                                          |  \n");
-    printf("  |             BANCO ABRAXAS                |  \n");
+    printf("  |            BANCO ABRAXAS                |  \n");
     printf("  |          ------------------              |  \n");
     printf("  |          PLATAFORMA DIGITAL              |  \n");
     printf("  |__________________________________________|  \n");
@@ -151,7 +156,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     // Vista Cliente
     printf("\n");
     printf("==================================================\n");
-    printf("                 BANCO INSPT                 \n");
+    printf("                 BANCO ABRAXAS                 \n");
     printf("                HOME BANKING                   \n");
     printf("==================================================\n\n");
 
@@ -165,14 +170,69 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     printf("  2. Realizar deposito\n");
     printf("  3. Realizar retiro\n");
     printf("  4. Realizar transferencia\n");
-    printf("  5. Solicitar prestamo\n");
-    printf("  6. Ver movimientos\n");
-    printf("  7. Consultar CBU y alias\n");
-    printf("  8. Ver beneficios\n");
+    printf("  5. Ver movimientos\n");
+    printf("  6. Consultar CBU y alias\n");
+    // printf("  5. Solicitar prestamo\n");
     printf("  0. Cerrar sesion\n");
 
     printf("\n==================================================\n");
     printf("Seleccione una operacion: ");
+}
+
+///////////////////////INICIAR SESION////////////////////////////
+
+// void iniciarSesion(){
+
+//     printf("Ingrese su usuario");
+
+//     printf("Ingrese su clave");
+// }
+
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers)
+{
+
+    menuVistaCliente(listClientes, posicionActual);
+    int opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
+
+    while (opcion != OPC_SALIDA)
+    {
+        switch (opcion)
+        {
+        case 1:
+            consultarSaldo(listClientes[posicionActual]);
+            break;
+        case 2:
+            realizarDeposito(); // no sirve
+            break;
+        case 3:
+            realizarRetiro(); // no sirve
+            break;
+        case 4:
+            realizarTransferencia();
+            break;
+        case 5:
+            verMovimientos();
+            break;
+        case 6:
+            consultarCBUyAlias();
+            break;
+        default:
+            puts("Gracias vuelvas prontos");
+            break;
+        }
+        limpiarPantalla();
+        menuVistaCliente(listClientes, posicionActual);
+        opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
+    }
+}
+
+void consultarSaldo(Cliente clienteActual)
+{
+    printf("Saldo actual: %.2f", clienteActual.datosBanco.saldo);
+}
+
+void realizarDeposito(Cliente list)
+{
 }
 
 /* ========================================================================
@@ -260,14 +320,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.nombre, new.datosPersonales.nombre);
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.apellido, new.datosPersonales.apellido);
-    strcpy(baseDatos[*cantUsuarios].datosPersonales.DNI, new.datosPersonales.DNI);
-    strcpy(baseDatos[*cantUsuarios].datosBanco.alias, new.datosBanco.alias);
-    strcpy(baseDatos[*cantUsuarios].datosBanco.clave, new.datosBanco.clave);
-    baseDatos[*cantUsuarios].datosBanco.saldo = new.datosBanco.saldo;
-    baseDatos[*cantUsuarios].datosBanco.esPyme = new.datosBanco.esPyme;
-    baseDatos[*cantUsuarios].datosBanco.rol = new.datosBanco.rol;
+    baseDatos[*cantUsuarios] = new;
 
     (*cantUsuarios)++;
 }
@@ -391,7 +444,7 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipodDato, int cantidad)
 {
     cadena nomDato;
-    // PENDIENTE QUE ALEX LO MODULARIZE
+
     switch (tipodDato)
     {
     case OPC_NOMBRE:
@@ -458,14 +511,7 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
 {
     for (int i = posUser; i < (*cantUser - 1); i++)
     {
-        strcpy(listUser[i].datosPersonales.nombre, listUser[i + 1].datosPersonales.nombre);
-        strcpy(listUser[i].datosPersonales.apellido, listUser[i + 1].datosPersonales.apellido);
-        strcpy(listUser[i].datosPersonales.DNI, listUser[i + 1].datosPersonales.DNI);
-        strcpy(listUser[i].datosBanco.clave, listUser[i + 1].datosBanco.clave);
-        strcpy(listUser[i].datosBanco.alias, listUser[i + 1].datosBanco.alias);
-        listUser[i].datosBanco.saldo = listUser[i + 1].datosBanco.saldo;
-        listUser[i].datosBanco.esPyme = listUser[i + 1].datosBanco.esPyme;
-        listUser[i].datosBanco.rol = listUser[i + 1].datosBanco.rol;
+        listUser[i] = listUser[i + 1];
     }
 
     (*cantUser)--;

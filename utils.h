@@ -33,7 +33,7 @@ void leerVectorDeFloatsEntre(float valorMin, float valorMax, cadena mensaje, flo
 void mostrarVectorDeEnteros(int vec[], int cant);
 void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
-void ordenarVectorDeEnterosAscendente(int vec[], int cant);
+// void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
 ////////////////////// MATRICES ////////////////////////////////
@@ -118,8 +118,8 @@ bool confirmaUsuario(cadena mensaje)
     gets(respuesta);
     convertirCadenaAMayuscula(respuesta);
 
-    while (strcmp(respuesta, "SI")!= 0 && strcmp(respuesta, "NO")!=0) 
-    { 
+    while (strcmp(respuesta, "SI") != 0 && strcmp(respuesta, "NO") != 0)
+    {
         printf("Error. Ingrese Si o No: ");
         gets(respuesta);
         convertirCadenaAMayuscula(respuesta);
@@ -237,25 +237,26 @@ void mostrarVectorDeCaracteres(char vec[], int cant)
     }
 }
 
-void ordenarVectorDeEnterosAscendente(int vec[], int cant)
-{
-    /* Ordena los valores de 'vec' de forma ascendente (menor a mayor),
-    utilizando algún algoritmo de ordenamiento (investigar) */
-    /*Método de búrbuja*/
-    int aux;
-    for (int i = 0; i < (cant - 1); i++)
-    {
-        for (int j = i + 1; j < cant; j++)
-        {
-            if (vec[j] < vec[i])
-            {
-                aux = vec[j];
-                vec[j] = vec[i];
-                vec[i] = aux;
-            }
-        }
-    }
-}
+// void ordenarVectorDeCadenasAscendente(cadena vec[], int cant)
+// {
+//     /* Ordena los valores de 'vec' de forma ascendente (menor a mayor),
+//     utilizando algún algoritmo de ordenamiento (investigar) */
+//     /*Método de búrbuja*/
+//     cadena aux;
+//     for (int i = 0; i < (cant - 1); i++)
+//     {
+//         for (int j = i + 1; j < cant; j++)
+//         {
+//             if (vec[j] < vec[i])
+//             {
+//                 aux = vec[j];
+//                 vec[j] = vec[i];
+//                 vec[i] = aux;
+//             }
+//         }
+//     }
+// }
+
 void ordenarVectorDeEnterosDescendente(int vec[], int cant)
 {
     /* Ordena los valores de 'vec' de forma descendente (mayor a menor),
