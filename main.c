@@ -46,13 +46,6 @@ typedef struct
 typedef const char *(*ObtenerCampo)(const Cliente *);
 typedef bool (*ReglaFormato)(cadena);
 
-Cliente listUser[CANT_USERS] = {
-    {{"Charly", "Cimino", "11111111"}, {"alex123", "alex.r", 0.0, ADMINISTRADOR, false}},
-    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, CLIENTE, false}},
-    {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, CLIENTE, false}},
-    {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, CLIENTE, true}},
-    {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, CLIENTE, false}}};
-
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
 
 void menuVistaCliente(Cliente datos[], int posUsuario);
@@ -109,7 +102,13 @@ void limpiarPantalla();
 // --------------MAIN
 int main()
 {
-
+    Cliente listUser[CANT_USERS] = {
+    {{"Charly", "Cimino", "11111111"}, {"charly.c", "terminator2", 0.0, ADMINISTRADOR, false}},
+    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, CLIENTE, false}},
+    {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, CLIENTE, false}},
+    {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, CLIENTE, true}},
+    {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, CLIENTE, false}}};
+    
     // int cantUsuarios = 4;
     int cantClientes = 4;
     //  menuGestionarPersonal(listUser, &cantUsuarios);
@@ -117,7 +116,7 @@ int main()
     // bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     // inicioSesion(listUser, cantUsuarios, accesoConcedido);
 
-    menuGestionDeCliente(listUser, posUsuario, &cantClientes);
+    //menuGestionDeCliente(listUser, posUsuario, &cantClientes);
 
     return 0;
 }
@@ -148,7 +147,7 @@ void vistaGestionPersonal()
     printf("2. Ver lista de usuarios\n"); // R
     printf("3. Modificar usuario\n");     // U
     printf("4. Baja de usuario\n");       // D
-    printf("5. Volver\n\n");
+    printf("0. Volver\n\n");
 }
 
 void menuVistaCliente(Cliente datos[], int posUsuario)
@@ -187,7 +186,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 //     printf("Ingrese su clave");
 // }
-
+/* 
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers)
 {
 
@@ -202,7 +201,7 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantU
             consultarSaldo(listClientes[posicionActual]);
             break;
         case 2:
-            realizarDeposito(); // no sirve
+            //realizarDeposito(); // no sirve
             break;
         case 3:
             realizarRetiro(); // no sirve
@@ -225,16 +224,16 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantU
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
     }
 }
-
+*/
 void consultarSaldo(Cliente clienteActual)
 {
     printf("Saldo actual: %.2f", clienteActual.datosBanco.saldo);
 }
-
+/* 
 void realizarDeposito(Cliente list)
 {
 }
-
+ */
 /* ========================================================================
  *  2. MENU DE GESTION DE PERSONAL (ADMINISTRADOR)
  * ======================================================================== */
