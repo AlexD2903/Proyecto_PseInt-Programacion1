@@ -19,6 +19,12 @@
 #define LONG_MIN_ALIAS 6
 #define LONG_MAX_ALIAS 20
 
+#define MONTO_RETIRO_MIN 1000.00
+#define MONTO_INGRESO_MIN 1000.00
+#define MONTO_INGRESO_MAX 1500000.00
+#define LIMITE_EXTRACION 1000000.00
+#define LIMITE_CERO 0.00
+
 typedef struct
 {
     cadena nombre,
@@ -31,7 +37,8 @@ typedef struct
 {
     cadena clave,
         alias;
-    float saldo;
+    float saldo,
+        limiteExtraccion;
     int rol;
     bool esPyme;
 } DatosBancarios;
@@ -43,14 +50,19 @@ typedef struct
 } Cliente;
 
 // FORMATO: typedef  <tipo de retorno>  (*<NombreDelTipo>)  (<lista de parámetros>);
-typedef const char *(*ObtenerCampo)(const Cliente *);
 typedef bool (*ReglaFormato)(cadena);
-
+typedef const char *(*ObtenerCampo)(const Cliente *);
 /////////////////// FUNCIONES DEL CLIENTE ///////////////////
 
 void menuVistaCliente(Cliente datos[], int posUsuario);
 void menuOpcCliente(float *saldo);
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers);
+void ingresarDinero(Cliente *clienteActual);
+void retirarDinero(Cliente *clienteActual);
+void confirmarExtraccion(Cliente *clienteActual, float montoRetirado);
+void evaluarExtraccion(Cliente *clienteActual, float *montoRetirado);
+void mensajeErrorExtraccion(Cliente *clienteActual);
+void consultarDatosPersonales(Cliente clienteActual);
 
 /////////////////// FUNCIONES DEL ADMINISTRADOR ///////////////////
 
@@ -103,20 +115,20 @@ void limpiarPantalla();
 int main()
 {
     Cliente listUser[CANT_USERS] = {
-    {{"Charly", "Cimino", "11111111"}, {"charly.c", "terminator2", 0.0, ADMINISTRADOR, false}},
-    {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, CLIENTE, false}},
-    {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, CLIENTE, false}},
-    {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, CLIENTE, true}},
-    {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, CLIENTE, false}}};
-    
+        {{"Charly", "Cimino", "11111111"}, {"charly.c", "terminator2", 0.0, LIMITE_EXTRACION, ADMINISTRADOR, false}},
+        {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, LIMITE_EXTRACION, CLIENTE, false}},
+        {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, LIMITE_EXTRACION, CLIENTE, false}},
+        {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, LIMITE_EXTRACION, CLIENTE, true}},
+        {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, LIMITE_EXTRACION, CLIENTE, false}}};
+
     // int cantUsuarios = 4;
     int cantClientes = 4;
     //  menuGestionarPersonal(listUser, &cantUsuarios);
-    int posUsuario = 2;
+    int posUsuario = 3;
     // bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     // inicioSesion(listUser, cantUsuarios, accesoConcedido);
 
-    //menuGestionDeCliente(listUser, posUsuario, &cantClientes);
+    menuGestionDeCliente(listUser, posUsuario, &cantClientes);
 
     return 0;
 }
@@ -130,7 +142,7 @@ void cabecera()
     printf("\n");
     printf("   __________________________________________   \n");
     printf("  |                                          |  \n");
-    printf("  |            BANCO ABRAXAS                |  \n");
+    printf("  |             BANCO ABRAXAS                |  \n");
     printf("  |          ------------------              |  \n");
     printf("  |          PLATAFORMA DIGITAL              |  \n");
     printf("  |__________________________________________|  \n");
@@ -155,7 +167,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     // Vista Cliente
     printf("\n");
     printf("==================================================\n");
-    printf("                 BANCO ABRAXAS                 \n");
+    printf("                BANCO ABRAXAS                 \n");
     printf("                HOME BANKING                   \n");
     printf("==================================================\n\n");
 
@@ -175,7 +187,6 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     printf("  0. Cerrar sesion\n");
 
     printf("\n==================================================\n");
-    printf("Seleccione una operacion: ");
 }
 
 ///////////////////////INICIAR SESION////////////////////////////
@@ -186,7 +197,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 //     printf("Ingrese su clave");
 // }
-/* 
+
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers)
 {
 
@@ -201,39 +212,126 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantU
             consultarSaldo(listClientes[posicionActual]);
             break;
         case 2:
-            //realizarDeposito(); // no sirve
+            ingresarDinero(&listClientes[posicionActual]);
             break;
         case 3:
-            realizarRetiro(); // no sirve
+            retirarDinero(&listClientes[posicionActual]);
             break;
         case 4:
-            realizarTransferencia();
+            // realizarTransferencia(); 
             break;
         case 5:
-            verMovimientos();
+            // verMovimientos();
             break;
         case 6:
-            consultarCBUyAlias();
+            consultarDatosPersonales(listClientes[posicionActual]);
             break;
+        case 7:
+            //PRESTAMOOOOSSSS!!!!!!
         default:
             puts("Gracias vuelvas prontos");
             break;
         }
         limpiarPantalla();
         menuVistaCliente(listClientes, posicionActual);
-        opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
+        opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "\nElija una opcion del menu: ");
     }
 }
-*/
+
+void consultarDatosPersonales(Cliente clienteActual){
+    system("cls");
+    printf("Datos personales:\n");
+    printf("Nombre y Apellido: %s %s\n", clienteActual.datosPersonales.nombre, clienteActual.datosPersonales.apellido);
+    printf("DNI: %s\n", clienteActual.datosPersonales.DNI);
+    printf("Alias: %s\n", clienteActual.datosBanco.alias);
+}
+
 void consultarSaldo(Cliente clienteActual)
 {
-    printf("Saldo actual: %.2f", clienteActual.datosBanco.saldo);
+    printf("Saldo actual: %.2f\n", clienteActual.datosBanco.saldo);
 }
-/* 
-void realizarDeposito(Cliente list)
+
+void ingresarDinero(Cliente *clienteActual)
 {
+    system("cls");
+    printf("Indique la cantidad que desea ingresar, puede ingresar hasta $%.2f\n", MONTO_INGRESO_MAX);
+    float montoIngresado = leerFloatEntre(MONTO_INGRESO_MIN, MONTO_INGRESO_MAX, "Monto: ");
+
+    if (confirmaUsuario("Desea confirmar la operacion?"))
+    {
+        (*clienteActual).datosBanco.saldo += montoIngresado;
+        printf("Opercion exitosa\n"), consultarSaldo(*clienteActual);
+    }
+    else
+    {
+        puts("Operacion cancelada.\n");
+    }
 }
- */
+
+void retirarDinero(Cliente *clienteActual)
+{
+    system("cls");
+    if (clienteActual->datosBanco.saldo >= MONTO_RETIRO_MIN && clienteActual->datosBanco.limiteExtraccion != LIMITE_CERO)
+    {
+        printf("Indique la cantidad que desea retirar, puede retirar un minimo de $%.2f\n", MONTO_RETIRO_MIN);
+        printf("Limite de extraccion por dia $%.2f\n", (*clienteActual).datosBanco.limiteExtraccion);
+        float montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.limiteExtraccion, "Cuanto desea retirar?\n$");
+
+        evaluarExtraccion(clienteActual, &montoRetirado);
+        confirmarExtraccion(clienteActual, montoRetirado);
+    }
+    else
+    {
+        mensajeErrorExtraccion(clienteActual);
+
+    }
+}
+
+void mensajeErrorExtraccion(Cliente *clienteActual)
+{
+    if (clienteActual->datosBanco.saldo <= MONTO_RETIRO_MIN)
+    {
+        puts("Saldo insifuciente para realizar una extraccion minima.\n");
+        consultarSaldo(*clienteActual);
+        printf("Minimo para retirar es: %.2f\n", MONTO_RETIRO_MIN);
+    }
+    else if (clienteActual->datosBanco.limiteExtraccion <= LIMITE_CERO)
+    {
+        puts("Limite de extracion superado.");
+    }
+}
+
+void confirmarExtraccion(Cliente *clienteActual, float montoRetirado)
+{
+    if (confirmaUsuario("Desea confirmar la operacion?"))
+    {
+        (*clienteActual).datosBanco.saldo -= montoRetirado;
+        (*clienteActual).datosBanco.limiteExtraccion -= montoRetirado;
+        puts("Operacion exitosa!\n");
+        consultarSaldo(*clienteActual);
+    }
+    else
+    {
+        puts("Operacion cancelada.\n");
+    }
+}
+
+void evaluarExtraccion(Cliente *clienteActual, float *montoRetirado)
+{
+    while (*montoRetirado > clienteActual->datosBanco.limiteExtraccion || *montoRetirado > clienteActual->datosBanco.saldo)
+    {
+        if (*montoRetirado >= clienteActual->datosBanco.limiteExtraccion)
+        {
+            printf("Error. El limite de extraccion es $%.2f", clienteActual->datosBanco.limiteExtraccion);
+        }
+        else
+        {
+            printf("El monto supera el saldo actual");
+        }
+        *montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.saldo, "\nCuanto desea retirar?");
+    }
+}
+
 /* ========================================================================
  *  2. MENU DE GESTION DE PERSONAL (ADMINISTRADOR)
  * ======================================================================== */
@@ -312,6 +410,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     leerCadena("Ingrese clave: ", nuevo.datosBanco.clave);
     nuevo.datosBanco.esPyme = esClientePyme();
     nuevo.datosBanco.rol = CLIENTE;
+    nuevo.datosBanco.limiteExtraccion = LIMITE_EXTRACION;
     nuevo.datosBanco.saldo = 0;
 
     return nuevo;

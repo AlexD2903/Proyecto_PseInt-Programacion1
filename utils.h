@@ -100,7 +100,7 @@ float leerFloatEntre(float valorMin, float valorMax, cadena mensaje)
     while (numero < valorMin || numero > valorMax)
     {
         printf("Error. El valor ingresado no esta dentro del rango de %.2f y %.2f\n", valorMin, valorMax);
-        printf("%.2f %.2f %s", valorMin, valorMax, mensaje);
+        printf("%s",mensaje);
         scanf(" %f", &numero);
     }
     return numero;
@@ -115,6 +115,7 @@ bool confirmaUsuario(cadena mensaje)
     cadena respuesta;
 
     puts(mensaje);
+    fflush(stdin);
     gets(respuesta);
     convertirCadenaAMayuscula(respuesta);
 
@@ -247,6 +248,7 @@ void mostrarVectorDeCaracteres(char vec[], int cant)
 //     {
 //         for (int j = i + 1; j < cant; j++)
 //         {
+//             if (strcmp(vec[j],vec[i]) < 0)
 //             if (vec[j] < vec[i])
 //             {
 //                 aux = vec[j];
