@@ -22,6 +22,7 @@ int cantDivisores_NumeroEntero(int numero);
 int Porcentaje(int cantEspecifica, int cantTotal);
 float Promedio(float sumConjunto, int divCantTotal);
 void imprimirSimbolo(int cantSimbolos, char simbolo);
+void cadenaAPascal(cadena campo);
 
 //////////////////////  FUNCIONES CON VECTORES  ///////////////////////////
 
@@ -33,7 +34,7 @@ void leerVectorDeFloatsEntre(float valorMin, float valorMax, cadena mensaje, flo
 void mostrarVectorDeEnteros(int vec[], int cant);
 void mostrarVectorDeFloats(float vec[], int cant);
 void mostrarVectorDeCaracteres(char vec[], int cant);
-// void ordenarVectorDeEnterosAscendente(int vec[], int cant);
+void ordenarVectorDeEnterosAscendente(int vec[], int cant);
 void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
 ////////////////////// MATRICES ////////////////////////////////
@@ -42,7 +43,7 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
 void leerCadena(cadena mensaje, cadena target);
 void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target);
-void convertirCadenaAMayuscula(cadena frase);
+void convertirCadenaAMayuscula(cadena);
 
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////////  IMPLEMENTACIONES  //////////////////////////////
@@ -238,26 +239,25 @@ void mostrarVectorDeCaracteres(char vec[], int cant)
     }
 }
 
-// void ordenarVectorDeCadenasAscendente(cadena vec[], int cant)
-// {
-//     /* Ordena los valores de 'vec' de forma ascendente (menor a mayor),
-//     utilizando algún algoritmo de ordenamiento (investigar) */
-//     /*Método de búrbuja*/
-//     cadena aux;
-//     for (int i = 0; i < (cant - 1); i++)
-//     {
-//         for (int j = i + 1; j < cant; j++)
-//         {
-//             if (strcmp(vec[j],vec[i]) < 0)
-//             if (vec[j] < vec[i])
-//             {
-//                 aux = vec[j];
-//                 vec[j] = vec[i];
-//                 vec[i] = aux;
-//             }
-//         }
-//     }
-// }
+void ordenarVectorDeEnterosAscendente(int vec[], int cant)
+{
+    /* Ordena los valores de 'vec' de forma ascendente (menor a mayor),
+    utilizando algún algoritmo de ordenamiento (investigar) */
+    /*Método de búrbuja*/
+    int aux;
+    for (int i = 0; i < (cant - 1); i++)
+    {
+        for (int j = i + 1; j < cant; j++)
+        {
+            if (vec[j] < vec[i])
+            {
+                aux = vec[j];
+                vec[j] = vec[i];
+                vec[i] = aux;
+            }
+        }
+    }
+}
 
 void ordenarVectorDeEnterosDescendente(int vec[], int cant)
 {
@@ -305,10 +305,21 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
         gets(target);
     }
 }
-void convertirCadenaAMayuscula(cadena frase)
+//tarea para Alex
+void convertirCadenaAMayuscula(cadena palabra)
 {
-    for (int i = 0; i < (int)strlen(frase); i++)
+    for (int i = 0; i < (int)strlen(palabra); i++)
     {
-        frase[i] = toupper(frase[i]);
+        palabra[i] = toupper(palabra[i]);
     }
+}
+
+void cadenaAPascal(cadena campo){
+
+    campo[0] = toupper(campo[0]);
+
+    for (int i = 1; i < (int)strlen(campo); i++)
+    {
+        campo[i] = tolower(campo[i]);
+    }    
 }
