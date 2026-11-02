@@ -32,6 +32,8 @@
 #define CARPETA_DATA "data"
 #define RUTA_USUARIOS "data/listaUsuarios.dat"
 
+#define ADMIN "admin"
+
 typedef struct
 {
     cadena nombre,
@@ -63,7 +65,7 @@ typedef const char *(*ObtenerCampo)(const Cliente *);
 
 void menuVistaCliente(Cliente datos[], int posUsuario);
 void menuOpcCliente(float *saldo);
-void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers);
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual);
 void ingresarDinero(Cliente *clienteActual);
 void retirarDinero(Cliente *clienteActual);
 void confirmarExtraccion(Cliente *clienteActual, float montoRetirado);
@@ -117,86 +119,40 @@ const char *obtenerApellido(const Cliente *c);
 void ordenarVectorDeCadenasAscendente(Cliente vec[], int cant);
 
 ////////////////////////    ARCHIVOS    //////////////////////////
-void cargarUsuarios(Cliente listUser[]);
-void guardarUsuarios(Cliente listUser[], int cantUsuarios);
-int cargarUsuarios2(Cliente listUser[]);
-void guardarUsuarios2(Cliente listUser[], int cantUsuarios);
-void mostrarListadUsuarios2(Cliente baseDatos[CANT_USERS], int cant);
-
-// de prueba
-void listaUsuariosDos();
-void mostrarUsuarioDos(Cliente c, int numero);
+void guardarUsuariosVC(Cliente listUser[], int cant);
+int cargarUsuariosVC(Cliente listUser[]);
 
 //////////////////////OTRAS FUCIONES////////////////////////
 void limpiarPantalla();
 
-// --------------MAIN
 int main()
 {
-    Cliente listUser[CANT_USERS] = {
+    Cliente listUser[CANT_USERS] /* = {
         {{"Charly", "Cimino", "11111111"}, {"charly.c", "terminator2", 0.0, LIMITE_EXTRACION, ADMINISTRADOR, false}},
         {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, LIMITE_EXTRACION, CLIENTE, false}},
         {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, LIMITE_EXTRACION, CLIENTE, false}},
         {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, LIMITE_EXTRACION, CLIENTE, true}},
-        {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, LIMITE_EXTRACION, CLIENTE, false}}};
+        {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, LIMITE_EXTRACION, CLIENTE, false}}} */
+        ;
 
-    int cantUsuarios = 5;
-    // menuGestionarPersonal(listUser, &cantUsuarios);
+    int cantClientes = 0;
+    int cantidadLeida = cargarUsuariosVC(listUser);
+
+    if (cantidadLeida >= 0)
+    {
+        cantClientes = cantidadLeida;
+    }
+    else
+    {
+        puts("No se pudieron cargar los usuarios.");
+    }
+
+    iniciarSesion(listUser, &cantClientes);
+
     //  bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
     //  inicioSesion(listUser, cantUsuarios, accesoConcedido);
 
-    //guardarUsuarios(listUser, cantUsuarios);
-    //cargarUsuarios(listUser);
-    //mostrarListadUsuarios(listUser, cantUsuarios);
-    cantUsuarios = cargarUsuarios2(listUser);
-    mostrarListadUsuarios2(listUser, cantUsuarios);
-    guardarUsuarios2(listUser, cantUsuarios);
-
-    // int posUsuario = 3;
-    // int cantClientes = 4;
-    //menuGestionDeCliente(listUser, posUsuario, &cantClientes);
-
-    //listaUsuariosDos();
-
     return 0;
-}
-
-void cargarUsuarios(Cliente listUser[])
-{
-    // 1 Abrimos en modo rb  //read binary // leer binario
-
-    // FILE viene con stdio
-    int cantidad = 0;
-
-    FILE *f = fopen(RUTA_USUARIOS, "rb");
-
-    if (f != NULL)
-    {
-        // primero leeemos cuantos usuarios hay
-        /*
-        if( fread(cantUser, sizeof(int), 1, f) == 1  ){
-            if(*cantUser > 0){
-                fread(listUser, sizeof(Cliente), *cantUser, f);
-            }
-        }
-        fclose(f);
-        */
-        while (fread(&listUser[cantidad], sizeof(Cliente), 1, f) == 1)
-        {
-            cantidad++;
-        }
-
-        fclose(f);
-        printf("[SISTEMA] Base de datos cargada correctamente (%d usuarios).\n", cantidad);
-    }
-    else if (errno == ENOENT)
-    {
-
-        puts("Cargando desde del backup");
-    }
-
-    puts("Sistema iniciado");
-
 }
 
 // rb leer //este es para cargar, porque LEE
@@ -204,39 +160,6 @@ void cargarUsuarios(Cliente listUser[])
 // ab para agregar a lo ultimo
 
 // fseek   para buscar, ni idea como se usaba, pero lo usamos
-
-//--------->     ACA SE VA A CREEAAAARRRRR    <--------------------
-void guardarUsuarios(Cliente listUser[], int cantUsuarios)
-{
-
-    _mkdir(CARPETA_DATA);
-    FILE *archivo = fopen(RUTA_USUARIOS, "wb");
-
-    if (archivo != NULL)
-    {
-
-        int escritos = -1;
-
-        if (fwrite(&cantUsuarios, sizeof(int), 1, archivo) == 1)
-        {
-            escritos = fwrite(listUser, sizeof(Cliente), cantUsuarios, archivo);
-        }
-        fclose(archivo);
-
-        if (escritos == cantUsuarios)
-        {
-            printf("Datos guardados correctamente (%d usuarios).\n", cantUsuarios);
-        }
-        else
-        {
-            puts("Error: no se pudieron escribir todos los datos.");
-        }
-    }
-    else
-    {
-        puts("Error: No se pudo guardar la informacion en el disco.");
-    }
-}
 
 /* ========================================================================
  *  1. VISTAS (solo imprimen por pantalla)
@@ -296,51 +219,80 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 ///////////////////////INICIAR SESION////////////////////////////
 
-// void iniciarSesion(){
-
-//     printf("Ingrese su usuario");
-
-//     printf("Ingrese su clave");
-// }
-
-void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantUsers)
+void iniciarSesion(Cliente listUser[], int* cantUsuarios )
 {
+
+    cabecera();
     
-menuVistaCliente(listClientes, posicionActual);
-int opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
+    cadena usuario,
+        clave;
+    int posActual;
 
-while (opcion != OPC_SALIDA)
+    leerCadena("Ingrese usuario: ", usuario);
+    leerCadena("Ingrese la clave", clave);
+
+    
+    
+    if( strcmp(usuario, ADMIN) == 0 && strcmp(clave , ADMIN) == 0){
+        menuGestionarPersonal(listUser, *cantUsuarios);   
+    }
+    else{
+
+        posActual = buscarDato(listUser, cantUsuarios, usuario, obtenerAlias);
+
+        if(posActual != USUARIO_INEXISTENTE){
+            if( strcmp(clave, listUser[posActual].datosBanco.clave)==0){
+
+                listUser[posActual].datosBanco.rol == CLIENTE ? menuGestionDeCliente(listUser, posActual) : menuGestionarPersonal(listUser, *cantUsuarios);
+
+            }else{
+                puts("Clave incorrecta guachin");
+            }
+        }else{
+            puts("Usuario incorrecto.");
+        }
+
+    }
+}
+
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
 {
-    switch (opcion)
+
+    menuVistaCliente(listClientes, posicionActual);
+    int opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
+
+    while (opcion != OPC_SALIDA)
     {
+        switch (opcion)
+        {
         case 1:
-        consultarSaldo(listClientes[posicionActual]);
-        break;
+            consultarSaldo(listClientes[posicionActual]);
+            break;
         case 2:
-        ingresarDinero(&listClientes[posicionActual]);
-        break;
+            ingresarDinero(&listClientes[posicionActual]);
+            break;
         case 3:
-        retirarDinero(&listClientes[posicionActual]);
-        break;
+            retirarDinero(&listClientes[posicionActual]);
+            break;
         case 4:
-        // realizarTransferencia();
-        break;
+            // realizarTransferencia();
+            break;
         case 5:
-        // verMovimientos();
-        break;
+            // verMovimientos();
+            break;
         case 6:
-        consultarDatosPersonales(listClientes[posicionActual]);
-        break;
+            consultarDatosPersonales(listClientes[posicionActual]);
+            break;
         // case 7:
         // PRESTAMOOOOSSSS!!!!!!
         default:
-        puts("Gracias vuelvas prontos");
-        break;
+            puts("Gracias vuelvas prontos");
+            break;
+        }
+        limpiarPantalla();
+        menuVistaCliente(listClientes, posicionActual);
+        opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "\nElija una opcion del menu: ");
     }
-    limpiarPantalla();
-    menuVistaCliente(listClientes, posicionActual);
-    opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "\nElija una opcion del menu: ");
-}
 }
 
 void consultarDatosPersonales(Cliente clienteActual)
@@ -464,13 +416,98 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
         case 4: // D (Delete / Borrar o Eliminar)
             bajaUsuario(list, cantUsuarios);
             break;
-        // case 5: // Genera Reporte
-        // break;
+        case 5: // Genera Reporte
+
+            break;
         }
 
         limpiarPantalla();
         vistaGestionPersonal();
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
+    }
+    puts("////////fwrite////////");
+    guardarUsuariosVC(list, *cantUsuarios);
+}
+int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
+{
+    int cantidad = -1;
+    FILE *archivo = fopen("../ListUsers/Usuarios.dat", "rb");
+
+    if (archivo != NULL)
+    {
+        puts("El archivo se abrio correctamente.");
+        if (fread(&cantidad, sizeof(int), 1, archivo) == 1)
+        {
+            printf("Cantidad de usuarios leida: %d\n", cantidad);
+
+            if (cantidad >= 0 && cantidad <= CANT_USERS) // verifica que la cantidad no sea negativa y supere la cantidad de usuarios
+            {
+                if (fread(listUser, sizeof(Cliente), cantidad, archivo) == (size_t)cantidad)
+                {
+                    puts("Usuarios leidos correctamente.");
+                }
+                else
+                {
+                    puts("No se pudieron leer todos los usuarios.");
+                    cantidad = -1;
+                }
+            }
+            else
+            {
+                puts("La cantidad guardada en el archivo no es valida.");
+                cantidad = -1;
+            }
+        }
+        else
+        {
+            puts("No se pudo leer la cantidad de usuarios.");
+        }
+
+        fclose(archivo); // siempre va cuando el archivo se abre correctamente
+    }
+    else if (errno == ENOENT)
+    {
+        printf("Archivo inexistente : %s\n", strerror(errno));
+    }
+    else
+    {
+        puts("Hubo otro error.");
+    }
+    return cantidad;
+}
+void guardarUsuariosVC(Cliente listUser[], int cant)
+{
+    FILE *archivo;
+    _mkdir("../ListUsers");
+    archivo = fopen("../ListUsers/Usuarios.dat", "wb");
+
+    if (archivo != NULL)
+    {
+        puts("Si se pudo abrir.");
+        // sirve para escribir la cantidad de usuarios, si no, no se puede guardar el vector
+        if (fwrite(&cant, sizeof(int), 1, archivo) == 1)
+        {
+            puts("Cantidad de usuarios guardada.");
+            int escritos = fwrite(listUser, sizeof(Cliente), cant, archivo);
+
+            if (escritos == cant)
+            {
+                puts("Usuarios guardados correctamente.");
+            }
+            else
+            {
+                puts("Error al guardar los usuarios.");
+            }
+        }
+        else
+        {
+            puts("Error al guardar la cantidad de usuarios.");
+        }
+        fclose(archivo);
+    }
+    else
+    {
+        puts("No se pudo abrir el archivo.");
     }
 }
 
@@ -540,13 +577,13 @@ bool esClientePyme()
     do
     {
         leerCadena("Es pyme: ", pyme);
-        convertirCadenaAMayuscula(pyme);
-        if (strcmp(pyme, "SI") == 0)
+        cadenaAPascal(pyme);
+        if (strcmp(pyme, "Si") == 0)
         {
             esuserpyme = true;
         }
 
-    } while (strcmp(pyme, "SI") != 0 && strcmp(pyme, "NO") != 0);
+    } while (strcmp(pyme, "Si") != 0 && strcmp(pyme, "No") != 0);
 
     return esuserpyme;
 }
@@ -603,52 +640,6 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant)
     }
 }
 
-// void listaUsuariosDos()
-// {
-//     Cliente aux;
-//     int cantidad = 0;
-//     int i = 0;
-
-//     FILE *f = fopen(RUTA_USUARIOS, "rb");
-
-//     if (f != NULL)
-//     {
-//         fread(&cantidad, sizeof(int), 1, f);
-
-//         // ---- DEBUG (se borra despues) ----
-//         printf("DEBUG: sizeof(Cliente) = %zu bytes\n", sizeof(Cliente));
-//         printf("DEBUG: cantidad leida del archivo = %d\n", cantidad);
-//         // ----------------------------------
-
-//         printf("\nLista de usuarios:\n");
-
-//         while (i < cantidad && fread(&aux, sizeof(Cliente), 1, f) == 1)
-//         {
-//             mostrarUsuarioDos(aux, i + 1);
-//             i++;
-//         }
-//         fclose(f);
-
-//         // ---- DEBUG ----
-//         printf("DEBUG: clientes impresos = %d\n", i);
-//         // ---------------
-
-//         if (i == 0)
-//         {
-//             puts("---- No hay usuarios registrados ----");
-//         }
-//     }
-//     else
-//     {
-//         puts("ERROR, no se pudo abrir el archivo");
-//     }
-// }
-
-// void mostrarUsuarioDos(Cliente c, int numero)
-// {
-//     printf("%d. Cliente: %s %s,\nDNI: %s\n=======================\n", numero, c.datosPersonales.nombre, c.datosPersonales.apellido, c.datosPersonales.DNI);
-// }
-
 /* ========================================================================
  *  5. MODIFICACION DE USUARIOS (Update)
  * ======================================================================== */
@@ -703,11 +694,13 @@ void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuar
     {
     case OPC_NOMBRE:
         leerCadena(texto, nomDato);
+        cadenaAPascal(nomDato);
         confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato) : NULL;
         break;
 
     case OPC_APELLIDO:
         leerCadena(texto, nomDato);
+        cadenaAPascal(nomDato);
         confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato) : NULL;
         break;
 
@@ -894,6 +887,11 @@ const char *obtenerAlias(const Cliente *c)
     return c->datosBanco.alias;
 }
 
+const char *obtenerClave(const Cliente *c)
+{
+    return c->datosBanco.clave;
+}
+
 /* ========================================================================
  *  9. PENDIENTES (funciones sin implementar)
  * ======================================================================== */
@@ -960,57 +958,4 @@ void limpiarPantalla()
     fflush(stdin);
     system("pause");
     system("cls");
-}
-
-int cargarUsuarios2(Cliente listUser[])
-{
-    int cantidad = 0;
-    FILE *f = fopen(RUTA_USUARIOS, "rb");
-
-    if (f != NULL)
-    {
-        // 1. Leemos la cabecera: el numero exacto de clientes guardados
-        if (fread(&cantidad, sizeof(int), 1, f) == 1)
-        {
-            // 2. Si hay al menos 1, leemos todos los clientes de un solo golpe
-            if (cantidad > 0)
-            {
-                fread(listUser, sizeof(Cliente), cantidad, f);
-            }
-        }
-        fclose(f);
-        printf("[SISTEMA] Base de datos cargada correctamente (%d usuarios).\n", cantidad);
-    }
-    else
-    {
-        // Cumplimiento estricto: inicializar limpio si no existe el archivo.
-        printf("\n[SISTEMA] No se encontro archivo de backup. Iniciando sistema vacio...\n");
-    }
-
-    return cantidad;
-}
-
-void guardarUsuarios2(Cliente listUser[], int cantUsuarios)
-{
-    _mkdir(CARPETA_DATA);
-    FILE *archivo = fopen(RUTA_USUARIOS, "wb");
-
-    if (archivo != NULL)
-    {
-        // Guardamos primero el numero (la cabecera)
-        if (fwrite(&cantUsuarios, sizeof(int), 1, archivo) == 1)
-        {
-            // Luego guardamos los clientes
-            if (cantUsuarios > 0)
-            {
-                fwrite(listUser, sizeof(Cliente), cantUsuarios, archivo);
-            }
-            printf("\n[SISTEMA] Datos guardados correctamente (%d usuarios).\n", cantUsuarios);
-        }
-        fclose(archivo);
-    }
-    else
-    {
-        puts("\n[ERROR] No se pudo guardar la informacion en el disco.");
-    }
 }
