@@ -43,7 +43,6 @@ void ordenarVectorDeEnterosDescendente(int vec[], int cant);
 
 void leerCadena(cadena mensaje, cadena target);
 void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target);
-void convertirCadenaAMayuscula(cadena);
 
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////////  IMPLEMENTACIONES  //////////////////////////////
@@ -118,16 +117,16 @@ bool confirmaUsuario(cadena mensaje)
     puts(mensaje);
     fflush(stdin);
     gets(respuesta);
-    convertirCadenaAMayuscula(respuesta);
+    cadenaAPascal(respuesta);
 
-    while (strcmp(respuesta, "SI") != 0 && strcmp(respuesta, "NO") != 0)
+    while (strcmp(respuesta, "Si") != 0 && strcmp(respuesta, "No") != 0)
     {
         printf("Error. Ingrese Si o No: ");
         gets(respuesta);
-        convertirCadenaAMayuscula(respuesta);
+        cadenaAPascal(respuesta);
     }
     system("cls");
-    return (strcmp(respuesta, "SI") == 0);
+    return (strcmp(respuesta, "Si") == 0);
 }
 
 float Promedio(float sumConjunto, int divCantTotal)
@@ -303,14 +302,6 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
         fflush(stdin);
         printf("%s", mensaje);
         gets(target);
-    }
-}
-//tarea para Alex
-void convertirCadenaAMayuscula(cadena palabra)
-{
-    for (int i = 0; i < (int)strlen(palabra); i++)
-    {
-        palabra[i] = toupper(palabra[i]);
     }
 }
 
