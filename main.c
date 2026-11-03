@@ -230,6 +230,8 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 ///////////////////////INICIAR SESION////////////////////////////
 
+
+
 void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 {
     int posActual;
@@ -238,40 +240,56 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 
     cabecera();
 
-    leerCadena("Ingrese usuario: ", usuario);
-    leerCadena("Ingrese la clave", clave);
-
-    // while ()
-    // {
-    //     /* code */
-    // }
+    bool usuarioValido = false, esAdmin = false;
     
 
-    if (strcmp(usuario, ADMIN) == 0 && strcmp(clave, ADMIN) == 0)
-    {
-        menuGestionarPersonal(listUser, cantUsuarios);
-    }
-    else
-    {
+        //menuGestionarPersonal(listUser, cantUsuarios);
+        
 
-        posActual = buscarDato(listUser, *cantUsuarios, usuario, obtenerAlias);
+       
+        do{
+            leerCadena("\nIngrese usuario: ", usuario);
+            esAdmin = (strcmp(usuario, ADMIN) == 0);
+            
+            posActual = esAdmin? USUARIO_INEXISTENTE : buscarDato(listUser, *cantUsuarios, usuario, obtenerAlias);
 
-        if (posActual != USUARIO_INEXISTENTE)
+            usuarioValido = (esAdmin || posActual != USUARIO_INEXISTENTE) ? true : (puts("\nUsuario incorrecto, intente nuevamente\n"), false);
+
+        }while (!usuarioValido);
+        
+
+
+        while ()
         {
-            if (strcmp(clave, listUser[posActual].datosBanco.clave) == 0)
+
+            if (esAdmin){
+                
+                leerCadena("Ingrese la clave", clave);
+                if(strcmp(clave, ADMIN) == 0){
+    
+                }
+            }else{
+           
+    
+    
+            if (posActual != USUARIO_INEXISTENTE)
             {
-                listUser[posActual].datosBanco.rol == CLIENTE ? menuGestionDeCliente(listUser, posActual) : menuGestionarPersonal(listUser, cantUsuarios);
+                if (strcmp(clave, listUser[posActual].datosBanco.clave) == 0)
+                {
+                    listUser[posActual].datosBanco.rol == CLIENTE ? menuGestionDeCliente(listUser, posActual) : menuGestionarPersonal(listUser, cantUsuarios);
+                }
+                else
+                {
+                    puts("Clave incorrecta guachin");
+                }
             }
             else
             {
-                puts("Clave incorrecta guachin");
+                puts("Usuario incorrecto.");
             }
         }
-        else
-        {
-            puts("Usuario incorrecto.");
         }
-    }
+        
 }
 
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
