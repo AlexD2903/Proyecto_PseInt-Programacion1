@@ -101,6 +101,7 @@ void evaluarExtraccion(Cliente *clienteActual, float *montoRetirado);
 void mensajeErrorExtraccion(Cliente *clienteActual);
 void consultarDatosPersonales(Cliente clienteActual);
 void consultarSaldo(Cliente cliente);
+void verMovimientos(Cliente *cliente);
 
 /////////////////// GESTION DE USUARIOS ///////////////////
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
@@ -313,34 +314,28 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "\nElija una opcion del menu: ");
     }
 }
-void verMovimientos(Cliente cliente[])
+
+void verMovimientos(Cliente *cliente)
 {
     cadena nombresMeses[CANT_MESES] = {
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     };
 
-    int mes = leerEnteroEntre(ENERO+1, DICIEMBRE+1, "Ingrese el mes que quiere consultar (1-12): ");
+    int mes = leerEnteroEntre(1, 12, "Ingrese el mes que quiere consultar (1-12): ") - 1;
 
-    int opcion = leerEnteroEntre(DEPOSITOS, RETIROS, "1. Depositos\n2. Retiros\nTipo de movimiento: ");
-    int columna;
+    int opcion = leerEnteroEntre(1, 2, "1. Depositos\n2. Retiros\nTipo de movimiento: ");
 
-    switch (opcion-1)
+    switch (opcion+1)
     {
     case DEPOSITOS:
-        printf("Total del mes seleccionado: $%.2f\n",
-           cliente->datosBanco.movMensuales[mes - 1][columna]);
+        printf("Total de depositos de %s: $%.2f\n",nombresMeses[mes], cliente->datosBanco.movMensuales[mes][DEPOSITOS]);
         break;
     case RETIROS:
-        columna = RETIROS;
+        printf("Total de retiros de %s: $%.2f\n",nombresMeses[mes], cliente->datosBanco.movMensuales[mes][RETIROS]);
         break;
     }
 
-    float total = 0;
-
-    
-
-    printf("Total del tipo seleccionado: $%.2f\n", total);
 }
 
 void consultarDatosPersonales(Cliente clienteActual)
