@@ -2,6 +2,7 @@
 #include <errno.h> //Para detecnar si el archivo no existe (ENOENT)
 #include <direct.h>
 #include <time.h>
+#include <windows.h>
 
 #define CANT_USERS 100
 #define MAX_BAJAS 100
@@ -9,7 +10,7 @@
 #define VACIO 0
 #define OPC_SALIDA 0
 #define OPC_MODIFICAR_USU 4
-#define OPC_M_GEST_PERS 5
+#define OPC_M_GEST_PERS 4
 #define OPC_M_GEST_CLIENT 6
 #define USUARIO_INEXISTENTE -1
 #define OPC_DNI 1
@@ -33,6 +34,8 @@
 #define CARPETA_DATA "data"
 #define RUTA_USUARIOS "data/listaUsuarios.dat"
 
+#define RUTA_MOVIMIENTOS  "data/movimientos.dat"
+
 #define ADMIN "admin"
 
 #define SALDO 1
@@ -41,18 +44,8 @@
 
 #define CANT_MESES 12
 #define CANT_TIPOS_MOVIMIENTO 4
-#define ENERO 0
-#define FEBRERO 1
-#define MARZO 2
-#define ABRIL 3
-#define MAYO 4
-#define JUNIO 5
-#define JULIO 6
-#define AGOSTO 7
-#define SEPTIEMBRE 8
-#define OCTUBRE 9
-#define NOVIEMBRE 10
-#define DICIEMBRE 11
+#define ENERO 1
+#define DICIEMBRE 12
 
 typedef struct
 {
@@ -78,6 +71,14 @@ typedef struct
     DatosBancarios datosBanco;
 } Cliente;
 
+typedef struct{
+    cadena aliasOrigen,
+    aliasDestino;
+    int mes;
+    float monto;
+} Movimientos;
+
+
 // FORMATO: typedef  <tipo de retorno>  (*<NombreDelTipo>)  (<lista de parámetros>);
 typedef bool (*ReglaFormato)(cadena);
 typedef const char *(*ObtenerCampo)(const Cliente *);
@@ -86,7 +87,7 @@ typedef const char *(*ObtenerCampo)(const Cliente *);
 
 /////////////////// MENUS Y SESION ///////////////////
 void menuVistaCliente(Cliente datos[], int posUsuario);
-void menuGestionDeCliente(Cliente listClientes[], int posicionActual);
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUsers);
 void iniciarSesion(Cliente listUser[], int *cantUsuarios);
 void cabecera(void);
 void vistaGestionPersonal(void);
@@ -102,6 +103,7 @@ void mensajeErrorExtraccion(Cliente *clienteActual);
 void consultarDatosPersonales(Cliente clienteActual);
 void consultarSaldo(Cliente cliente);
 void verMovimientos(Cliente *cliente);
+void realizarTransferencia(Cliente *origen, Cliente *destino, float monto);
 
 /////////////////// GESTION DE USUARIOS ///////////////////
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
@@ -115,6 +117,7 @@ void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[], int t
 void bajaUsuario(Cliente listUser[], int *cantUsuarios);
 void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser);
 void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios);
+float cuantoTransferir(Cliente usuario);
 
 /////////////////// BUSQUEDA Y VALIDACION ///////////////////
 int posicionPorDNI(Cliente listUser[], int cantUsuarios);
@@ -132,11 +135,15 @@ const char *obtenerClave(const Cliente *c);
 void ordenarVectorDeCadenasAscendente(Cliente vec[], int cant);
 
 /////////////////// ARCHIVOS ///////////////////
-void guardarUsuariosVC(Cliente listUser[], int cant);
+void guardarUsuarios(Cliente listUser[], int cant);
 int cargarUsuariosVC(Cliente listUser[]);
+bool registrarMovimientos(Movimientos reg[], int cant);
 
 /////////////////// UTILIDADES ///////////////////
 void limpiarPantalla(void);
+
+///////////////////transferencias/////////////
+void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser);
 
 int main(void)
 {
@@ -159,19 +166,18 @@ int main(void)
     {
         puts("No se pudieron cargar los usuarios.");
     }
-    iniciarSesion(listUser, &cantClientes);
 
-    //  bool accesoConcedido = loginUsuarios(listUser, CANT_USERS, &cantUsuarios);
-    //  inicioSesion(listUser, cantUsuarios, accesoConcedido);
+    bool cerrarApp = false;
+    while (!cerrarApp)
+    {
+        system("cls");
+        iniciarSesion(listUser, &cantClientes);
+        cerrarApp = confirmaUsuario("Cerrar app?");
+        guardarUsuarios(listUser, cantClientes);
+    }
 
     return 0;
 }
-
-// rb leer //este es para cargar, porque LEE
-// wb sobrescribir O CREAARR C-R-E-A-R
-// ab para agregar a lo ultimo
-
-// fseek   para buscar, ni idea como se usaba, pero lo usamos
 
 /* ========================================================================
  *  1. VISTAS (solo imprimen por pantalla)
@@ -230,71 +236,70 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 ///////////////////////INICIAR SESION////////////////////////////
 
-
-
 void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 {
-    int posActual;
-    cadena usuario,
-        clave;
+    int posActual, intentos;
+    cadena usuario, clave;
+    bool usuarioValido, esAdmin = false, claveCorrecta = false;
 
-    cabecera();
+    do
+    {
 
-    bool usuarioValido = false, esAdmin = false;
-    
+        cabecera();
+        intentos = 0;
+        usuarioValido = false;
 
-        //menuGestionarPersonal(listUser, cantUsuarios);
-        
-
-       
-        do{
+        do
+        {
             leerCadena("\nIngrese usuario: ", usuario);
             esAdmin = (strcmp(usuario, ADMIN) == 0);
-            
-            posActual = esAdmin? USUARIO_INEXISTENTE : buscarDato(listUser, *cantUsuarios, usuario, obtenerAlias);
 
-            usuarioValido = (esAdmin || posActual != USUARIO_INEXISTENTE) ? true : (puts("\nUsuario incorrecto, intente nuevamente\n"), false);
+            posActual = esAdmin ? USUARIO_INEXISTENTE : buscarDato(listUser, *cantUsuarios, usuario, obtenerAlias);
 
-        }while (!usuarioValido);
-        
+            usuarioValido = (esAdmin || posActual != USUARIO_INEXISTENTE) ? true : (puts("\nUsuario incorrecto, intente nuevamente"), false);
 
+        } while (!usuarioValido);
 
-        while ()
+        if (esAdmin)
+        {
+            do
+            {
+                leerCadena("Ingrese clave: ", clave);
+                claveCorrecta = (strcmp(clave, ADMIN) == 0);
+                if (!claveCorrecta)
+                {
+                    puts("\nClave incorrecta, ingrese nuevamente.");
+                    intentos++;
+                }
+            } while (!claveCorrecta && intentos < INTENTO_MAXIMO);
+
+            if (claveCorrecta)
+            {
+                menuGestionarPersonal(listUser, cantUsuarios);
+            }
+        }
+        else
         {
 
-            if (esAdmin){
-                
-                leerCadena("Ingrese la clave", clave);
-                if(strcmp(clave, ADMIN) == 0){
-    
-                }
-            }else{
-           
-    
-    
-            if (posActual != USUARIO_INEXISTENTE)
+            claveCorrecta = verificacionClave(listUser[posActual]);
+            if (claveCorrecta)
             {
-                if (strcmp(clave, listUser[posActual].datosBanco.clave) == 0)
-                {
-                    listUser[posActual].datosBanco.rol == CLIENTE ? menuGestionDeCliente(listUser, posActual) : menuGestionarPersonal(listUser, cantUsuarios);
-                }
-                else
-                {
-                    puts("Clave incorrecta guachin");
-                }
-            }
-            else
-            {
-                puts("Usuario incorrecto.");
+                listUser[posActual].datosBanco.rol == CLIENTE ? menuGestionDeCliente(listUser, posActual, *cantUsuarios) : menuGestionarPersonal(listUser, cantUsuarios);
             }
         }
+
+        if (!claveCorrecta)
+        {
+            puts("\nEspere 3 segundos para volver a intentar.");
+            Sleep(3000);
+            system("cls");
         }
-        
+    } while (!claveCorrecta);
 }
 
-void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
+void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUsers)
 {
-    int mesSimulado = leerEnteroEntre(ENERO + 1, DICIEMBRE + 1, "Ingresar mes simulado [1,12]: ");
+    int mesSimulado = leerEnteroEntre(ENERO, DICIEMBRE, "Ingresar mes simulado [1,12]: ");
     system("cls");
     menuVistaCliente(listClientes, posicionActual);
     int opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "Elija una opcion del menu: ");
@@ -313,7 +318,7 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
             retirarDinero(&listClientes[posicionActual], mesSimulado);
             break;
         case 4:
-            // realizarTransferencia();
+            opcionTransferencia(listClientes, cantUsers, posicionActual);
             break;
         case 5:
             verMovimientos(&listClientes[posicionActual]);
@@ -321,8 +326,7 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
         case 6:
             consultarDatosPersonales(listClientes[posicionActual]);
             break;
-        // case 7:
-        // PRESTAMOOOOSSSS!!!!!!
+
         default:
             puts("Gracias vuelvas prontos");
             break;
@@ -333,27 +337,96 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual)
     }
 }
 
+void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser)
+{
+
+    cadena aliasDestinatario;
+    float saldo;
+    system("cls");
+    int posDestino;
+
+    printf("Saldo actual: $%.2f\n", listUser[posUser].datosBanco.saldo);
+
+    if (listUser[posUser].datosBanco.saldo > LIMITE_CERO)
+    {
+        leerCadena("Ingresar Alias: ", aliasDestinatario);
+        posDestino = buscarDato(listUser, cantUsuarios, aliasDestinatario, obtenerAlias);
+
+        if (posDestino != USUARIO_INEXISTENTE)
+        {
+            if (posDestino == posUser)
+            {
+                puts("No podes transferirte a vos mismo.");
+            }
+            else
+            {
+                saldo = cuantoTransferir(listUser[posUser]);
+                if (confirmaUsuario("Confirmar transferencia?:"))
+                {
+                    realizarTransferencia(&listUser[posUser], &listUser[posDestino], saldo);
+                }
+                else{
+                    puts("Transferencia cancelada.");
+                }
+                printf("Saldo actual: $%.2f\n", listUser[posUser].datosBanco.saldo);
+            }
+        }
+        else{
+            puts("El alias ingresado no existe.");
+        }
+    }
+    else
+    {
+        puts("Saldo insuficiente.");
+        consultarSaldo(listUser[posUser]);
+    }
+}
+
+void realizarTransferencia(Cliente *origen, Cliente *destino, float monto)
+{
+    Movimientos reg[2];
+
+    (*origen).datosBanco.saldo -= monto;
+    (*destino).datosBanco.saldo += monto;
+}
+
+float cuantoTransferir(Cliente usuario)
+{
+    return leerFloatEntre(LIMITE_CERO, usuario.datosBanco.saldo, "Monto de tranferecia: ", "Monto invalido.", "Saldo insufiente.");
+
+}
+
+bool registrarMovimientos(Movimientos reg[], int cant){
+
+    bool funciona = false;
+    FILE *f = fopen(RUTA_MOVIMIENTOS ,"ab");
+
+    if( f!= NULL){
+        funciona = ( fwrite(reg, sizeof(Movimientos), cant, f) == (size_t)cant);
+        fclose(f);
+    }
+   return funciona; 
+}
+
 void verMovimientos(Cliente *cliente)
 {
     cadena nombresMeses[CANT_MESES] = {
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    };
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
 
-    int mes = leerEnteroEntre(1, 12, "Ingrese el mes que quiere consultar (1-12): ") - 1;
+    int mes = leerEnteroEntre(ENERO, DICIEMBRE, "Ingrese el mes que quiere consultar (1-12): ") - 1;
 
     int opcion = leerEnteroEntre(1, 2, "1. Depositos\n2. Retiros\nTipo de movimiento: ");
 
-    switch (opcion+1)
+    switch (opcion + 1)
     {
     case DEPOSITOS:
-        printf("Total de depositos de %s: $%.2f\n",nombresMeses[mes], cliente->datosBanco.movMensuales[mes][DEPOSITOS]);
+        printf("Total de depositos de %s: $%.2f\n", nombresMeses[mes], cliente->datosBanco.movMensuales[mes][DEPOSITOS]);
         break;
     case RETIROS:
-        printf("Total de retiros de %s: $%.2f\n",nombresMeses[mes], cliente->datosBanco.movMensuales[mes][RETIROS]);
+        printf("Total de retiros de %s: -$%.2f\n", nombresMeses[mes], cliente->datosBanco.movMensuales[mes][RETIROS]);
         break;
     }
-
 }
 
 void consultarDatosPersonales(Cliente clienteActual)
@@ -367,14 +440,14 @@ void consultarDatosPersonales(Cliente clienteActual)
 
 void consultarSaldo(Cliente clienteActual)
 {
-    printf("Saldo actual: %.2f\n", clienteActual.datosBanco.saldo);
+    printf("Saldo actual: $%.2f\n", clienteActual.datosBanco.saldo);
 }
 
 void ingresarDinero(Cliente *clienteActual, int mesSimulado)
 {
     system("cls");
     printf("Indique la cantidad que desea ingresar, puede ingresar hasta $%.2f\n", MONTO_INGRESO_MAX);
-    float montoIngresado = leerFloatEntre(MONTO_INGRESO_MIN, MONTO_INGRESO_MAX, "Monto: ");
+    float montoIngresado = leerFloatEntre(MONTO_INGRESO_MIN, MONTO_INGRESO_MAX, "Monto: ", "No cumple con el monto minimo.", "Supera el monto maximo.");
 
     if (confirmaUsuario("Desea confirmar la operacion?"))
     {
@@ -396,9 +469,9 @@ void retirarDinero(Cliente *clienteActual, int mesSimulado)
     {
         printf("Indique la cantidad que desea retirar, puede retirar un minimo de $%.2f\n", MONTO_RETIRO_MIN);
         printf("Limite de extraccion por dia $%.2f\n", (*clienteActual).datosBanco.limiteExtraccion);
-        float montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.limiteExtraccion, "Cuanto desea retirar?\n$");
+        float montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.limiteExtraccion, "Cuanto desea retirar?\n$", "No comple con la extraccion minima.", "El monto supera el saldo actual.");
 
-        evaluarExtraccion(clienteActual, &montoRetirado);
+        // evaluarExtraccion(clienteActual, &montoRetirado);
         confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
     }
     else
@@ -427,7 +500,7 @@ void confirmarExtraccion(Cliente *clienteActual, float montoRetirado, int mesSim
     {
         (*clienteActual).datosBanco.saldo -= montoRetirado;
         (*clienteActual).datosBanco.limiteExtraccion -= montoRetirado;
-        clienteActual->datosBanco.movMensuales[mesSimulado - 1][RETIROS] -= montoRetirado;
+        clienteActual->datosBanco.movMensuales[mesSimulado - 1][RETIROS] += montoRetirado;
         puts("Operacion exitosa!\n");
         consultarSaldo(*clienteActual);
     }
@@ -449,7 +522,7 @@ void evaluarExtraccion(Cliente *clienteActual, float *montoRetirado)
         {
             printf("El monto supera el saldo actual");
         }
-        *montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.saldo, "\nCuanto desea retirar?");
+        *montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.saldo, "\nCuanto desea retirar?", "", "");
     }
 }
 
@@ -480,9 +553,6 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
         case 4: // D (Delete / Borrar o Eliminar)
             bajaUsuario(list, cantUsuarios);
             break;
-        case 5: // Genera Reporte
-
-            break;
         }
 
         limpiarPantalla();
@@ -490,7 +560,7 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
     }
     puts("////////fwrite////////");
-    guardarUsuariosVC(list, *cantUsuarios);
+    guardarUsuarios(list, *cantUsuarios);
 }
 int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
 {
@@ -539,7 +609,7 @@ int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo,
     }
     return cantidad;
 }
-void guardarUsuariosVC(Cliente listUser[], int cant)
+void guardarUsuarios(Cliente listUser[], int cant)
 {
     FILE *archivo;
     _mkdir("../ListUsers");
@@ -965,56 +1035,6 @@ void enEspera()
 {
     printf("Queda pendiente");
 }
-
-/* ========================================================================
- *  10. CODIGO COMENTADO (login / versiones anteriores)
- *      Lo dejo al final para que no moleste al leer el codigo activo.
- * ======================================================================== */
-
-// ---------- Login e inicio de sesion (a futuro) ----------
-
-// bool loginUsuarios(Cliente datos[], int cantidad, int *posUsuario)
-// {
-//     Cliente aliasOdni;
-//     bool accesoConcedido = false;
-//     cabecera();
-//     verificarDatoExistente("DNI o alias ", aliasOdni.datosBanco.alias, datos, posUsuario);
-//     *posUsuario =
-//         if (!esIgual(*posUsuario, USUARIO_INEXISTENTE))
-//     {
-//         accesoConcedido = verificacionClave(datos, *posUsuario, "Ingrese contrasenia: ", "ERROR: Contrasenia incorrecta, intentalo de nuevo");
-//     }
-//     else
-//     {
-//         printf("ACCESO DENEGADO.\n");
-//     }
-
-//     return accesoConcedido;
-// }
-
-// void inicioSesion(Cliente datos[], int posUsuario, bool accesoConcedido)
-// {
-//     if (accesoConcedido)
-//     {
-//         switch (datos[posUsuario].rol)
-//         {
-//         case ADMINISTRADOR:
-//             menuVistaAdmin(datos, posUsuario);
-//             break;
-//         case CLIENTE:
-//             if (datos[posUsuario].Pyme == false)
-//             {
-//                 menuVistaCliente(datos, posUsuario);
-//             }
-//             else
-//             {
-//                 menuVistaClientePYME(datos, posUsuario);
-//             }
-
-//             break;
-//         }
-//     }
-// }
 
 // dejalo asi, no saques el fflush
 void limpiarPantalla(void)

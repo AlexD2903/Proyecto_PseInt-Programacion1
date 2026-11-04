@@ -13,7 +13,7 @@ int leerEntero(cadena mensaje);
 float leerFloat(cadena mensaje);
 char leerCaracter(cadena mensaje);
 int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje);
-float leerFloatEntre(float valorMin, float valorMax, cadena mensaje);
+float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ);
 bool confirmaUsuario(cadena mensaje);
 
 //////////////////////  FUNCIONES EXTRAS  /////////////////////////////////////
@@ -89,7 +89,7 @@ int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje)
     }
     return numero;
 }
-float leerFloatEntre(float valorMin, float valorMax, cadena mensaje)
+float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ)
 {
     /* Muestra el mensaje al usuario. Luego, lee floats mientras éstos estén
        fuera del rango [valorMin, valorMax] informando al usuario de
@@ -99,7 +99,14 @@ float leerFloatEntre(float valorMin, float valorMax, cadena mensaje)
     scanf("%f", &numero);
     while (numero < valorMin || numero > valorMax)
     {
-        printf("Error. El valor ingresado no esta dentro del rango de %.2f y %.2f\n", valorMin, valorMax);
+        if (numero < valorMin)
+        {
+            puts(menorQ);
+        }
+        if (numero > valorMax)
+        {
+            puts(mayorQ);
+        }
         printf("%s",mensaje);
         scanf(" %f", &numero);
     }
@@ -209,7 +216,7 @@ void leerVectorDeFloatsEntre(float valorMin, float valorMax, cadena mensaje, flo
     for (int i = 0; i < cant; i++)
     {
         printf("[%d] ", i);
-        vec[i] = leerFloatEntre(valorMin, valorMax, mensaje);
+        vec[i] = leerFloatEntre(valorMin, valorMax, mensaje,"Valor invalido.","Supera el rango.");
     }
 }
 void mostrarVectorDeEnteros(int vec[], int cant)
