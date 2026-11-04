@@ -10,7 +10,7 @@
 #define VACIO 0
 #define OPC_SALIDA 0
 #define OPC_MODIFICAR_USU 4
-#define OPC_M_GEST_PERS 4
+#define OPC_M_GEST_PERS 5
 #define OPC_M_GEST_CLIENT 6
 #define USUARIO_INEXISTENTE -1
 #define OPC_DNI 1
@@ -35,6 +35,7 @@
 #define RUTA_USUARIOS "../Data/Usuarios.dat"
 
 #define RUTA_MOVIMIENTOS  "../Data/movimientos.dat"
+#define RUTA_BAJAS  "../Data/bajas.dat"
 
 #define ADMIN "admin"
 
@@ -140,6 +141,8 @@ void ordenarVectorDeCadenasAscendente(Cliente vec[], int cant);
 void guardarUsuarios(Cliente listUser[], int cant);
 int cargarUsuariosVC(Cliente listUser[]);
 bool registrarMovimientos(Movimientos reg[], int cant);
+bool registrarBaja(Cliente *eliminado);
+void listaBajas();
 
 /////////////////// UTILIDADES ///////////////////
 void limpiarPantalla(void);
@@ -159,7 +162,7 @@ int main(void)
     } */;
 
     int cantClientes = 0;
-    int cantidadLeida = cargarUsuariosVC(listUser);
+    /* int cantidadLeida = cargarUsuariosVC(listUser);
 
     if (cantidadLeida >= 0)
     {
@@ -168,7 +171,7 @@ int main(void)
     else
     {
         puts("No se pudieron cargar los usuarios.");
-    }
+    } */
 
     bool cerrarApp = false;
     while (!cerrarApp)
@@ -207,6 +210,7 @@ void vistaGestionPersonal(void)
     printf("2. Ver lista de usuarios\n"); // R
     printf("3. Modificar usuario\n");     // U
     printf("4. Baja de usuario\n");       // D
+    printf("5. Ver lista de bajas\n");
     printf("0. Volver\n\n");
 }
 
@@ -589,6 +593,8 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
         case 4: // D (Delete / Borrar o Eliminar)
             bajaUsuario(list, cantUsuarios);
             break;
+        case 5:
+            listaBajas();
         }
 
         limpiarPantalla();
@@ -598,6 +604,7 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
     puts("////////fwrite////////");
     guardarUsuarios(list, *cantUsuarios);
 }
+
 int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
 {
     int cantidad = -1;
@@ -814,6 +821,19 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant)
     }
 }
 
+
+void generarReporteCliente(Cliente cliente){
+
+    Movimientos reg;
+    FILE *f , *txt;
+
+    //strcmp( cliente.datosBanco.alias,  reg.alias ) == 0{
+    // imprimitMovimientos( );
+    //}
+}
+
+
+
 /* ========================================================================
  *  5. MODIFICACION DE USUARIOS (Update)
  * ======================================================================== */
@@ -919,8 +939,13 @@ void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios)
 
     if (confirmaUsuario("Estas seguro de eliminar este usuario."))
     {
-        eliminarUsuario(listUser, posUsuario, cantUsuarios);
-        printf("Usuario eliminado con exito.\n");
+        if(registrarBaja(&listUser[posUsuario])){
+
+            eliminarUsuario(listUser, posUsuario, cantUsuarios);
+            printf("Usuario eliminado con exito.\n");
+        }else{
+            puts("No se pudo registrar la baja.");
+        }
     }
     else
     {
@@ -936,6 +961,37 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
     }
 
     (*cantUser)--;
+}
+
+bool registrarBaja(Cliente *eliminado){
+    bool todoOk = false;
+
+    FILE *f = fopen(RUTA_BAJAS, "ab");
+
+    if(f != NULL){
+        todoOk = (fwrite(eliminado, sizeof(Cliente), 1, f )== 1 );
+        fclose(f);
+    }
+    return todoOk;
+}
+
+void listaBajas(){
+    Cliente baja;
+    int cont = 0;
+    FILE *f = fopen(RUTA_BAJAS, "rb");
+    if(f != NULL){
+        
+        while (fread(&baja, sizeof(Cliente), 1, f) == 1)
+        {
+            cont++;
+            printf("%d. CLIENTE: %s %s\n",cont , baja.datosPersonales.nombre, baja.datosPersonales.apellido);
+            printf("DNI %s\n\n", baja.datosPersonales.DNI);
+        }
+        fclose(f);
+        
+    }else{
+        puts("\nNo hay bajas resgistradas");
+    }
 }
 
 /* ========================================================================
