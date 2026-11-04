@@ -31,10 +31,10 @@
 #define LIMITE_EXTRACION 1000000.00
 #define LIMITE_CERO 0.00
 
-#define CARPETA_DATA "data"
-#define RUTA_USUARIOS "data/listaUsuarios.dat"
+#define CARPETA_DATA "../Data"
+#define RUTA_USUARIOS "../Data/Usuarios.dat"
 
-#define RUTA_MOVIMIENTOS  "data/movimientos.dat"
+#define RUTA_MOVIMIENTOS  "../Data/movimientos.dat"
 
 #define ADMIN "admin"
 
@@ -72,7 +72,7 @@ typedef struct
 } Cliente;
 
 typedef struct{
-    cadena aliasOrigen,
+    cadena alias,
     aliasDestino;
     int mes;
     float monto;
@@ -103,7 +103,7 @@ void mensajeErrorExtraccion(Cliente *clienteActual);
 void consultarDatosPersonales(Cliente clienteActual);
 void consultarSaldo(Cliente cliente);
 void verMovimientos(Cliente *cliente);
-void realizarTransferencia(Cliente *origen, Cliente *destino, float monto);
+bool realizarTransferencia(Cliente *origen, Cliente *destino, float monto, int mes);
 
 /////////////////// GESTION DE USUARIOS ///////////////////
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
@@ -118,6 +118,8 @@ void bajaUsuario(Cliente listUser[], int *cantUsuarios);
 void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser);
 void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios);
 float cuantoTransferir(Cliente usuario);
+
+
 
 /////////////////// BUSQUEDA Y VALIDACION ///////////////////
 int posicionPorDNI(Cliente listUser[], int cantUsuarios);
@@ -143,7 +145,8 @@ bool registrarMovimientos(Movimientos reg[], int cant);
 void limpiarPantalla(void);
 
 ///////////////////transferencias/////////////
-void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser);
+void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser,int mes);
+Movimientos crearMovimientos(Cliente cliente, float monto, int mes);
 
 int main(void)
 {
@@ -238,6 +241,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 {
+
     int posActual, intentos;
     cadena usuario, clave;
     bool usuarioValido, esAdmin = false, claveCorrecta = false;
@@ -318,7 +322,7 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUs
             retirarDinero(&listClientes[posicionActual], mesSimulado);
             break;
         case 4:
-            opcionTransferencia(listClientes, cantUsers, posicionActual);
+            opcionTransferencia(listClientes, cantUsers, posicionActual, mesSimulado);
             break;
         case 5:
             verMovimientos(&listClientes[posicionActual]);
@@ -337,7 +341,7 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUs
     }
 }
 
-void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser)
+void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser, int mes)
 {
 
     cadena aliasDestinatario;
@@ -363,7 +367,11 @@ void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser)
                 saldo = cuantoTransferir(listUser[posUser]);
                 if (confirmaUsuario("Confirmar transferencia?:"))
                 {
-                    realizarTransferencia(&listUser[posUser], &listUser[posDestino], saldo);
+                    if( realizarTransferencia(&listUser[posUser], &listUser[posDestino], saldo, mes) ){
+                        printf("Todo ok");
+                    }else{
+                        puts("No se pudo.");
+                    }
                 }
                 else{
                     puts("Transferencia cancelada.");
@@ -382,18 +390,36 @@ void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser)
     }
 }
 
-void realizarTransferencia(Cliente *origen, Cliente *destino, float monto)
+bool realizarTransferencia(Cliente *origen, Cliente *destino, float monto, int mes)
 {
+    bool todoOk = false;
     Movimientos reg[2];
 
-    (*origen).datosBanco.saldo -= monto;
-    (*destino).datosBanco.saldo += monto;
+    reg[0] = crearMovimientos(*origen, monto, mes );
+    strcpy(reg[0].aliasDestino, destino->datosBanco.alias);
+    
+    reg[1] = crearMovimientos(*destino, monto, mes );
+    strcpy(reg[1].aliasDestino, origen->datosBanco.alias);
+    
+    todoOk = registrarMovimientos(reg, 2);
+    if(todoOk){
+
+        printf("\n\nESTO VIENE DE REALIZAR TRANSFERENCIA: %d\n\n", todoOk);
+        (*origen).datosBanco.saldo -= monto;
+        (*destino).datosBanco.saldo += monto;
+    }
+    
+  return todoOk;
 }
 
-float cuantoTransferir(Cliente usuario)
-{
-    return leerFloatEntre(LIMITE_CERO, usuario.datosBanco.saldo, "Monto de tranferecia: ", "Monto invalido.", "Saldo insufiente.");
+Movimientos crearMovimientos(Cliente cliente, float monto, int mes){
+    Movimientos reg;
 
+    strcpy(reg.alias, cliente.datosBanco.alias);
+    reg.monto = monto;
+    reg.mes = mes;
+
+    return reg;
 }
 
 bool registrarMovimientos(Movimientos reg[], int cant){
@@ -404,9 +430,19 @@ bool registrarMovimientos(Movimientos reg[], int cant){
     if( f!= NULL){
         funciona = ( fwrite(reg, sizeof(Movimientos), cant, f) == (size_t)cant);
         fclose(f);
+    }else{
+        perror("ERROR");
     }
    return funciona; 
 }
+
+
+float cuantoTransferir(Cliente usuario)
+{
+    return leerFloatEntre(LIMITE_CERO, usuario.datosBanco.saldo, "Monto de tranferecia: ", "Monto invalido.", "Saldo insufiente.");
+
+}
+
 
 void verMovimientos(Cliente *cliente)
 {
@@ -565,8 +601,8 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
 int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
 {
     int cantidad = -1;
-    FILE *archivo = fopen("../ListUsers/Usuarios.dat", "rb");
-
+    FILE *archivo = fopen(RUTA_USUARIOS, "rb");
+    
     if (archivo != NULL)
     {
         puts("El archivo se abrio correctamente.");
@@ -612,8 +648,12 @@ int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo,
 void guardarUsuarios(Cliente listUser[], int cant)
 {
     FILE *archivo;
-    _mkdir("../ListUsers");
-    archivo = fopen("../ListUsers/Usuarios.dat", "wb");
+    
+    
+    if(_mkdir(CARPETA_DATA) == 0){
+        puts("Carpeta data creada");
+    };
+    archivo = fopen("../Data/Usuarios.dat", "wb");
 
     if (archivo != NULL)
     {
