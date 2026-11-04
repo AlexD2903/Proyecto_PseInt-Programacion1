@@ -233,6 +233,8 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
 
 void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 {
+
+    Cliente auxParaClave;
     int posActual;
     cadena usuario,
         clave;
@@ -258,11 +260,10 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
         
 
 
-        while ()
-        {
 
-            if (esAdmin){
-                
+
+        if (esAdmin){
+           
                 leerCadena("Ingrese la clave", clave);
                 if(strcmp(clave, ADMIN) == 0){
     
@@ -287,7 +288,7 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
                 puts("Usuario incorrecto.");
             }
         }
-        }
+        
         
 }
 
