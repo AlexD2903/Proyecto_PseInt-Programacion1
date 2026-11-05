@@ -81,6 +81,7 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant);
 void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios);
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuario], int tipoDato, int cantidad);
 void consultarSaldo(Cliente cliente);
+void ordenarUsuarios(Cliente baseDatos[], int cantUsuarios);
 
 /////////////////// BAJA ///////////////////
 
@@ -156,7 +157,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     // Vista Cliente
     printf("\n");
     printf("==================================================\n");
-    printf("                 BANCO ABRAXAS                 \n");
+    printf("                BANCO ABRAXAS                 \n");
     printf("                HOME BANKING                   \n");
     printf("==================================================\n\n");
 
@@ -202,19 +203,19 @@ void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int *cantU
             consultarSaldo(listClientes[posicionActual]);
             break;
         case 2:
-            realizarDeposito(); // no sirve
+            // realizarDeposito(); // no sirve
             break;
         case 3:
-            realizarRetiro(); // no sirve
+            // realizarRetiro(); // no sirve
             break;
         case 4:
-            realizarTransferencia();
+            // realizarTransferencia();
             break;
         case 5:
-            verMovimientos();
+            // verMovimientos();
             break;
         case 6:
-            consultarCBUyAlias();
+            // consultarCBUyAlias();
             break;
         default:
             puts("Gracias vuelvas prontos");
@@ -230,11 +231,12 @@ void consultarSaldo(Cliente clienteActual)
 {
     printf("Saldo actual: %.2f", clienteActual.datosBanco.saldo);
 }
-
+/*
 void realizarDeposito(Cliente list)
 {
 }
 
+*/
 /* ========================================================================
  *  2. MENU DE GESTION DE PERSONAL (ADMINISTRADOR)
  * ======================================================================== */
@@ -378,12 +380,31 @@ void listaUsuarios(Cliente baseDatos[], int *cantUsuarios)
 {
     if (*cantUsuarios > VACIO)
     {
+        ordenarUsuarios(baseDatos, *cantUsuarios);
         printf("\nLista de usuarios:\n");
         mostrarListadUsuarios(baseDatos, *cantUsuarios);
     }
     else
     {
         printf("---- No hay usuarios registrados ----\n");
+    }
+}
+
+void ordenarUsuarios(Cliente baseDatos[], int cantUsuarios)
+{
+    Cliente aux;
+
+    for (int i = 0; i < cantUsuarios - 1; i++)
+    {
+        for (int j = i + 1; j < cantUsuarios; j++)
+        {
+            if (strcasecmp(baseDatos[i].datosPersonales.apellido, baseDatos[j].datosPersonales.apellido) > 0)
+            {
+                aux = baseDatos[i];
+                baseDatos[i] = baseDatos[j];
+                baseDatos[j] = aux;
+            }
+        }
     }
 }
 
@@ -459,7 +480,11 @@ void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[posUsuar
 
     case OPC_DNI:
         leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, texto, nomDato);
-        verificarDatoExistente(nomDato, "DNI", usuario, cantidad, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+        if (strcmp(usuario[posUsuario].datosPersonales.DNI, nomDato) != 0)
+        {
+            verificarDatoExistente(nomDato, "DNI", usuario, cantidad, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+        }
+
         confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato) : NULL;
 
         break;
