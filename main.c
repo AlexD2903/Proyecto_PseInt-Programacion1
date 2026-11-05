@@ -749,6 +749,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
     leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, "Ingresar nombre: ", nuevo.datosPersonales.nombre);
     cadenaAPascal(nuevo.datosPersonales.nombre);
+    bool letras = isalpha((unsigned char)alias[posicion]);
     leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, "Ingrese apellido: ", nuevo.datosPersonales.apellido);
     cadenaAPascal(nuevo.datosPersonales.apellido);
 
@@ -765,6 +766,10 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     nuevo.datosBanco.saldo = 0;
 
     return nuevo;
+}
+
+void verificarDatoPersonal(cadena datoPersonal){
+    
 }
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
@@ -1133,22 +1138,31 @@ bool verificacionClave(Cliente usuario)
     return respuesta;
 }
 
-bool verificarAlias(cadena alias)
+bool verificarCadena(cadena unaCadena, boolean esUnAlias)
 {
-    bool valido = (alias[0] != '\0'); // el alias vacío no es válido
+    bool valido = (unaCadena[0] != '\0'); // el unaCadena vacío no es válido
     int posicion = 0;
 
-    while (valido && alias[posicion] != '\0')
-    {
-        bool numeros = verificaCaracter(alias[posicion], '0', '9');
-        bool mayus = verificaCaracter(alias[posicion], 'A', 'Z');
-        bool minus = verificaCaracter(alias[posicion], 'a', 'z');
-        bool signos = verificaCaracter(alias[posicion], '-', '.');
 
-        valido = numeros || mayus || minus || signos;
+    while (valido && unaCadena[posicion] != '\0')
+    {
+        valido = isalpha((unsigned char)unaCadena[posicion]);
 
         posicion++;
     }
+    if (valido && esUnAlias)
+    {
+        while (valido && unaCadena[posicion] != '\0')
+        {
+            valido = isdigit((unsigned char)unaCadena[posicion]); 
+            bool signos = verificaCaracter(unaCadena[posicion], '-', '.');
+            valido = valido || signos; //verificar
+            
+            posicion++;
+        }
+    }
+
+
     return valido;
 }
 bool verificaCaracter(char string, char cInicial, char cFinal)
