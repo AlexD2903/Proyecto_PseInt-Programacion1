@@ -946,10 +946,7 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
                 cambiarDatoDeUsuario("Ingresar nuevo DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
                 break;
             case 4:
-                bool nuevoEstado = esClientePyme();
-              if (confirmaUsuario("Estas seguro?")){
-                listUser[posUsuario].datosBanco.esPyme = nuevoEstado;
-              }
+                listUser[posUsuario].datosBanco.esPyme = esClientePyme();
               break;
             }
             system("cls");
