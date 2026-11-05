@@ -27,6 +27,8 @@
 #define LONG_MAX_NOM 15
 #define LONG_MIN_APE 2
 #define LONG_MAX_APE 20
+#define LONG_MIN_CLAVE 4
+#define LONG_MAX_CLAVE 20
 
 #define MONTO_RETIRO_MIN 1000.00
 #define MONTO_INGRESO_MIN 1000.00
@@ -235,7 +237,7 @@ void menuVistaCliente(Cliente datos[], int posUsuario)
     printf("  3. Realizar retiro\n");
     printf("  4. Realizar transferencia\n");
     printf("  5. Ver movimientos\n");
-    printf("  6. Consultar CBU y alias\n");
+    printf("  6. Consultar datos personales y alias\n");
     // printf("  5. Solicitar prestamo\n");
     printf("  0. Cerrar sesion\n");
 
@@ -756,7 +758,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.alias);
     verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
 
-    leerCadena("Ingrese clave: ", nuevo.datosBanco.clave);
+    leerCadenaEntre(LONG_MIN_CLAVE, LONG_MAX_CLAVE, "Ingrese clave: ", nuevo.datosBanco.clave);
     nuevo.datosBanco.esPyme = esClientePyme();
     nuevo.datosBanco.rol = CLIENTE;
     nuevo.datosBanco.limiteExtraccion = LIMITE_EXTRACION;
@@ -944,9 +946,11 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
                 cambiarDatoDeUsuario("Ingresar nuevo DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
                 break;
             case 4:
-                listUser[posUsuario].datosBanco.esPyme = esClientePyme();
-                puts("Tipo de cliente actualizado.");
-                break;
+                bool nuevoEstado = esClientePyme();
+              if (confirmaUsuario("Estas seguro?")){
+                listUser[posUsuario].datosBanco.esPyme = nuevoEstado;
+              }
+              break;
             }
             system("cls");
             printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
@@ -969,20 +973,28 @@ void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[], int t
     case OPC_NOMBRE:
         leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, texto, nomDato);
         cadenaAPascal(nomDato);
-        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato) : NULL;
+        if (confirmaUsuario("Estas seguro?"))
+        {
+            strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato);
+        }
         break;
 
     case OPC_APELLIDO:
         leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, texto, nomDato);
         cadenaAPascal(nomDato);
-        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato) : NULL;
+        if (confirmaUsuario("Estas seguro?"))
+        {
+            strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato);
+        }
         break;
 
     case OPC_DNI:
         leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, texto, nomDato);
         verificarDatoExistente(nomDato, "DNI", usuario, cantidad, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
-        confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato) : NULL;
-
+        if (confirmaUsuario("Estas seguro?"))
+        {
+            strcpy(usuario[posUsuario].datosPersonales.DNI, nomDato);
+        }
         break;
     }
 }
