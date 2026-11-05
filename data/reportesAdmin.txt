@@ -1,0 +1,14 @@
+========== REPORTE DE SISTEMA - BANCO ABRAXAS ==========
+
+Total de clientes activos en el sistema: 5
+
+1. Boca Junior | DNI: 10101010
+-> Saldo: $0.00 | Rol: Cliente
+2. Charly Cimino | DNI: 11111111
+-> Saldo: $0.00 | Rol: Admin
+3. Esteban Quinteros | DNI: 15151515
+-> Saldo: $0.01 | Rol: Cliente
+4. Juan Britez | DNI: 14141414
+-> Saldo: $4303.56 | Rol: Cliente
+5. Santiago Gutierrez | DNI: 13131313
+-> Saldo: $10000.00 | Rol: Cliente

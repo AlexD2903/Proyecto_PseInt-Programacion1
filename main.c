@@ -1,7 +1,6 @@
 #include "utils.h"
 #include <errno.h> //Para detecnar si el archivo no existe (ENOENT)
 #include <direct.h>
-#include <time.h>
 #include <windows.h>
 
 #define CANT_USERS 100
@@ -10,7 +9,7 @@
 #define VACIO 0
 #define OPC_SALIDA 0
 #define OPC_MODIFICAR_USU 4
-#define OPC_M_GEST_PERS 5
+#define OPC_M_GEST_PERS 6
 #define OPC_M_GEST_CLIENT 6
 #define USUARIO_INEXISTENTE -1
 #define OPC_DNI 1
@@ -24,21 +23,25 @@
 #define LONG_MAX_DNI 8
 #define LONG_MIN_ALIAS 6
 #define LONG_MAX_ALIAS 20
+#define LONG_MIN_NOM 2
+#define LONG_MAX_NOM 15
+#define LONG_MIN_APE 2
+#define LONG_MAX_APE 20
 
 #define MONTO_RETIRO_MIN 1000.00
 #define MONTO_INGRESO_MIN 1000.00
 #define MONTO_INGRESO_MAX 1500000.00
 #define LIMITE_EXTRACION 1000000.00
 #define LIMITE_CERO 0.00
+#define MIN_TRANSFERENCIA 1
 
-#define CARPETA_DATA "../Data"
-#define RUTA_USUARIOS "../Data/Usuarios.dat"
-
-#define RUTA_MOVIMIENTOS  "../Data/movimientos.dat"
-#define RUTA_BAJAS  "../Data/bajas.dat"
+#define CARPETA_DATA "../data"
+#define RUTA_USUARIOS "../data/Usuarios.dat"
+#define RUTA_MOVIMIENTOS "../data/movimientos.dat"
+#define RUTA_BAJAS "../data/bajas.dat"
+#define RUTA_REPORTES_CLIENTE "../data/reportesAdmin.txt"
 
 #define ADMIN "admin"
-
 #define SALDO 1
 #define DEPOSITOS 2
 #define RETIROS 3
@@ -72,13 +75,13 @@ typedef struct
     DatosBancarios datosBanco;
 } Cliente;
 
-typedef struct{
+typedef struct
+{
     cadena alias,
-    aliasDestino;
+        aliasDestino;
     int mes;
     float monto;
 } Movimientos;
-
 
 // FORMATO: typedef  <tipo de retorno>  (*<NombreDelTipo>)  (<lista de parámetros>);
 typedef bool (*ReglaFormato)(cadena);
@@ -93,7 +96,6 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios);
 void cabecera(void);
 void vistaGestionPersonal(void);
 void menuGestionarPersonal(Cliente list[], int *cantUsuarios);
-void enEspera(void);
 
 /////////////////// OPERACIONES DEL CLIENTE ///////////////////
 void ingresarDinero(Cliente *clienteActual, int mesSimulado);
@@ -120,8 +122,6 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser);
 void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios);
 float cuantoTransferir(Cliente usuario);
 
-
-
 /////////////////// BUSQUEDA Y VALIDACION ///////////////////
 int posicionPorDNI(Cliente listUser[], int cantUsuarios);
 bool verificarDNI(cadena dni);
@@ -139,30 +139,28 @@ void ordenarVectorDeCadenasAscendente(Cliente vec[], int cant);
 
 /////////////////// ARCHIVOS ///////////////////
 void guardarUsuarios(Cliente listUser[], int cant);
-int cargarUsuariosVC(Cliente listUser[]);
+int cargarUsuarios(Cliente listUser[]);
 bool registrarMovimientos(Movimientos reg[], int cant);
 bool registrarBaja(Cliente *eliminado);
 void listaBajas();
+void generarReporteSistema(Cliente listUser[], int cantUsuarios);
+void imprimirMovimiento(FILE *txt, Cliente cliente, Movimientos reg);
 
 /////////////////// UTILIDADES ///////////////////
 void limpiarPantalla(void);
 
 ///////////////////transferencias/////////////
-void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser,int mes);
+void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser, int mes);
 Movimientos crearMovimientos(Cliente cliente, float monto, int mes);
 
 int main(void)
 {
-    Cliente listUser[CANT_USERS] /* = {
-        {{"Charly", "Cimino", "11111111"}, {"charly.c", "terminator2", 0.0, LIMITE_EXTRACION, ADMINISTRADOR, false, {{0}}} },
-        {{"Alex", "Ramos", "12121212"}, {"alex123", "alex.r", 340.4, LIMITE_EXTRACION, CLIENTE, false, {{0}}} },
-        {{"Santiago", "Gutierrez", "13131313"}, {"Santi2", "santi.g", 10000.0, LIMITE_EXTRACION, CLIENTE, false, {{0}}} },
-        {{"Juan", "Britez", "14141414"}, {"Juan.Britez", "Juam1989", 4303.56, LIMITE_EXTRACION, CLIENTE, true, {{0}}} },
-        {{"Esteban", "Quinteros", "15151515"}, {"123123", "esteban.q", 10204.43, LIMITE_EXTRACION, CLIENTE, false, {{0}}} }
-    } */;
+    _mkdir(CARPETA_DATA);
+
+    Cliente listUser[CANT_USERS];
 
     int cantClientes = 0;
-    /* int cantidadLeida = cargarUsuariosVC(listUser);
+    int cantidadLeida = cargarUsuarios(listUser);
 
     if (cantidadLeida >= 0)
     {
@@ -171,9 +169,10 @@ int main(void)
     else
     {
         puts("No se pudieron cargar los usuarios.");
-    } */
+    }
 
     bool cerrarApp = false;
+    system("pause");
     while (!cerrarApp)
     {
         system("cls");
@@ -205,12 +204,14 @@ void cabecera(void)
 
 void vistaGestionPersonal(void)
 {
+    system("cls");
     printf("GESTION PERSONAL\n\n");
     printf("1. Alta de nuevo usuario\n"); // C
     printf("2. Ver lista de usuarios\n"); // R
     printf("3. Modificar usuario\n");     // U
     printf("4. Baja de usuario\n");       // D
     printf("5. Ver lista de bajas\n");
+    puts("6. Generar reporte sistema (txt)");
     printf("0. Volver\n\n");
 }
 
@@ -355,7 +356,7 @@ void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser, int 
 
     printf("Saldo actual: $%.2f\n", listUser[posUser].datosBanco.saldo);
 
-    if (listUser[posUser].datosBanco.saldo > LIMITE_CERO)
+    if (listUser[posUser].datosBanco.saldo >= MIN_TRANSFERENCIA)
     {
         leerCadena("Ingresar Alias: ", aliasDestinatario);
         posDestino = buscarDato(listUser, cantUsuarios, aliasDestinatario, obtenerAlias);
@@ -371,19 +372,24 @@ void opcionTransferencia(Cliente listUser[], int cantUsuarios, int posUser, int 
                 saldo = cuantoTransferir(listUser[posUser]);
                 if (confirmaUsuario("Confirmar transferencia?:"))
                 {
-                    if( realizarTransferencia(&listUser[posUser], &listUser[posDestino], saldo, mes) ){
-                        printf("Todo ok");
-                    }else{
+                    if (realizarTransferencia(&listUser[posUser], &listUser[posDestino], saldo, mes))
+                    {
+                        puts("Transferencia realizada con exito.");
+                    }
+                    else
+                    {
                         puts("No se pudo.");
                     }
                 }
-                else{
+                else
+                {
                     puts("Transferencia cancelada.");
                 }
                 printf("Saldo actual: $%.2f\n", listUser[posUser].datosBanco.saldo);
             }
         }
-        else{
+        else
+        {
             puts("El alias ingresado no existe.");
         }
     }
@@ -399,24 +405,27 @@ bool realizarTransferencia(Cliente *origen, Cliente *destino, float monto, int m
     bool todoOk = false;
     Movimientos reg[2];
 
-    reg[0] = crearMovimientos(*origen, monto, mes );
+    reg[0] = crearMovimientos(*origen, monto, mes);
     strcpy(reg[0].aliasDestino, destino->datosBanco.alias);
-    
-    reg[1] = crearMovimientos(*destino, monto, mes );
-    strcpy(reg[1].aliasDestino, origen->datosBanco.alias);
-    
-    todoOk = registrarMovimientos(reg, 2);
-    if(todoOk){
 
-        printf("\n\nESTO VIENE DE REALIZAR TRANSFERENCIA: %d\n\n", todoOk);
+    reg[1] = crearMovimientos(*destino, monto, mes);
+    strcpy(reg[1].aliasDestino, origen->datosBanco.alias);
+
+    todoOk = registrarMovimientos(reg, 2);
+    if (todoOk)
+    {
         (*origen).datosBanco.saldo -= monto;
         (*destino).datosBanco.saldo += monto;
+
+        origen->datosBanco.movMensuales[mes - 1][RETIROS] += monto;
+        destino->datosBanco.movMensuales[mes - 1][DEPOSITOS] += monto;
     }
-    
-  return todoOk;
+
+    return todoOk;
 }
 
-Movimientos crearMovimientos(Cliente cliente, float monto, int mes){
+Movimientos crearMovimientos(Cliente cliente, float monto, int mes)
+{
     Movimientos reg;
 
     strcpy(reg.alias, cliente.datosBanco.alias);
@@ -426,27 +435,28 @@ Movimientos crearMovimientos(Cliente cliente, float monto, int mes){
     return reg;
 }
 
-bool registrarMovimientos(Movimientos reg[], int cant){
+bool registrarMovimientos(Movimientos reg[], int cant)
+{
 
     bool funciona = false;
-    FILE *f = fopen(RUTA_MOVIMIENTOS ,"ab");
+    FILE *f = fopen(RUTA_MOVIMIENTOS, "ab");
 
-    if( f!= NULL){
-        funciona = ( fwrite(reg, sizeof(Movimientos), cant, f) == (size_t)cant);
+    if (f != NULL)
+    {
+        funciona = (fwrite(reg, sizeof(Movimientos), cant, f) == (size_t)cant);
         fclose(f);
-    }else{
+    }
+    else
+    {
         perror("ERROR");
     }
-   return funciona; 
+    return funciona;
 }
-
 
 float cuantoTransferir(Cliente usuario)
 {
-    return leerFloatEntre(LIMITE_CERO, usuario.datosBanco.saldo, "Monto de tranferecia: ", "Monto invalido.", "Saldo insufiente.");
-
+    return leerFloatEntre(MIN_TRANSFERENCIA, usuario.datosBanco.saldo, "Monto de tranferecia: ", "Monto invalido. No alcanza el minimo", "Saldo insufiente.");
 }
-
 
 void verMovimientos(Cliente *cliente)
 {
@@ -505,32 +515,46 @@ void ingresarDinero(Cliente *clienteActual, int mesSimulado)
 void retirarDinero(Cliente *clienteActual, int mesSimulado)
 {
     system("cls");
-    if (clienteActual->datosBanco.saldo >= MONTO_RETIRO_MIN && clienteActual->datosBanco.limiteExtraccion != LIMITE_CERO)
-    {
-        printf("Indique la cantidad que desea retirar, puede retirar un minimo de $%.2f\n", MONTO_RETIRO_MIN);
-        printf("Limite de extraccion por dia $%.2f\n", (*clienteActual).datosBanco.limiteExtraccion);
-        float montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, clienteActual->datosBanco.limiteExtraccion, "Cuanto desea retirar?\n$", "No comple con la extraccion minima.", "El monto supera el saldo actual.");
 
-        // evaluarExtraccion(clienteActual, &montoRetirado);
-        confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
+    float maximoRetiro = clienteActual->datosBanco.saldo;
+
+    if (clienteActual->datosBanco.limiteExtraccion < maximoRetiro)
+    {
+        maximoRetiro = clienteActual->datosBanco.limiteExtraccion;
     }
-    else
+
+    if (maximoRetiro < MONTO_RETIRO_MIN)
     {
         mensajeErrorExtraccion(clienteActual);
     }
+    else
+    {
+        printf("Limite de extraccion por dia: $%.2f\n",
+               clienteActual->datosBanco.limiteExtraccion);
+
+        float montoRetirado = leerFloatEntre(
+            MONTO_RETIRO_MIN,
+            maximoRetiro,
+            "Cuanto desea retirar?\n$",
+            "No cumple con el minimo.",
+            "Supera el saldo o el limite de extraccion.");
+
+        confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
+    }
+
 }
 
 void mensajeErrorExtraccion(Cliente *clienteActual)
 {
-    if (clienteActual->datosBanco.saldo <= MONTO_RETIRO_MIN)
+    if (clienteActual->datosBanco.saldo < MONTO_RETIRO_MIN)
     {
         puts("Saldo insifuciente para realizar una extraccion minima.\n");
         consultarSaldo(*clienteActual);
         printf("Minimo para retirar es: %.2f\n", MONTO_RETIRO_MIN);
     }
-    else if (clienteActual->datosBanco.limiteExtraccion <= LIMITE_CERO)
+    else if (clienteActual->datosBanco.limiteExtraccion < MONTO_RETIRO_MIN)
     {
-        puts("Limite de extracion superado.");
+        puts("Limite de extracion diario insuficiente o superado.");
     }
 }
 
@@ -595,21 +619,24 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
             break;
         case 5:
             listaBajas();
+            break;
+        case 6:
+            generarReporteSistema(list, *cantUsuarios);
+            break;
         }
 
         limpiarPantalla();
         vistaGestionPersonal();
         opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "Elija una opcion del menu: ");
     }
-    puts("////////fwrite////////");
     guardarUsuarios(list, *cantUsuarios);
 }
 
-int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
+int cargarUsuarios(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
 {
     int cantidad = -1;
     FILE *archivo = fopen(RUTA_USUARIOS, "rb");
-    
+
     if (archivo != NULL)
     {
         puts("El archivo se abrio correctamente.");
@@ -655,16 +682,11 @@ int cargarUsuariosVC(Cliente listUser[]) // la cantidad se lee desde el archivo,
 void guardarUsuarios(Cliente listUser[], int cant)
 {
     FILE *archivo;
-    
-    
-    if(_mkdir(CARPETA_DATA) == 0){
-        puts("Carpeta data creada");
-    };
-    archivo = fopen("../Data/Usuarios.dat", "wb");
+
+    archivo = fopen(RUTA_USUARIOS, "wb");
 
     if (archivo != NULL)
     {
-        puts("Si se pudo abrir.");
         // sirve para escribir la cantidad de usuarios, si no, no se puede guardar el vector
         if (fwrite(&cant, sizeof(int), 1, archivo) == 1)
         {
@@ -723,9 +745,9 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 {
     Cliente nuevo = {0};
 
-    leerCadena("Ingresar nombre: ", nuevo.datosPersonales.nombre);
+    leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, "Ingresar nombre: ", nuevo.datosPersonales.nombre);
     cadenaAPascal(nuevo.datosPersonales.nombre);
-    leerCadena("Ingresar apellido: ", nuevo.datosPersonales.apellido);
+    leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, "Ingrese apellido: ", nuevo.datosPersonales.apellido);
     cadenaAPascal(nuevo.datosPersonales.apellido);
 
     leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
@@ -821,18 +843,76 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant)
     }
 }
 
-
-void generarReporteCliente(Cliente cliente){
+void generarReporteCliente(Cliente cliente)
+{
 
     Movimientos reg;
-    FILE *f , *txt;
+    FILE *f, *txt;
 
-    //strcmp( cliente.datosBanco.alias,  reg.alias ) == 0{
-    // imprimitMovimientos( );
-    //}
+    txt = fopen(RUTA_REPORTES_CLIENTE, "w");
+
+    if (txt != NULL)
+    {
+
+        f = fopen(RUTA_MOVIMIENTOS, "rb");
+        if (f != NULL)
+        {
+            while (fread(&reg, sizeof(Movimientos), 1, f) == 1)
+            {
+                imprimirMovimiento(txt, cliente, reg);
+            }
+            fclose(f);
+        }
+
+        fclose(txt);
+    }
+    else
+    {
+        puts("No se pudo abrir el archivo");
+    }
 }
 
+void imprimirMovimiento(FILE *txt, Cliente cliente, Movimientos reg)
+{
+    // Escribe solo los movimientos de este cliente.
+    if (strcmp(reg.alias, cliente.datosBanco.alias) == 0)
+    {
+        fprintf(txt, "Cliente: %s %s\nDestino: %s\nMes: %d\nMonto: $%.2f\n\n",
+                cliente.datosPersonales.nombre,
+                cliente.datosPersonales.apellido,
+                reg.aliasDestino,
+                reg.mes,
+                reg.monto);
+    }
+}
 
+void generarReporteSistema(Cliente listUser[], int cantUsuarios)
+{
+    FILE *f = fopen(RUTA_REPORTES_CLIENTE, "w");
+
+    if (f != NULL)
+    {
+        ordenarVectorDeCadenasAscendente(listUser, cantUsuarios);
+
+        fprintf(f, "========== REPORTE DE SISTEMA - BANCO ABRAXAS ==========\n\n");
+        fprintf(f, "Total de clientes activos en el sistema: %d\n\n", cantUsuarios);
+
+        for (int i = 0; i < cantUsuarios; i++)
+        {
+            fprintf(f, "%d. %s %s | DNI: %s | Alias: %s\n", i + 1, listUser[i].datosPersonales.nombre,
+                    listUser[i].datosPersonales.apellido,
+                    listUser[i].datosPersonales.DNI, listUser[i].datosBanco.alias);
+            fprintf(f, "-> Saldo: $%.2f | Tipo: %s\n", listUser[i].datosBanco.saldo,
+                    listUser[i].datosBanco.esPyme  ? "Pyme" : "Cliente normal");
+        }
+        fclose(f);
+        printf("\n[SISTEMA] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTES_CLIENTE);
+    }
+    else
+    {
+        printf("\n[ERROR] No se pudo crear el archivo de auditoria.\n");
+    }
+}
 
 /* ========================================================================
  *  5. MODIFICACION DE USUARIOS (Update)
@@ -864,8 +944,8 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
                 cambiarDatoDeUsuario("Ingresar nuevo DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
                 break;
             case 4:
-                // Agregar tipo de cliente
-                enEspera();
+                listUser[posUsuario].datosBanco.esPyme = esClientePyme();
+                puts("Tipo de cliente actualizado.");
                 break;
             }
             system("cls");
@@ -887,13 +967,13 @@ void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[], int t
     switch (tipodDato)
     {
     case OPC_NOMBRE:
-        leerCadena(texto, nomDato);
+        leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, texto, nomDato);
         cadenaAPascal(nomDato);
         confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.nombre, nomDato) : NULL;
         break;
 
     case OPC_APELLIDO:
-        leerCadena(texto, nomDato);
+        leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, texto, nomDato);
         cadenaAPascal(nomDato);
         confirmaUsuario("Estas seguro?") ? strcpy(usuario[posUsuario].datosPersonales.apellido, nomDato) : NULL;
         break;
@@ -923,7 +1003,7 @@ void bajaUsuario(Cliente listUser[], int *cantUsuarios)
         }
         else
         {
-            printf("CANTIDAD MAXIMA SUPERADA");
+            printf("\nCantidad maxima de intentos superada. Baja cancelada.");
         }
     }
     else
@@ -937,13 +1017,16 @@ void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios)
 {
     printf("\nUsuario encontrado:\n%s %s\n=================\n", listUser[posUsuario].datosPersonales.nombre, listUser[posUsuario].datosPersonales.apellido);
 
-    if (confirmaUsuario("Estas seguro de eliminar este usuario."))
+    if (confirmaUsuario("Estas seguro de eliminar este usuario?"))
     {
-        if(registrarBaja(&listUser[posUsuario])){
+        if (registrarBaja(&listUser[posUsuario]))
+        {
 
             eliminarUsuario(listUser, posUsuario, cantUsuarios);
             printf("Usuario eliminado con exito.\n");
-        }else{
+        }
+        else
+        {
             puts("No se pudo registrar la baja.");
         }
     }
@@ -963,33 +1046,38 @@ void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
     (*cantUser)--;
 }
 
-bool registrarBaja(Cliente *eliminado){
+bool registrarBaja(Cliente *eliminado)
+{
     bool todoOk = false;
 
     FILE *f = fopen(RUTA_BAJAS, "ab");
 
-    if(f != NULL){
-        todoOk = (fwrite(eliminado, sizeof(Cliente), 1, f )== 1 );
+    if (f != NULL)
+    {
+        todoOk = (fwrite(eliminado, sizeof(Cliente), 1, f) == 1);
         fclose(f);
     }
     return todoOk;
 }
 
-void listaBajas(){
+void listaBajas()
+{
     Cliente baja;
     int cont = 0;
     FILE *f = fopen(RUTA_BAJAS, "rb");
-    if(f != NULL){
-        
+    if (f != NULL)
+    {
+
         while (fread(&baja, sizeof(Cliente), 1, f) == 1)
         {
             cont++;
-            printf("%d. CLIENTE: %s %s\n",cont , baja.datosPersonales.nombre, baja.datosPersonales.apellido);
+            printf("%d. CLIENTE: %s %s\n", cont, baja.datosPersonales.nombre, baja.datosPersonales.apellido);
             printf("DNI %s\n\n", baja.datosPersonales.DNI);
         }
         fclose(f);
-        
-    }else{
+    }
+    else
+    {
         puts("\nNo hay bajas resgistradas");
     }
 }
@@ -1125,12 +1213,6 @@ const char *obtenerClave(const Cliente *c)
 /* ========================================================================
  *  9. PENDIENTES (funciones sin implementar)
  * ======================================================================== */
-
-// modificar
-void enEspera()
-{
-    printf("Queda pendiente");
-}
 
 // dejalo asi, no saques el fflush
 void limpiarPantalla(void)
