@@ -13,9 +13,10 @@ int leerEntero(cadena mensaje);
 float leerFloat(cadena mensaje);
 char leerCaracter(cadena mensaje);
 int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje);
-float leerFloatEntre(float valorMin, float valorMax, cadena mensaje);
+float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ);
 bool confirmaUsuario(cadena mensaje);
-
+void comprobarEntero(int *num);
+void comprobarFloat(float *num);
 //////////////////////  FUNCIONES EXTRAS  /////////////////////////////////////
 
 int cantDivisores_NumeroEntero(int numero);
@@ -80,28 +81,56 @@ int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje)
        su error. Cuando finalmente lea un entero válido, lo retorna */
     int numero;
     printf("%s", mensaje);
-    scanf("%d", &numero);
+    comprobarEntero(&numero);
     while (numero < valorMin || numero > valorMax)
     {
         printf("Error. El valor ingresado no esta dentro del rango de %d y %d\n", valorMin, valorMax);
         printf("%d %d %s", valorMin, valorMax, mensaje);
-        scanf(" %d", &numero);
+        comprobarEntero(&numero);
     }
     return numero;
 }
-float leerFloatEntre(float valorMin, float valorMax, cadena mensaje)
+void comprobarEntero(int *num)
+{
+    fflush(stdin);
+    while (scanf("%d", num) != 1)
+    {
+        puts("Tenés que ingresar un número.");
+        fflush(stdin);
+    }
+}
+
+void comprobarFloat(float *num)
+{
+    fflush(stdin);
+    while (scanf("%f", num) != 1)
+    {
+        puts("Error: Tenes que ingresar un numero valido, no letras.");
+        fflush(stdin);
+    }
+}
+
+float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ)
 {
     /* Muestra el mensaje al usuario. Luego, lee floats mientras éstos estén
        fuera del rango [valorMin, valorMax] informando al usuario de
        su error. Cuando finalmente lea un float válido, lo retorna */
     float numero;
     printf("%s", mensaje);
-    scanf("%f", &numero);
+    comprobarFloat(&numero);
+
     while (numero < valorMin || numero > valorMax)
     {
-        printf("Error. El valor ingresado no esta dentro del rango de %.2f y %.2f\n", valorMin, valorMax);
-        printf("%s",mensaje);
-        scanf(" %f", &numero);
+        if (numero < valorMin)
+        {
+            puts(menorQ);
+        }
+        if (numero > valorMax)
+        {
+            puts(mayorQ);
+        }
+        printf("%s", mensaje);
+        comprobarFloat(&numero);
     }
     return numero;
 }
@@ -209,7 +238,7 @@ void leerVectorDeFloatsEntre(float valorMin, float valorMax, cadena mensaje, flo
     for (int i = 0; i < cant; i++)
     {
         printf("[%d] ", i);
-        vec[i] = leerFloatEntre(valorMin, valorMax, mensaje);
+        vec[i] = leerFloatEntre(valorMin, valorMax, mensaje, "Valor invalido.", "Supera el rango.");
     }
 }
 void mostrarVectorDeEnteros(int vec[], int cant)
@@ -305,12 +334,13 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
     }
 }
 
-void cadenaAPascal(cadena campo){
+void cadenaAPascal(cadena campo)
+{
 
     campo[0] = toupper(campo[0]);
 
     for (int i = 1; i < (int)strlen(campo); i++)
     {
         campo[i] = tolower(campo[i]);
-    }    
+    }
 }
