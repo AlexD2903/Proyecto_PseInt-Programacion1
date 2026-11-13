@@ -749,7 +749,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
     leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, "Ingresar nombre: ", nuevo.datosPersonales.nombre);
     cadenaAPascal(nuevo.datosPersonales.nombre);
-    bool letras = isalpha((unsigned char)alias[posicion]);
+    //bool letras = isalpha((unsigned char)alias[posicion]);
     leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, "Ingrese apellido: ", nuevo.datosPersonales.apellido);
     cadenaAPascal(nuevo.datosPersonales.apellido);
 
@@ -768,6 +768,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     return nuevo;
 }
 
+//¿Qué es esto?
 void verificarDatoPersonal(cadena datoPersonal){
     
 }
@@ -1140,34 +1141,35 @@ bool verificacionClave(Cliente usuario)
 
 bool verificarCadena(cadena unaCadena, boolean esUnAlias)
 {
-    bool valido = (unaCadena[0] != '\0'); // el unaCadena vacío no es válido
+    bool esLetra = (unaCadena[0] != '\0'); // el unaCadena vacío no es válido
+    bool esDigito = (unaCadena[0] != '\0'); // el unaCadena vacío no es válido
     int posicion = 0;
 
 
-    while (valido && unaCadena[posicion] != '\0')
+    while (esLetra && unaCadena[posicion] != '\0')
     {
-        valido = isalpha((unsigned char)unaCadena[posicion]);
+        esLetra = isalpha((unsigned char)unaCadena[posicion]);
 
         posicion++;
     }
-    if (valido && esUnAlias)
+    if (esUnAlias)
     {
-        while (valido && unaCadena[posicion] != '\0')
+        while (esDigito && unaCadena[posicion] != '\0')
         {
-            valido = isdigit((unsigned char)unaCadena[posicion]); 
-            bool signos = verificaCaracter(unaCadena[posicion], '-', '.');
-            valido = valido || signos; //verificar
+            esDigito = isdigit((unsigned char)unaCadena[posicion]); 
+            bool signos = verificaCaracter(unaCadena[posicion], '-', '.'); //corregir funcion verificarCaracter porque acepta /
+            esLetra = esLetra || signos || esDigito; //verificar
             
             posicion++;
         }
     }
 
 
-    return valido;
+    return esLetra;
 }
-bool verificaCaracter(char string, char cInicial, char cFinal)
+bool verificaCaracter(char c, char cInicial, char cFinal)
 {
-    return (string >= cInicial && string <= cFinal);
+    return (c == cInicial || c == cFinal);
 }
 
 bool verificarDNI(cadena dni)
