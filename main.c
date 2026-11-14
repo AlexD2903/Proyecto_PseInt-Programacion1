@@ -749,8 +749,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
     leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, "Ingresar nombre: ", nuevo.datosPersonales.nombre);
     cadenaAPascal(nuevo.datosPersonales.nombre);
-    
-    leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, "Ingrese apellido: ", nuevo.datosPersonales.apellido);
+    leerCadena("Ingresar apellido: ", nuevo.datosPersonales.apellido);
     cadenaAPascal(nuevo.datosPersonales.apellido);
 
     leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
@@ -767,24 +766,6 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
 
     return nuevo;
 }
-
-
-bool verificarAlias(cadena alias)
-{
-    int i = 0;
-    while (isalpha((unsigned char)alias[i]))   
-    {
-        i++;
-    }
-    bool valido = (i > 0);         
-    while (valido && alias[i] != '\0')     
-    {
-        valido = isdigit((unsigned char)alias[i]) || alias[i] == '-' || alias[i] == '.';
-        i++;
-    }
-    return valido;
-}
-
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
