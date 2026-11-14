@@ -1133,31 +1133,22 @@ bool verificacionClave(Cliente usuario)
     return respuesta;
 }
 
-bool verificarCadena(cadena unaCadena, boolean esUnAlias)
+bool verificarAlias(cadena alias)
 {
-    bool valido = (unaCadena[0] != '\0'); // el unaCadena vacío no es válido
+    bool valido = (alias[0] != '\0'); // el alias vacío no es válido
     int posicion = 0;
 
-
-    while (valido && unaCadena[posicion] != '\0')
+    while (valido && alias[posicion] != '\0')
     {
-        valido = isalpha((unsigned char)unaCadena[posicion]);
+        bool numeros = verificaCaracter(alias[posicion], '0', '9');
+        bool mayus = verificaCaracter(alias[posicion], 'A', 'Z');
+        bool minus = verificaCaracter(alias[posicion], 'a', 'z');
+        bool signos = verificaCaracter(alias[posicion], '-', '.');
+
+        valido = numeros || mayus || minus || signos;
 
         posicion++;
     }
-    if (valido && esUnAlias)
-    {
-        while (valido && unaCadena[posicion] != '\0')
-        {
-            valido = isdigit((unsigned char)unaCadena[posicion]); 
-            bool signos = verificaCaracter(unaCadena[posicion], '-', '.');
-            valido = valido || signos; //verificar
-            
-            posicion++;
-        }
-    }
-
-
     return valido;
 }
 bool verificaCaracter(char string, char cInicial, char cFinal)
