@@ -53,6 +53,8 @@
 #define ENERO 1
 #define DICIEMBRE 12
 
+#define CANTIDAD_DATOS 7
+
 typedef struct
 {
     cadena nombre,
@@ -113,7 +115,7 @@ bool realizarTransferencia(Cliente *origen, Cliente *destino, float monto, int m
 /////////////////// GESTION DE USUARIOS ///////////////////
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios);
 void agregarUsuario(Cliente nuevo, Cliente baseDatos[CANT_USERS], int *cantUsuarios);
-Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios);
+Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int* opciones);
 void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax);
 void listaUsuarios(Cliente baseDatos[], int *cantUsuarios);
 void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant);
@@ -129,7 +131,7 @@ int posicionPorDNI(Cliente listUser[], int cantUsuarios);
 bool verificarDNI(cadena dni);
 bool verificaCaracter(char string, char cInicial, char cFinal);
 bool verificarAlias(cadena alias);
-bool esClientePyme(void);
+bool esClientePyme(bool* pSalida);
 bool verificacionClave(Cliente usuario);
 int buscarDato(Cliente datos[], int cantidad, const cadena dato, ObtenerCampo campoBuscado);
 const char *obtenerAlias(const Cliente *c);
@@ -138,6 +140,9 @@ const char *obtenerNombre(const Cliente *c);
 const char *obtenerApellido(const Cliente *c);
 const char *obtenerClave(const Cliente *c);
 void ordenarVectorDeCadenasAscendente(Cliente vec[], int cant);
+bool verificarCadena(cadena texto);
+bool verificarAlias(cadena texto);
+bool leerCampoValido(cadena mensaje, cadena nombreCampo, cadena dato);
 
 /////////////////// ARCHIVOS ///////////////////
 void guardarUsuarios(Cliente listUser[], int cant);
@@ -543,7 +548,6 @@ void retirarDinero(Cliente *clienteActual, int mesSimulado)
 
         confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
     }
-
 }
 
 void mensajeErrorExtraccion(Cliente *clienteActual)
@@ -723,17 +727,26 @@ void guardarUsuarios(Cliente listUser[], int cant)
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
     Cliente newCliente;
+    int opciones = 1;
 
     if (*cantUsuarios < CANT_USERS)
     {
 
         printf("========== ALTA DE PERSONAL ==========\n");
-        newCliente = nuevoUsuario(baseDatos, *cantUsuarios);
-        agregarUsuario(newCliente, baseDatos, cantUsuarios);
+        newCliente = nuevoUsuario(baseDatos, *cantUsuarios, &opciones);
+        if(opciones == CANTIDAD_DATOS){
+            agregarUsuario(newCliente, baseDatos, cantUsuarios);
+    
+            printf("\nUsuario registrado correctamente.");
+            printf("\nNombre y apellido: %s %s", newCliente.datosPersonales.nombre, newCliente.datosPersonales.apellido);
+            printf("\nAlias: %s\n", newCliente.datosBanco.alias);
 
-        printf("\nUsuario registrado correctamente.");
-        printf("\nNombre y apellido: %s %s", newCliente.datosPersonales.nombre, newCliente.datosPersonales.apellido);
-        printf("\nAlias: %s\n", newCliente.datosBanco.alias);
+        }else{
+            system("cls");
+            puts("Operacion cancelada.");
+            system("pause");
+        }
+        
     }
     else
     {
@@ -743,28 +756,75 @@ void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
     }
 }
 
-Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
+Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int* opciones)
 {
+
     Cliente nuevo = {0};
+    bool correcto = false;
 
-    leerCadenaEntre(LONG_MIN_NOM, LONG_MAX_NOM, "Ingresar nombre: ", nuevo.datosPersonales.nombre);
-    cadenaAPascal(nuevo.datosPersonales.nombre);
-    leerCadena("Ingresar apellido: ", nuevo.datosPersonales.apellido);
-    cadenaAPascal(nuevo.datosPersonales.apellido);
-
-    leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
-    verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
-
-    leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.alias);
-    verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
-
-    leerCadenaEntre(LONG_MIN_CLAVE, LONG_MAX_CLAVE, "Ingrese clave: ", nuevo.datosBanco.clave);
-    nuevo.datosBanco.esPyme = esClientePyme();
-    nuevo.datosBanco.rol = CLIENTE;
-    nuevo.datosBanco.limiteExtraccion = LIMITE_EXTRACION;
-    nuevo.datosBanco.saldo = 0;
+    while (OPC_SALIDA != opciones && *opciones <= CANTIDAD_DATOS)
+    {
+        switch (*opciones)
+        {
+        case 1:
+            correcto = leerCampoValido("Para cancelar ingresar 0.\n\nIngresar nombre: ", "nombre", nuevo.datosPersonales.nombre);
+            break;
+        case 2:
+            correcto = leerCampoValido("Ingresar Apellido: ", "apellido", nuevo.datosPersonales.apellido);
+            break;
+        case 3:
+            leerCadenaEntre(LONG_MIN_DNI, LONG_MAX_DNI, "Ingresar DNI: ", nuevo.datosPersonales.DNI);
+            (strcmp(nuevo.datosPersonales.DNI, "0") == 0) ? (correcto = false) : verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+            break;
+        case 4:
+            leerCadenaEntre(LONG_MIN_ALIAS, LONG_MAX_ALIAS, "Ingresar alias: ", nuevo.datosBanco.alias);
+            (strcmp(nuevo.datosBanco.alias, "0") == 0) ? (correcto = false) : verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
+            break;
+        case 5:
+            leerCadenaEntre(LONG_MIN_CLAVE, LONG_MAX_CLAVE, "Ingrese clave: ", nuevo.datosBanco.clave);
+            (strcmp(nuevo.datosBanco.clave,"0") == 0) ? (correcto = false): (correcto = true);
+            break;
+        case 6:
+            correcto = esClientePyme(&nuevo.datosBanco.esPyme);
+            break;
+        case 7:
+            nuevo.datosBanco.rol = CLIENTE;
+            nuevo.datosBanco.limiteExtraccion = LIMITE_EXTRACION;
+            nuevo.datosBanco.saldo = 0;
+            
+            correcto = false;
+            break;
+        }
+        correcto ? (*opciones)++ : ((*opciones) = OPC_SALIDA);
+    }
 
     return nuevo;
+}
+
+bool leerCampoValido(cadena mensaje, cadena nombreCampo, cadena dato)
+{
+    bool correcto = false, regresar = true;
+
+    do
+    {
+        leerCadena(mensaje, dato);
+        if(strcmp(dato , "0") != 0){
+
+            correcto = verificarCadena(dato);
+            if (!correcto)
+            {
+                printf("'%s' es un %s invalido, intente nuevamente:\n", dato, nombreCampo);
+            }
+            
+        }else{
+            regresar = OPC_SALIDA;
+            correcto = true;
+        }
+    } while (!correcto);
+
+    cadenaAPascal(dato);
+
+    return regresar;
 }
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
@@ -774,23 +834,30 @@ void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuario
     (*cantUsuarios)++;
 }
 
-bool esClientePyme(void)
+bool esClientePyme(bool *esPyme)
 {
     cadena pyme;
-    bool esuserpyme = false;
+    bool respondio = true;
 
-    do
+    leerCadena("Es pyme: ", pyme);
+    cadenaAPascal(pyme);
+
+    while (strcmp(pyme, "Si") != 0 && strcmp(pyme, "No") != 0 && strcmp(pyme, "0") != 0)
     {
+        printf("Respuesta invalida. Ingrese Si o No (0 para volver).\n");
         leerCadena("Es pyme: ", pyme);
         cadenaAPascal(pyme);
-        if (strcmp(pyme, "Si") == 0)
-        {
-            esuserpyme = true;
-        }
+    }
 
-    } while (strcmp(pyme, "Si") != 0 && strcmp(pyme, "No") != 0);
-
-    return esuserpyme;
+    if (strcmp(pyme, "0") == 0)
+    {
+        respondio = false;
+    }
+    else
+    {
+        *esPyme = (strcmp(pyme, "Si") == 0);
+    }
+    return respondio;
 }
 
 void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax)
@@ -799,20 +866,16 @@ void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDato
 
     while (!valido)
     {
-        if (!funcionCondicional(datoBuscado))
-        {
+        if (!funcionCondicional(datoBuscado)){
             printf("El %s ingresado es invalido.\n", nomDato);
         }
-        else if (buscarDato(baseDatos, cantUsuarios, datoBuscado, campoBuscado) != USUARIO_INEXISTENTE)
-        {
+        else if (buscarDato(baseDatos, cantUsuarios, datoBuscado, campoBuscado) != USUARIO_INEXISTENTE){
             printf("El %s ya existe.\n", nomDato);
-        }
-        else
-        {
+        }else{
             valido = true;
         }
-        if (!valido)
-        {
+
+        if (!valido){
             printf("Ingresar %s", nomDato);
             leerCadenaEntre(longMin, longMax, ": ", datoBuscado);
         }
@@ -905,7 +968,7 @@ void generarReporteSistema(Cliente listUser[], int cantUsuarios)
                     listUser[i].datosPersonales.apellido,
                     listUser[i].datosPersonales.DNI, listUser[i].datosBanco.alias);
             fprintf(f, "-> Saldo: $%.2f | Tipo: %s\n", listUser[i].datosBanco.saldo,
-                    listUser[i].datosBanco.esPyme  ? "Pyme" : "Cliente normal");
+                    listUser[i].datosBanco.esPyme ? "Pyme" : "Cliente normal");
         }
         fclose(f);
         printf("\n[SISTEMA] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTES_CLIENTE);
@@ -946,8 +1009,8 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios)
                 cambiarDatoDeUsuario("Ingresar nuevo DNI: ", posUsuario, listUser, OPC_DNI, *cantUsuarios);
                 break;
             case 4:
-                listUser[posUsuario].datosBanco.esPyme = esClientePyme();
-              break;
+                esClientePyme(&listUser[posUsuario].datosBanco.esPyme);
+                break;
             }
             system("cls");
             printf("OPCIONES PARA MODIFICAR USUARIO:\n1. Nombre\n2. Apellido\n3. DNI\n4. Tipo de cliente\n0. Volver\n");
@@ -1133,24 +1196,47 @@ bool verificacionClave(Cliente usuario)
     return respuesta;
 }
 
-bool verificarAlias(cadena alias)
+// isdigit  numeros  0-9
+// isalpha  letras A-Z a-z
+// isalnum  letras y numeros
+// ispunct  simbolos y signos de puntuacion
+
+bool verificarCadena(cadena texto)
 {
-    bool valido = (alias[0] != '\0'); // el alias vacío no es válido
     int posicion = 0;
+    bool valido = (texto[posicion] != '\0') && (texto[posicion] != ' ');
 
-    while (valido && alias[posicion] != '\0')
+    while (valido && texto[posicion] != '\0')
     {
-        bool numeros = verificaCaracter(alias[posicion], '0', '9');
-        bool mayus = verificaCaracter(alias[posicion], 'A', 'Z');
-        bool minus = verificaCaracter(alias[posicion], 'a', 'z');
-        bool signos = verificaCaracter(alias[posicion], '-', '.');
+        if (isalpha((unsigned char)texto[posicion]))
+        {
+            valido = true;
+        }
+        else if (texto[posicion] == ' ')
+        {
+            valido = (texto[posicion + 1] != ' ') && (texto[posicion + 1] != '\0');
+        }
 
-        valido = numeros || mayus || minus || signos;
+        posicion++;
+    }
 
+    return valido;
+}
+
+bool verificarAlias(cadena texto)
+{
+    int posicion = 0;
+    bool valido = (texto[0] != '\0') && (texto[0] != ' ');
+
+    while (valido && texto[posicion] != '\0')
+    {
+
+        valido = texto[posicion] == '.' || texto[posicion] == '-' || isalnum(texto[posicion]);
         posicion++;
     }
     return valido;
 }
+
 bool verificaCaracter(char string, char cInicial, char cFinal)
 {
     return (string >= cInicial && string <= cFinal);
