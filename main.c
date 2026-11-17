@@ -911,6 +911,7 @@ void mostrarListadUsuarios(Cliente baseDatos[CANT_USERS], int cant)
     }
 }
 
+/// No esta en uso 
 void generarReporteCliente(Cliente cliente)
 {
 
