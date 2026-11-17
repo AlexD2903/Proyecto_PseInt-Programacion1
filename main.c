@@ -726,6 +726,7 @@ void guardarUsuarios(Cliente listUser[], int cant)
 
 void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 {
+    system("cls");
     Cliente newCliente;
     int opciones = 1;
 
@@ -734,7 +735,7 @@ void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
 
         printf("========== ALTA DE PERSONAL ==========\n");
         newCliente = nuevoUsuario(baseDatos, *cantUsuarios, &opciones);
-        if(opciones == CANTIDAD_DATOS){
+        if(opciones >= CANTIDAD_DATOS){
             agregarUsuario(newCliente, baseDatos, cantUsuarios);
     
             printf("\nUsuario registrado correctamente.");
@@ -744,7 +745,6 @@ void altaPersonal(Cliente baseDatos[CANT_USERS], int *cantUsuarios)
         }else{
             system("cls");
             puts("Operacion cancelada.");
-            system("pause");
         }
         
     }
@@ -762,7 +762,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int* opcio
     Cliente nuevo = {0};
     bool correcto = false;
 
-    while (OPC_SALIDA != opciones && *opciones <= CANTIDAD_DATOS)
+    while (OPC_SALIDA != *opciones && *opciones <= CANTIDAD_DATOS)
     {
         switch (*opciones)
         {
@@ -792,12 +792,12 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int* opcio
             nuevo.datosBanco.limiteExtraccion = LIMITE_EXTRACION;
             nuevo.datosBanco.saldo = 0;
             
-            correcto = false;
+            correcto = true;
             break;
         }
         correcto ? (*opciones)++ : ((*opciones) = OPC_SALIDA);
     }
-
+    
     return nuevo;
 }
 
@@ -813,10 +813,11 @@ bool leerCampoValido(cadena mensaje, cadena nombreCampo, cadena dato)
             correcto = verificarCadena(dato);
             if (!correcto)
             {
-                printf("'%s' es un %s invalido, intente nuevamente:\n", dato, nombreCampo);
+                printf("'%s' es un %s invalido, intente nuevamente.\n", dato, nombreCampo);
             }
             
         }else{
+        
             regresar = OPC_SALIDA;
             correcto = true;
         }
@@ -1212,7 +1213,10 @@ bool verificarCadena(cadena texto)
         {
             valido = true;
         }
-        else if (texto[posicion] == ' ')
+        else{
+            valido = false;
+        }
+        if (texto[posicion] == ' ')
         {
             valido = (texto[posicion + 1] != ' ') && (texto[posicion + 1] != '\0');
         }
@@ -1231,7 +1235,7 @@ bool verificarAlias(cadena texto)
     while (valido && texto[posicion] != '\0')
     {
 
-        valido = texto[posicion] == '.' || texto[posicion] == '-' || isalnum(texto[posicion]);
+        valido = texto[posicion] == '.' || texto[posicion] == '-' || isalnum((unsigned char)texto[posicion]);
         posicion++;
     }
     return valido;
