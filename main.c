@@ -66,6 +66,11 @@
 #define ENERO 1
 #define DICIEMBRE 12
 
+
+// Archivos inexistenes o dañados
+#define ARCHIVO_INEXISTENTE -1
+#define ARCHIVO_CORRUPTO -2
+
 /* ========================================================================
  *  ESTRUCTURAS DE DATOS Y PUNTEROS A FUNCION
  * ======================================================================== */
@@ -173,6 +178,9 @@ void imprimirMovimiento(FILE *txt, Cliente cliente, Movimientos reg);
 // 7. Utilidades
 void limpiarPantalla(void);
 
+// Empezar
+void empezar(int* cantClientes, Cliente listUser[]);
+
 /* ========================================================================
  *  FUNCION PRINCIPAL (CAJA LIMPIA)
  * ======================================================================== */
@@ -185,28 +193,36 @@ int main(void)
 
     int cantClientes = 0;
     int cantidadLeida = cargarUsuarios(listUser);
-
+    cantClientes = cantidadLeida;
     if (cantidadLeida >= 0)
     {
-        cantClientes = cantidadLeida;
         limpiarPantalla();
+        empezar(&cantClientes, listUser);
     }
-    else
-    {
+    else if(cantidadLeida == ARCHIVO_INEXISTENTE)
+    {   cantClientes = VACIO;
         puts("Sistema inicializado sin registros previos (0 usuarios).");
         limpiarPantalla();
+        empezar(&cantClientes, listUser);
+
+    }else if(cantidadLeida == ARCHIVO_CORRUPTO){
+        puts("Archivos corruptos, no se puede abrir la app");
     }
 
-    bool cerrarApp = false;
-    while (!cerrarApp)
-    {
-        system("cls");
-        iniciarSesion(listUser, &cantClientes);
-        cerrarApp = confirmaUsuario("Cerrar app?");
-        guardarUsuarios(listUser, cantClientes);
-    }
 
     return 0;
+}
+
+//funcion para arrancar
+void empezar(int* cantClientes, Cliente listUser[]){
+        bool cerrarApp = false;
+        while (!cerrarApp)
+        {
+            system("cls");
+            iniciarSesion(listUser, cantClientes);
+            cerrarApp = confirmaUsuario("Cerrar app?");
+            guardarUsuarios(listUser, *cantClientes);
+        }
 }
 
 /* ========================================================================
@@ -594,7 +610,7 @@ bool realizarTransferencia(Cliente *origen, Cliente *destino, float monto, int m
 
 Movimientos crearMovimientos(Cliente cliente, float monto, int mes)
 {
-    Movimientos reg;
+    Movimientos reg={0};
 
     strcpy(reg.alias, cliente.datosBanco.alias);
     reg.monto = monto;
@@ -1179,7 +1195,7 @@ const char *obtenerAlias(const Cliente *c)
 
 int cargarUsuarios(Cliente listUser[]) // la cantidad se lee desde el archivo, no se necesita pasar por parametro
 {
-    int cantidad = -1;
+    int cantidad = ARCHIVO_CORRUPTO;
     FILE *archivo = fopen(RUTA_USUARIOS, "rb");
 
     if (archivo != NULL)
@@ -1195,32 +1211,34 @@ int cargarUsuarios(Cliente listUser[]) // la cantidad se lee desde el archivo, n
                 else
                 {
                     puts("[ERROR] Lectura incompleta de registros de clientes.");
-                    cantidad = -1;
+                    cantidad = ARCHIVO_CORRUPTO;
                 }
             }
             else
             {
                 puts("[ERROR] Cabecera de cantidad invalida en el archivo.");
-                cantidad = -1;
+                cantidad = ARCHIVO_CORRUPTO;
             }
         }
         else
         {
             puts("[ERROR] No se pudo leer la cabecera del archivo de usuarios.");
         }
-        fclose(archivo); // siempre va cuando el archivo se abre correctamente
+        if(fclose(archivo)!= 0){
+            perror("ERROR al cerrar archivo.");
+        }
     }
-    else if (errno == ENOENT)
+    else if(errno == ENOENT)
     {
-        puts("[ERROR] Fallo del sistema al intentar abrir Usuarios.dat.");
+        puts("Arhivo inexistente");
+        cantidad = ARCHIVO_INEXISTENTE;
     }
-
     return cantidad;
 }
 
 void guardarUsuarios(Cliente listUser[], int cant)
 {
-    FILE *archivo = archivo = fopen(RUTA_USUARIOS, "wb");
+    FILE *archivo = fopen(RUTA_USUARIOS, "wb");
 
     if (archivo != NULL)
     {
@@ -1241,7 +1259,9 @@ void guardarUsuarios(Cliente listUser[], int cant)
         {
             puts("[ERROR] No se pudo escribir la cabecera de cantidad en disco.");
         }
-        fclose(archivo);
+        if(fclose(archivo)!= 0){
+            perror("ERROR al cerrar archivo.");
+        }
     }
     else
     {
@@ -1257,7 +1277,10 @@ bool registrarMovimientos(Movimientos reg[], int cant)
     if (f != NULL)
     {
         funciona = (fwrite(reg, sizeof(Movimientos), cant, f) == (size_t)cant);
-        fclose(f);
+        if(fclose(f)!= 0){
+            perror("ERROR al cerrar archivo.");
+            funciona = false;
+        }
     }
     else
     {
@@ -1274,7 +1297,10 @@ bool registrarBaja(Cliente *eliminado)
     if (f != NULL)
     {
         todoOk = (fwrite(eliminado, sizeof(Cliente), 1, f) == 1);
-        fclose(f);
+        if(fclose(f)!= 0){
+            perror("ERROR al cerrar archivo.");
+            todoOk = false;
+        }
     }
     return todoOk;
 }
@@ -1302,7 +1328,9 @@ void listaBajas(void)
         {
             puts("  [INFO] El archivo de bajas se encuentra vacio.");
         }
-        fclose(f);
+        if(fclose(f)!= 0){
+            perror("ERROR al cerrar archivo.");
+        }
     }
     else
     {
@@ -1335,10 +1363,16 @@ void generarReporteCliente(Cliente cliente)
             {
                 imprimirMovimiento(txt, cliente, reg);
             }
-            fclose(f);
+            if(fclose(f)!= 0){
+            perror("ERROR al cerrar archivo.");
         }
-        fclose(txt);
-        printf("\n  [OK] Comprobante exportado exitosamente en '%s'.\n", RUTA_REPORTE_MOVIMIENTOS);
+        }
+        if(fclose(txt)!= 0){
+            perror("ERROR al cerrar archivo.");
+        }else{
+
+            printf("\n  [OK] Comprobante exportado exitosamente en '%s'.\n", RUTA_REPORTE_MOVIMIENTOS);
+        }
     }
     else
     {
@@ -1389,8 +1423,12 @@ void generarReporteSistema(Cliente listUser[], int cantUsuarios)
                     listUser[i].datosBanco.esPyme ? "Pyme" : "Cliente normal");
             fprintf(f, "--------------------------------------------------------\n");
         }
-        fclose(f);
-        printf("\n  [OK] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTES_CLIENTE);
+        if(fclose(f)!= 0){
+            perror("ERROR al cerrar archivo.");
+        }else{
+
+            printf("\n  [OK] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTES_CLIENTE);
+        }
     }
     else
     {
