@@ -41,7 +41,8 @@
 #define RUTA_USUARIOS "../data/Usuarios.dat"
 #define RUTA_MOVIMIENTOS "../data/movimientos.dat"
 #define RUTA_BAJAS "../data/bajas.dat"
-#define RUTA_REPORTES_CLIENTE "../data/reportesAdmin.txt"
+#define RUTA_REPORTES_CLIENTE "../data/reportesCliente.txt"
+#define RUTA_REPORTE_SISTEMA "../data/reportesAdmin.txt"
 
 #define ADMIN "admin"
 #define SALDO 1
@@ -151,6 +152,7 @@ bool registrarMovimientos(Movimientos reg[], int cant);
 bool registrarBaja(Cliente *eliminado);
 void listaBajas();
 void generarReporteSistema(Cliente listUser[], int cantUsuarios);
+void generarReporteCliente(Cliente cliente);
 void imprimirMovimiento(FILE *txt, Cliente cliente, Movimientos reg);
 
 /////////////////// UTILIDADES ///////////////////
@@ -954,7 +956,7 @@ void imprimirMovimiento(FILE *txt, Cliente cliente, Movimientos reg)
 
 void generarReporteSistema(Cliente listUser[], int cantUsuarios)
 {
-    FILE *f = fopen(RUTA_REPORTES_CLIENTE, "w");
+    FILE *f = fopen(RUTA_REPORTE_SISTEMA, "w");
 
     if (f != NULL)
     {
@@ -972,7 +974,7 @@ void generarReporteSistema(Cliente listUser[], int cantUsuarios)
                     listUser[i].datosBanco.esPyme ? "Pyme" : "Cliente normal");
         }
         fclose(f);
-        printf("\n[SISTEMA] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTES_CLIENTE);
+        printf("\n[SISTEMA] Reporte TXT generado exitosamente en '%s'.\n", RUTA_REPORTE_SISTEMA);
     }
     else
     {
