@@ -13,7 +13,6 @@
 #define INTENTO_MAXIMO 3
 
 // Opciones de menus
-#define OPC_SALIDA 0
 #define OPC_MODIFICAR_USU 4
 #define OPC_M_GEST_PERS 6
 #define OPC_M_GEST_CLIENT 6
@@ -342,9 +341,14 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
     } while (!claveCorrecta);
 }
 
+
+
+
+
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUsers)
 {
     printf("\n");
+
     int mesSimulado = leerEnteroEntre(ENERO, DICIEMBRE, "  -> Ingresar mes de operacion [1-12]:");
     system("cls");
     menuVistaCliente(listClientes, posicionActual);
@@ -458,6 +462,7 @@ void retirarDinero(Cliente *clienteActual, int mesSimulado)
     printf("\n=============== EXTRACCION DE DINERO ===============\n");
 
     float maximoRetiro = clienteActual->datosBanco.saldo;
+    
     if (clienteActual->datosBanco.limiteExtraccion < maximoRetiro)
     {
         maximoRetiro = clienteActual->datosBanco.limiteExtraccion;
@@ -472,14 +477,16 @@ void retirarDinero(Cliente *clienteActual, int mesSimulado)
         printf("  Saldo actual: $%.2f | Limite diario disponible: $%.2f\n\n",
                clienteActual->datosBanco.saldo, clienteActual->datosBanco.limiteExtraccion);
 
-        float montoRetirado = leerFloatEntre(
-            MONTO_RETIRO_MIN,
-            maximoRetiro,
-            "  -> Monto a retirar: $",
-            "  [!] El monto no alcanza el minimo de extraccion ($1000).",
-            "  [!] El monto supera su saldo disponible o su limite diario.");
-
-        confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
+        float montoRetirado = leerFloatEntre(MONTO_RETIRO_MIN, maximoRetiro,
+        "  Ingresar 0 para cancelar -> Monto a retirar: $",
+        "  [!] El monto no alcanza el minimo de extraccion ($1000).",
+        "  [!] El monto supera su saldo disponible o su limite diario.");
+        
+        if (montoRetirado != OPC_SALIDA)
+        {
+            confirmarExtraccion(clienteActual, montoRetirado, mesSimulado);
+        }
+        
     }
 }
 
@@ -728,8 +735,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int *opcio
             }
             else
             {
-                verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios,
-                                       obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
+                verificarDatoExistente(nuevo.datosPersonales.DNI, "DNI", baseDatos, cantUsuarios, obtenerDNI, verificarDNI, LONG_MIN_DNI, LONG_MAX_DNI);
                 correcto = true;
             }
             break;
@@ -741,8 +747,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios, int *opcio
             }
             else
             {
-                verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios,
-                                       obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
+                verificarDatoExistente(nuevo.datosBanco.alias, "alias", baseDatos, cantUsuarios, obtenerAlias, verificarAlias, LONG_MIN_ALIAS, LONG_MAX_ALIAS);
                 correcto = true;
             }
             break;
@@ -1216,7 +1221,7 @@ void ordenarUsuarios(Cliente baseDatos[], int cantUsuarios)
     {
         for (int j = i + 1; j < cantUsuarios; j++)
         {
-            if (strcasecmp(baseDatos[i].datosPersonales.apellido, baseDatos[j].datosPersonales.apellido) > 0)
+            if (strcmp(baseDatos[i].datosPersonales.apellido, baseDatos[j].datosPersonales.apellido) > 0)
             {
                 aux = baseDatos[i];
                 baseDatos[i] = baseDatos[j];
@@ -1287,7 +1292,7 @@ int cargarUsuarios(Cliente listUser[]) // la cantidad se lee desde el archivo, n
 
 void guardarUsuarios(Cliente listUser[], int cant)
 {
-    FILE *archivo = archivo = fopen(RUTA_USUARIOS, "wb");
+    FILE *archivo = fopen(RUTA_USUARIOS, "wb");
 
     if (archivo != NULL)
     {
@@ -1469,10 +1474,8 @@ void generarReporteSistema(Cliente listUser[], int cantUsuarios)
  *  7. UTILIDADES
  * ======================================================================== */
 
-// dejalo asi, no saques el fflush
 void limpiarPantalla(void)
 {
-    fflush(stdin);
     system("pause");
     system("cls");
 }
