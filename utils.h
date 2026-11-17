@@ -325,12 +325,15 @@ void leerCadenaEntre(int minLength, int maxLength, cadena mensaje, cadena target
     printf("%s", mensaje);
     fflush(stdin);
     gets(target);
-    while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) // Se castea para que no haya errores si ingresa un numero negativo
+    if (strcmp(target, "0") != 0)
     {
-        puts("Longitud invalida. ");
-        fflush(stdin);
-        printf("%s", mensaje);
-        gets(target);
+        while ((int)strlen(target) < minLength || (int)strlen(target) > maxLength) // Se castea para que no haya errores si ingresa un numero negativo
+        {
+            puts("Longitud invalida. ");
+            fflush(stdin);
+            printf("%s", mensaje);
+            gets(target);
+        }
     }
 }
 
