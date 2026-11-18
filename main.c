@@ -837,28 +837,6 @@ bool esClientePyme(bool *esPyme)
     return respondio;
 }
 
-void verificarDatoExistente(cadena datoBuscado, cadena nomDato, Cliente baseDatos[CANT_USERS], int cantUsuarios, ObtenerCampo campoBuscado, ReglaFormato funcionCondicional, int longMin, int longMax)
-{
-    bool valido = false;
-
-    while (!valido)
-    {
-        if (!funcionCondicional(datoBuscado)){
-            printf("El %s ingresado es invalido.\n", nomDato);
-        }
-        else if (buscarDato(baseDatos, cantUsuarios, datoBuscado, campoBuscado) != USUARIO_INEXISTENTE){
-            printf("El %s ya existe.\n", nomDato);
-        }else{
-            valido = true;
-        }
-
-        if (!valido){
-            printf("Ingresar %s", nomDato);
-            leerCadenaEntre(longMin, longMax, ": ", datoBuscado);
-        }
-    }
-}
-
 /* ========================================================================
  *  4. CONSULTA DE USUARIOS (Read)
  * ======================================================================== */
@@ -1215,19 +1193,6 @@ bool verificarAlias(cadena texto)
     while (valido && texto[posicion] != '\0')
     {
 
-        valido = texto[posicion] == '.' || texto[posicion] == '-' || isalnum((unsigned char)texto[posicion]);
-        posicion++;
-    }
-    return valido;
-}
-
-bool verificaCaracter(char string, char cInicial, char cFinal)
-{
-    int posicion = 0;
-    bool valido = (texto[0] != '\0') && (texto[0] != ' ');
-
-    while (valido && texto[posicion] != '\0')
-    {
         valido = texto[posicion] == '.' || texto[posicion] == '-' || isalnum((unsigned char)texto[posicion]);
         posicion++;
     }
