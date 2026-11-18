@@ -1,0 +1,41 @@
+========================================================
+       BANCO ABRAXAS - HISTORIAL DE TRANSFERENCIAS      
+========================================================
+Titular: Esteban Quinteros | Alias: esteban.q
+--------------------------------------------------------
+
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 4
+Monto Transferido      : $10000.00
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 3
+Monto Transferido      : $40.00
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : Juam1989
+Mes de Operacion       : 3
+Monto Transferido      : $4300.00
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 4
+Monto Transferido      : $18504.82
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 4
+Monto Transferido      : $2000.00
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 1
+Monto Transferido      : $2000.00
+--------------------------------------------------------
+Cuenta Origen/Asociada : Esteban Quinteros (esteban.q)
+Alias Contraparte      : alex.r
+Mes de Operacion       : 2
+Monto Transferido      : $2000.00
+--------------------------------------------------------

@@ -3,6 +3,9 @@
 #include <ctype.h>
 #include <stdbool.h>      // Para usar el tipo de dato bool
 #include <string.h>       // Este #include servirá para más adelante…
+
+#define OPC_SALIDA 0
+
 typedef char cadena[200]; // Para tratar a los arrays de chars como 'cadena'
 
 ///////////////////////////////////////////////////////////////////////////
@@ -15,13 +18,12 @@ char leerCaracter(cadena mensaje);
 int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje);
 float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ);
 bool confirmaUsuario(cadena mensaje);
-void comprobarEntero(int *num);
-void comprobarFloat(float *num);
+int comprobarEntero(cadena mensaje);
 //////////////////////  FUNCIONES EXTRAS  /////////////////////////////////////
 
 int cantDivisores_NumeroEntero(int numero);
-int Porcentaje(int cantEspecifica, int cantTotal);
-float Promedio(float sumConjunto, int divCantTotal);
+int porcentaje(int cantEspecifica, int cantTotal);
+float pomedio(float sumConjunto, int divCantTotal);
 void imprimirSimbolo(int cantSimbolos, char simbolo);
 void cadenaAPascal(cadena campo);
 
@@ -79,35 +81,24 @@ int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje)
     /* Muestra el mensaje al usuario. Luego lee enteros mientras éstos estén
        fuera del rango [valorMin, valorMax] informando al usuario de
        su error. Cuando finalmente lea un entero válido, lo retorna */
-    int numero;
-    printf("%s", mensaje);
-    comprobarEntero(&numero);
+    int numero = comprobarEntero(mensaje);
     while (numero < valorMin || numero > valorMax)
     {
         printf("Error. El valor ingresado no esta dentro del rango de %d y %d\n", valorMin, valorMax);
         printf("%d %d %s", valorMin, valorMax, mensaje);
-        comprobarEntero(&numero);
+        numero = comprobarEntero(mensaje);
     }
     return numero;
 }
-void comprobarEntero(int *num)
+int comprobarEntero(cadena mensaje)
 {
-    fflush(stdin);
-    while (scanf("%d", num) != 1)
+    int num = leerEntero(mensaje);
+    while (isdigit(num) != 0)
     {
         puts("Tenés que ingresar un número.");
-        fflush(stdin);
+        num = leerEntero(mensaje);
     }
-}
-
-void comprobarFloat(float *num)
-{
-    fflush(stdin);
-    while (scanf("%f", num) != 1)
-    {
-        puts("Error: Tenes que ingresar un numero valido, no letras.");
-        fflush(stdin);
-    }
+    return num;
 }
 
 float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ)
@@ -115,23 +106,24 @@ float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena meno
     /* Muestra el mensaje al usuario. Luego, lee floats mientras éstos estén
        fuera del rango [valorMin, valorMax] informando al usuario de
        su error. Cuando finalmente lea un float válido, lo retorna */
-    float numero;
-    printf("%s", mensaje);
-    comprobarFloat(&numero);
+    float numero = leerFloat(mensaje);
 
-    while (numero < valorMin || numero > valorMax)
+    if (numero != (float)OPC_SALIDA)
     {
-        if (numero < valorMin)
+        while (numero < valorMin || numero > valorMax)
         {
-            puts(menorQ);
+            if (numero < valorMin)
+            {
+                puts(menorQ);
+            }
+            if (numero > valorMax)
+            {
+                puts(mayorQ);
+            }
+            numero = leerFloat(mensaje);
         }
-        if (numero > valorMax)
-        {
-            puts(mayorQ);
-        }
-        printf("%s", mensaje);
-        comprobarFloat(&numero);
     }
+    
     return numero;
 }
 
@@ -158,7 +150,7 @@ bool confirmaUsuario(cadena mensaje)
     return (strcmp(respuesta, "Si") == 0);
 }
 
-float Promedio(float sumConjunto, int divCantTotal)
+float pomedio(float sumConjunto, int divCantTotal)
 {
     return (sumConjunto / divCantTotal);
 }
@@ -177,7 +169,7 @@ int cantDivisores_NumeroEntero(int numero)
 
     return cantDiv;
 }
-int Porcentaje(int cantEspecifica, int cantTotal)
+int porcentaje(int cantEspecifica, int cantTotal)
 {
     return ((cantEspecifica * 100) / cantTotal);
 }

@@ -179,6 +179,15 @@ void limpiarPantalla(void);
  *  FUNCION PRINCIPAL (CAJA LIMPIA)
  * ======================================================================== */
 
+
+void reiniciarLimiteExtracciones(Cliente listUser[], int cant){
+    for (int i = 0; i < cant; i++)
+    {
+        listUser[i].datosBanco.limiteExtraccion = LIMITE_EXTRACION;
+    }
+}
+
+
 int main(void)
 {
     _mkdir(CARPETA_DATA);
@@ -187,6 +196,7 @@ int main(void)
 
     int cantClientes = 0;
     int cantidadLeida = cargarUsuarios(listUser);
+    reiniciarLimiteExtracciones(listUser, cantidadLeida);
 
     if (cantidadLeida >= 0)
     {
@@ -282,7 +292,7 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 
         do
         {
-            leerCadena("-> Usuario / Alias:", usuario);
+            leerCadena("-> Usuario / Alias: ", usuario);
             esAdmin = (strcmp(usuario, ADMIN) == 0);
 
             posActual = esAdmin ? USUARIO_INEXISTENTE : buscarDato(listUser, *cantUsuarios, usuario, obtenerAlias);
@@ -340,10 +350,6 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
         }
     } while (!claveCorrecta);
 }
-
-
-
-
 
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUsers)
 {
