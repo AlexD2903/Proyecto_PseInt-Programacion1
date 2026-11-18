@@ -188,15 +188,6 @@ void empezar(int* cantClientes, Cliente listUser[]);
  *  FUNCION PRINCIPAL (CAJA LIMPIA)
  * ======================================================================== */
 
-
-void reiniciarLimiteExtracciones(Cliente listUser[], int cant){
-    for (int i = 0; i < cant; i++)
-    {
-        listUser[i].datosBanco.limiteExtraccion = LIMITE_EXTRACION;
-    }
-}
-
-
 int main(void)
 {
     _mkdir(CARPETA_DATA);
@@ -205,10 +196,10 @@ int main(void)
 
     int cantClientes = 0;
     int cantidadLeida = cargarUsuarios(listUser);
-    reiniciarLimiteExtracciones(listUser, cantidadLeida);
 
     if (cantidadLeida >= 0)
     {
+        cantClientes = cantidadLeida;
         limpiarPantalla();
         empezar(&cantClientes, listUser);
     }
@@ -371,7 +362,7 @@ void iniciarSesion(Cliente listUser[], int *cantUsuarios)
 void menuGestionDeCliente(Cliente listClientes[], int posicionActual, int cantUsers)
 {
     printf("\n");
-
+    listClientes[posicionActual].datosBanco.limiteExtraccion = LIMITE_EXTRACION;
     int mesSimulado = leerEnteroEntre(ENERO, DICIEMBRE, "  -> Ingresar mes de operacion [1-12]:");
     system("cls");
     menuVistaCliente(listClientes, posicionActual);
