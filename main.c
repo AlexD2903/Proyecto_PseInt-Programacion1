@@ -141,7 +141,7 @@ void modificarUsuario(Cliente listUser[CANT_USERS], int *cantUsuarios);
 void cambiarDatoDeUsuario(cadena texto, int posUsuario, Cliente usuario[], int tipoDato, int cantidad);
 void bajaUsuario(Cliente listUser[], int *cantUsuarios);
 void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios);
-void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser);
+void eliminarUsuario(Cliente listUser[], int posUser);
 
 // 4. Busqueda, Ordenamiento y Validaciones
 int posicionPorDNI(Cliente listUser[], int cantUsuarios);
@@ -385,7 +385,7 @@ void menuGestionarPersonal(Cliente list[], int *cantUsuarios)
     int opcion = 0;
 
     vistaGestionPersonal();
-    opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_CLIENT, "  Seleccione una opcion: ");
+    opcion = leerEnteroEntre(OPC_SALIDA, OPC_M_GEST_PERS, "  Seleccione una opcion: ");
     while (opcion != OPC_SALIDA)
     {
         switch (opcion)
@@ -634,7 +634,7 @@ void verMovimientos(Cliente *cliente)
         int mes = leerEnteroEntre(ENERO, DICIEMBRE, "  -> Ingrese el mes a consultar [1-12]: ") - 1;
         printf("\n  --------------------------------------------------\n");
 
-        switch (opcion + 1)
+        switch (opcion)
         {
         case DEPOSITOS:
             printf("  Total depositado en %s: +$%.2f\n",
@@ -711,7 +711,7 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
         }
     } while (!nombreValido);
     cadenaAPascal(nuevo.datosPersonales.nombre);
-    //bool letras = isalpha((unsigned char)alias[posicion]);
+    // bool letras = isalpha((unsigned char)alias[posicion]);
     leerCadenaEntre(LONG_MIN_APE, LONG_MAX_APE, "Ingrese apellido: ", nuevo.datosPersonales.apellido);
     cadenaAPascal(nuevo.datosPersonales.apellido);
 
@@ -730,9 +730,9 @@ Cliente nuevoUsuario(Cliente baseDatos[CANT_USERS], int cantUsuarios)
     return nuevo;
 }
 
-//¿Qué es esto?
-void verificarDatoPersonal(cadena datoPersonal){
-    
+// ¿Qué es esto?
+void verificarDatoPersonal(cadena datoPersonal)
+{
 }
 
 void agregarUsuario(Cliente new, Cliente baseDatos[CANT_USERS], int *cantUsuarios)
@@ -929,17 +929,37 @@ void bajaUsuario(Cliente listUser[], int *cantUsuarios)
 
         if (posUsuario != USUARIO_INEXISTENTE)
         {
-            printf("\n  Verificacion de seguridad para dar de baja a %s %s:",
-                   listUser[posUsuario].datosPersonales.nombre),
-                listUser[posUsuario].datosPersonales.apellido;
-
-            if (verificacionClave(listUser[posUsuario]))
+            if (listUser[posUsuario].datosBanco.saldo > 0)
             {
-                confirmarEliminacion(listUser, posUsuario, cantUsuarios);
+                printf("Error. No se puede dar de baja una cuenta con fondos");
             }
             else
             {
-                printf("\n  [!] Cantidad maxima de intentos superada. Baja cancelada.");
+                printf("\n  Verificacion de seguridad para dar de baja a %s %s:",
+                       listUser[posUsuario].datosPersonales.nombre),
+                    listUser[posUsuario].datosPersonales.apellido;
+
+                cadena admin;
+                leerCadena("Ingrese su alias/usuario", admin);
+                int posAdmin = buscarDato(listUser, cantUsuarios, admin, obtenerAlias);
+
+                if (strcmp(admin, ADMIN) == 0)
+                {
+                    cadena claveAdmin;
+
+                    do
+                    {
+                        leerCadena("Ingrese la clave de admnistrador para continuar con la baja", claveAdmin);
+                    } while (claveAdmin != ADMIN);
+                }
+                else if (verificacionClaveAdmin(listUser[posAdmin]))
+                {
+                    confirmarEliminacion(listUser, posAdmin, cantUsuarios);
+                }
+                else
+                {
+                    printf("\n  [!] Cantidad maxima de intentos superada. Baja cancelada.");
+                }
             }
         }
         else
@@ -966,7 +986,7 @@ void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios)
     {
         if (registrarBaja(&listUser[posUsuario]))
         {
-            eliminarUsuario(listUser, posUsuario, cantUsuarios);
+            eliminarUsuario(listUser, posUsuario);
             puts("\n  [OK] Usuario dado de baja y archivado en bajas.dat con exito.");
         }
         else
@@ -980,14 +1000,9 @@ void confirmarEliminacion(Cliente listUser[], int posUsuario, int *cantUsuarios)
     }
 }
 
-void eliminarUsuario(Cliente listUser[], int posUser, int *cantUser)
+void eliminarUsuario(Cliente listUser[], int posUser)
 {
-    for (int i = posUser; i < (*cantUser - 1); i++)
-    {
-        listUser[i] = listUser[i + 1];
-    }
-
-    (*cantUser)--;
+    strcpy(listUser[posUser].datosPersonales.DNI, '\0');
 }
 
 /* ========================================================================
@@ -1046,6 +1061,28 @@ bool verificacionClave(Cliente usuario)
     do
     {
         leerCadena("\n  -> Ingrese la clave del cliente: ", claveAux);
+        respuesta = strcmp(usuario.datosBanco.clave, claveAux) == 0;
+
+        if (!respuesta)
+        {
+            contadorIntentos++;
+            printf("  [!] Clave incorrecta (%d/%d intentos).\n", contadorIntentos, INTENTO_MAXIMO);
+        }
+    } while (!respuesta && contadorIntentos < INTENTO_MAXIMO);
+
+    return respuesta;
+}
+
+bool verificacionClaveAdmin(Cliente usuario)
+{
+
+    int contadorIntentos = 0;
+    bool respuesta = false;
+    cadena claveAux;
+
+    do
+    {
+        leerCadena("\n  -> Ingrese clave de administrador: ", claveAux);
         respuesta = strcmp(usuario.datosBanco.clave, claveAux) == 0;
 
         if (!respuesta)
