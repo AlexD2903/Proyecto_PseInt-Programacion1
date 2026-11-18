@@ -18,7 +18,6 @@ char leerCaracter(cadena mensaje);
 int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje);
 float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ);
 bool confirmaUsuario(cadena mensaje);
-int comprobarEntero(cadena mensaje);
 //////////////////////  FUNCIONES EXTRAS  /////////////////////////////////////
 
 int cantDivisores_NumeroEntero(int numero);
@@ -81,24 +80,14 @@ int leerEnteroEntre(int valorMin, int valorMax, cadena mensaje)
     /* Muestra el mensaje al usuario. Luego lee enteros mientras éstos estén
        fuera del rango [valorMin, valorMax] informando al usuario de
        su error. Cuando finalmente lea un entero válido, lo retorna */
-    int numero = comprobarEntero(mensaje);
+    int numero = leerEntero(mensaje);
     while (numero < valorMin || numero > valorMax)
     {
         printf("Error. El valor ingresado no esta dentro del rango de %d y %d\n", valorMin, valorMax);
         printf("%d %d %s", valorMin, valorMax, mensaje);
-        numero = comprobarEntero(mensaje);
+        numero = leerEntero(mensaje);
     }
     return numero;
-}
-int comprobarEntero(cadena mensaje)
-{
-    int num = leerEntero(mensaje);
-    while (isdigit(num) != 0)
-    {
-        puts("Tenés que ingresar un número.");
-        num = leerEntero(mensaje);
-    }
-    return num;
 }
 
 float leerFloatEntre(float valorMin, float valorMax, cadena mensaje, cadena menorQ, cadena mayorQ)
